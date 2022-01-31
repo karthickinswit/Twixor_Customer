@@ -10,7 +10,10 @@ import 'package:twixor_customer/models/ChatSummaryModel.dart';
 import 'package:twixor_customer/models/chatMessageModel.dart';
 import 'package:twixor_customer/models/chatUsersModel.dart';
 
-String url = 'https://aim.twixor.com/e/enterprises/';
+const APP_URL =
+    String.fromEnvironment('APP_URL', defaultValue: 'aim.twixor.com');
+String url = APP_URL + '/e/enterprises/';
+
 String authToken =
     "P11FI/5sJrC08gVXgVsbZpJI8xHugmxj/+LYQc521vwfXZJCEMLuKFgxM9RtZPcl";
 String socketToken =
@@ -86,7 +89,7 @@ Future<List<ChatUsers>> getChatUserLists() async {
 
 Future<ChatUsers?> getChatUserInfo(String ChatId) async {
   final response = await http.get(
-      Uri.parse('https://aim.twixor.com/c/enterprises/103/chat/' + ChatId),
+      Uri.parse(APP_URL + '/c/enterprises/103/chat/' + ChatId),
       headers: {'authentication-token': await customerRegisterInfo()});
   ChatUsers? chatUserData;
   print(response.headers.toString());
@@ -115,13 +118,13 @@ newChatCreate() async {
   var map = new Map<String, dynamic>();
   map['stickySession'] = 'false';
 
-  final response = await http.post(
-      Uri.parse('https://aim.twixor.com/c/enterprises/103/chat/create'),
-      headers: {
-        'authentication-token': await customerRegisterInfo(),
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: map);
+  final response =
+      await http.post(Uri.parse(APP_URL + '/c/enterprises/103/chat/create'),
+          headers: {
+            'authentication-token': await customerRegisterInfo(),
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: map);
   ChatUsers? chatUserData;
 
   print(response.headers.toString());
@@ -146,9 +149,8 @@ customerRegisterInfo() async {
   map['enterprisesToSubscribe'] = '{"eIds":[103]}';
   map['clearMsgs'] = 'true';
 
-  final response = await http.post(
-      Uri.parse('https://aim.twixor.com/account/customer/register'),
-      body: map);
+  final response = await http
+      .post(Uri.parse(APP_URL + '/account/customer/register'), body: map);
   ChatUsers? chatUserData;
 
   print(response.headers.toString());
@@ -168,8 +170,8 @@ uploadmage(
     'authentication-token':
         'D+hsmfpocX0zksWgM8BC+5JI8xHugmxj/+LYQc521vwfXZJCEMLuKFgxM9RtZPcl'
   };
-  var request = http.MultipartRequest(
-      'POST', Uri.parse("https://aim.twixor.com/e/drive/upload"));
+  var request =
+      http.MultipartRequest('POST', Uri.parse(APP_URL + "/e/drive/upload"));
   request.fields.addAll({'message': 'Cat03.jpg', 'multipart': 'image/jpeg'});
   request.files
       .add(await http.MultipartFile.fromPath('file', objFile.path.toString()));
