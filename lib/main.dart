@@ -11,11 +11,11 @@ import 'API/apidata-service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const CustomerApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class CustomerApp extends StatelessWidget {
+  const CustomerApp({Key? key}) : super(key: key);
   @override
 
   // This widget is the root of your application.
