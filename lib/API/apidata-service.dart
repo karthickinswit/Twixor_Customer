@@ -11,7 +11,7 @@ import 'package:twixor_customer/models/chatMessageModel.dart';
 import 'package:twixor_customer/models/chatUsersModel.dart';
 
 const APP_URL =
-    String.fromEnvironment('APP_URL', defaultValue: 'aim.twixor.com');
+    String.fromEnvironment('APP_URL', defaultValue: 'https://aim.twixor.com');
 String url = APP_URL + '/e/enterprises/';
 
 String authToken =

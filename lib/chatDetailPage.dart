@@ -65,6 +65,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   ChatUsers? userdata;
   Attachment? attachment;
   List<ChatAgent>? chatAgents;
+  static const APP_URL =
+      String.fromEnvironment('APP_URL', defaultValue: 'https://aim.twixor.com');
 
   // Attachment? attachments;
 
@@ -473,17 +475,19 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                     url: attachment!.url,
                     attachment: attachment,
                     eId: eId,
-                    actionType: "3",
+                    actionType: "1",
                     actionBy: actionBy!,
                     actedOn: new DateTime.now().toUtc().toString()));
-                print(messages![messages!.length - 1].isUrl);
+                //  print(messages![messages!.length - 1].isUrl);
                 sendmessage(SendMessage(
-                  action: "customerReplyChat",
-                  actionBy: int.parse(actionBy!),
+                  action: actionBy != ""
+                      ? "customerReplyChat"
+                      : "customerStartChat",
+                  actionBy: actionBy != "" ? int.parse(actionBy!) : 0,
                   actionType: 1,
                   attachment: attachment,
                   chatId: chatId!,
-                  contentType: "IMAGE",
+                  contentType: attachment!.type,
                   eId: int.parse(eId!),
                 ));
                 setState(() {
@@ -1026,7 +1030,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                             child: SizedBox.fromSize(
                               size: Size.fromRadius(48), // Image radius
                               child: Image.network(
-                                  'https://aim.twixor.com/drive/docs/61eba0785d9c400b3c6a8dcf',
+                                  APP_URL +
+                                      '/drive/docs/61eba0785d9c400b3c6a8dcf',
                                   fit: BoxFit.cover),
                             ),
                           ),
@@ -1128,7 +1133,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       channel = await IOWebSocketChannel.connect("wss://aim.twixor.com/actions",
           headers: mainheader);
       channel.stream.listen(
-        (message) {
+        (message) async {
           print(message.toString());
           var message1 = json.decode(message);
           if (message1["action"] == "onOpen") {
@@ -1139,10 +1144,12 @@ class _ChatDetailPageState extends State<ChatDetailPage>
             print("Message sent Socket");
             var json = SocketResponse.fromJson(message1);
             List<ChatMessage> k = json.content![0].response!.chat!.messages!;
+
 //ChatUsers h=
 
             setState(() {
               // messages!.addAll(k);
+
               //attachmentData = "";
               //attachment = null;
 
@@ -1155,10 +1162,10 @@ class _ChatDetailPageState extends State<ChatDetailPage>
             var json = SocketResponse.fromJson(message1);
             if (json.content![0].response!.users![1].name == userdata!.name) {
               List<ChatMessage> k = json.content![0].response!.chat!.messages!;
-//ChatUsers h=
 
               setState(() {
                 messages!.addAll(k);
+
                 //attachmentData = "";
                 //attachment = null;
 
@@ -1167,15 +1174,15 @@ class _ChatDetailPageState extends State<ChatDetailPage>
               });
               print("haai");
             }
-          } else if (message1 == "customerStartChat") {
+          } else if (message1["action"] == "customerStartChat") {
             print("Customer Start Chat");
             var json = SocketResponse.fromJson(message1);
             if (json.content![0].response!.users![1].name == userdata!.name) {
-              List<ChatMessage> k = json.content![0].response!.chat!.messages!;
+              // List<ChatMessage> k = json.content![0].response!.chat!.messages!;
 //ChatUsers h=
 
               setState(() {
-                messages!.addAll(k);
+                //messages!.addAll(k);
                 //attachmentData = "";
                 //attachment = null;
 
@@ -1184,8 +1191,25 @@ class _ChatDetailPageState extends State<ChatDetailPage>
               });
             }
             //return message;
-          } else if (message1 == "waitingInviteAccept") {
-            print("waitingInviteAccept");
+          } else if (message1["action"] == "agentPickupChat") {
+            var json = SocketResponse.fromJson(message1);
+            var chatId = json.content![0].response!.chat!.chatId;
+            if (chatId == userdata!.chatId) {
+              ChatUsers? k = await getChatUserInfo(chatId!);
+              // List<ChatAgent> m =
+              //     message1["content"][1].response!.users!.cast<ChatAgent>();
+              //userdata = k;
+              setState(() {
+                messages!.addAll(k!.messages!);
+                //  this.chatAgents = m.cast<ChatAgent>();
+                //attachmentData = "";
+                //attachment = null;
+
+                setState(() {});
+                _scrollToEnd();
+              });
+            }
+            print("agentPickupChat");
           } else if (message1 == "waitingTransferAccept") {
             print("waitingTransferAccept");
           }
@@ -1223,7 +1247,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 
     final request = http.MultipartRequest(
       "POST",
-      Uri.parse("https://aim.twixor.com/e/drive/upload"),
+      Uri.parse(APP_URL + "/e/drive/upload"),
     );
     request.headers.addAll(headers);
     //-----add other fields if needed

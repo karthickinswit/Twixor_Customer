@@ -164,7 +164,8 @@ Future<void> sendmessage(SendMessage sendMessage) async {
   data["action"] = sendMessage.action;
   // data["actionBy"] = sendMessage.actionBy;
   // data["actionType"] = sendMessage.actionType;
-  //data["attachment"] =sendMessage.attachment!.url != null ? sendMessage.attachment : {};
+  // data["attachment"] =
+  //     sendMessage.attachment!.url != null ? sendMessage.attachment : {};
   data["chatId"] = sendMessage.chatId;
   data["contentType"] = sendMessage.contentType;
   data["eId"] = sendMessage.eId;
