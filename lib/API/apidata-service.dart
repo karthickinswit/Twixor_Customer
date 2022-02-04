@@ -10,14 +10,15 @@ import 'package:twixor_customer/models/ChatSummaryModel.dart';
 import 'package:twixor_customer/models/chatMessageModel.dart';
 import 'package:twixor_customer/models/chatUsersModel.dart';
 
-const APP_URL =
-    String.fromEnvironment('APP_URL', defaultValue: 'https://aim.twixor.com');
-String url = APP_URL + '/e/enterprises/';
+const APP_URL = String.fromEnvironment('APP_URL',
+    defaultValue: 'https://qa.twixor.digital/moc');
+String url = APP_URL + '/c/enterprises/';
+String eId = "375";
 
 String authToken =
     "P11FI/5sJrC08gVXgVsbZpJI8xHugmxj/+LYQc521vwfXZJCEMLuKFgxM9RtZPcl";
 String socketToken =
-    'D+hsmfpocX0zksWgM8BC+5JI8xHugmxj/+LYQc521vwfXZJCEMLuKFgxM9RtZPcl';
+    'BgLEkVzBi6r3Bx0bed4moFE04H/JWlVmcbODDnTw448fXZJCEMLuKFgxM9RtZPcl';
 Map<String, String> mainheader = {
   "Content-Type": "application/json",
   "authentication-token": authToken
@@ -88,9 +89,11 @@ Future<List<ChatUsers>> getChatUserLists() async {
 }
 
 Future<ChatUsers?> getChatUserInfo(String ChatId) async {
+  var token = await customerRegisterInfo();
   final response = await http.get(
-      Uri.parse(APP_URL + '/c/enterprises/103/chat/' + ChatId),
-      headers: {'authentication-token': await customerRegisterInfo()});
+      Uri.parse(APP_URL + '/c/enterprises/' + eId + '/chat/' + ChatId),
+      headers: {'authentication-token': token});
+  socketToken = token;
   ChatUsers? chatUserData;
   print(response.headers.toString());
   if (response.statusCode == 200) {
@@ -118,13 +121,13 @@ newChatCreate() async {
   var map = new Map<String, dynamic>();
   map['stickySession'] = 'false';
 
-  final response =
-      await http.post(Uri.parse(APP_URL + '/c/enterprises/103/chat/create'),
-          headers: {
-            'authentication-token': await customerRegisterInfo(),
-            'Content-Type': 'application/x-www-form-urlencoded'
-          },
-          body: map);
+  final response = await http.post(
+      Uri.parse(APP_URL + '/c/enterprises/' + eId + '/chat/create'),
+      headers: {
+        'authentication-token': await customerRegisterInfo(),
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: map);
   ChatUsers? chatUserData;
 
   print(response.headers.toString());
@@ -138,15 +141,15 @@ newChatCreate() async {
 
 customerRegisterInfo() async {
   var map = new Map<String, dynamic>();
-  map['name'] = '8190083902';
-  map['phoneNumber'] = '8190083902';
+  map['name'] = '7904567161';
+  map['phoneNumber'] = '+917904567161';
   map['countryCode'] = '+91';
   map['countryAlpha2Code'] = 'IN';
   map['needVerification'] = 'false';
 
   map['byInvitation'] = 'false';
   map['subscribeToAll'] = 'true';
-  map['enterprisesToSubscribe'] = '{"eIds":[103]}';
+  map['enterprisesToSubscribe'] = '{"eIds":[375]}';
   map['clearMsgs'] = 'true';
 
   final response = await http

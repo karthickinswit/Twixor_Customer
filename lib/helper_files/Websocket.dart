@@ -73,7 +73,7 @@ channelconnect() {
       "authentication-token": authToken
     };
 
-    channel = IOWebSocketChannel.connect("wss://aim.twixor.com/actions",
+    channel = IOWebSocketChannel.connect("wss://qa.twixor.digital/moc/actions",
         headers: mainheader);
 
     //channel IP : Port\\"ws://192.168.0.109:6060/$myid"
@@ -113,7 +113,7 @@ getSocketResponse(String msgAction) async {
       "authentication-token": authToken
     };
 
-    channel = IOWebSocketChannel.connect("wss://aim.twixor.com/actions",
+    channel = IOWebSocketChannel.connect("wss://qa.twixor.digital/moc/actions",
         headers: mainheader);
     channel.stream.listen(
       (message) {
@@ -157,7 +157,7 @@ Future<void> sendmessage(SendMessage sendMessage) async {
     "Content-type": "application/json",
     "authentication-token": socketToken
   };
-  channel = IOWebSocketChannel.connect("wss://aim.twixor.com/actions",
+  channel = IOWebSocketChannel.connect("wss://qa.twixor.digital/moc/actions",
       headers: mainheader); //channel IP : Port\\"ws://192.168.0.109:6060/$myid"
 
   var data = {};

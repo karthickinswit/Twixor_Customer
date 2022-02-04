@@ -3,12 +3,14 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:twixor_customer/chatDetailPage.dart';
-import 'package:twixor_customer/helper_files/VideoThumbnail.dart';
+
 import 'package:twixor_customer/models/chatUsersModel.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import 'API/apidata-service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'helper_files/FileReader.dart';
 
 void main() {
   runApp(const CustomerApp());
@@ -19,6 +21,10 @@ class CustomerApp extends StatelessWidget {
   @override
 
   // This widget is the root of your application.
+  Future<void> requestPermission(Permission permission) async {
+    final status = await permission.request();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -173,8 +179,14 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   FloatingActionButton(
                     onPressed: () => {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => ThumbApp()))
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  FileApp())) //FileReaderPage(
+                      //       filePath:
+                      //           'storage/emulated/0/Download/twixor_agent/sample document.pdf',
+                      //     )))
                     },
                     tooltip: 'Increment',
                     child: const Icon(

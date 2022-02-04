@@ -9,6 +9,7 @@ import 'package:http_parser/http_parser.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:open_file/open_file.dart';
 import 'package:twixor_customer/API/apidata-service.dart';
 
 import 'package:twixor_customer/models/SendMessageModel.dart';
@@ -65,8 +66,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   ChatUsers? userdata;
   Attachment? attachment;
   List<ChatAgent>? chatAgents;
-  static const APP_URL =
-      String.fromEnvironment('APP_URL', defaultValue: 'https://aim.twixor.com');
+  static const APP_URL = String.fromEnvironment('APP_URL',
+      defaultValue: 'http://qa.twixor.digital/moc');
 
   // Attachment? attachments;
 
@@ -890,10 +891,10 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         if (messages![index].messageContent != "") {
           if (await canLaunch(urlLink!)) launch(urlLink);
         } else {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (_) => WebViewEx(messages![index].attachment)));
+          var tempPath = await StoredtoFile(
+              messages![index].attachment!.url!.toString(),
+              messages![index].attachment!.name.toString());
+          OpenFile.open(tempPath.toString());
         }
       },
     );
@@ -1130,7 +1131,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         "authentication-token": socketToken
       };
 
-      channel = await IOWebSocketChannel.connect("wss://aim.twixor.com/actions",
+      channel = await IOWebSocketChannel.connect(
+          "wss://qa.twixor.digital/moc/actions",
           headers: mainheader);
       channel.stream.listen(
         (message) async {
@@ -1196,12 +1198,12 @@ class _ChatDetailPageState extends State<ChatDetailPage>
             var chatId = json.content![0].response!.chat!.chatId;
             if (chatId == userdata!.chatId) {
               ChatUsers? k = await getChatUserInfo(chatId!);
-              // List<ChatAgent> m =
-              //     message1["content"][1].response!.users!.cast<ChatAgent>();
+              List<ChatAgent> m = json.content![0].response!.users!;
+
               //userdata = k;
               setState(() {
                 messages!.addAll(k!.messages!);
-                //  this.chatAgents = m.cast<ChatAgent>();
+                this.chatAgents = m.cast<ChatAgent>();
                 //attachmentData = "";
                 //attachment = null;
 

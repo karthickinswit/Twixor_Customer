@@ -1,3 +1,5 @@
+import 'package:twixor_customer/models/chatUsersModel.dart';
+
 import 'chatMessageModel.dart';
 
 class SocketResponse {
@@ -60,16 +62,16 @@ class Content {
 
 class Response {
   Chat? chat;
-  List<Users>? users;
+  List<ChatAgent>? users;
 
   Response({this.chat, this.users});
 
   Response.fromJson(Map<String, dynamic> json) {
     chat = json['chat'] != null ? new Chat.fromJson(json['chat']) : null;
     if (json['users'] != null) {
-      users = <Users>[];
+      users = <ChatAgent>[];
       json['users'].forEach((v) {
-        users!.add(new Users.fromJson(v));
+        users!.add(new ChatAgent.fromJson(v));
       });
     }
   }
