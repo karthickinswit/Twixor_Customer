@@ -13,7 +13,7 @@ import 'package:twixor_customer/models/chatUsersModel.dart';
 const APP_URL = String.fromEnvironment('APP_URL',
     defaultValue: 'https://qa.twixor.digital/moc');
 String url = APP_URL + '/c/enterprises/';
-String eId = "375";
+String eId = "374";
 
 String authToken =
     "P11FI/5sJrC08gVXgVsbZpJI8xHugmxj/+LYQc521vwfXZJCEMLuKFgxM9RtZPcl";
@@ -141,15 +141,15 @@ newChatCreate() async {
 
 customerRegisterInfo() async {
   var map = new Map<String, dynamic>();
-  map['name'] = '7904567161';
-  map['phoneNumber'] = '+917904567161';
+  map['name'] = '1234';
+  map['phoneNumber'] = '1234';
   map['countryCode'] = '+91';
   map['countryAlpha2Code'] = 'IN';
   map['needVerification'] = 'false';
 
   map['byInvitation'] = 'false';
   map['subscribeToAll'] = 'true';
-  map['enterprisesToSubscribe'] = '{"eIds":[375]}';
+  map['enterprisesToSubscribe'] = '{"eIds":[374]}';
   map['clearMsgs'] = 'true';
 
   final response = await http
@@ -162,34 +162,5 @@ customerRegisterInfo() async {
     var obj = json.decode(response.body.replaceAll("\$", ""));
     var token = obj["response"]["token"];
     return token;
-  }
-}
-
-uploadmage(
-  Attachment attachment,
-  objFile,
-) async {
-  var headers = {
-    'authentication-token':
-        'D+hsmfpocX0zksWgM8BC+5JI8xHugmxj/+LYQc521vwfXZJCEMLuKFgxM9RtZPcl'
-  };
-  var request =
-      http.MultipartRequest('POST', Uri.parse(APP_URL + "/e/drive/upload"));
-  request.fields.addAll({'message': 'Cat03.jpg', 'multipart': 'image/jpeg'});
-  request.files
-      .add(await http.MultipartFile.fromPath('file', objFile.path.toString()));
-  request.headers.addAll(headers);
-
-  var response = await request.send();
-  String result = await response.stream.bytesToString();
-
-  //-------Your response
-  print(result);
-
-  if (response.statusCode == 200) {
-    var temp = await response.stream.asBroadcastStream();
-    print(temp.toString());
-  } else {
-    print(response.reasonPhrase);
   }
 }

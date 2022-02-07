@@ -11,42 +11,6 @@ import 'package:web_socket_channel/io.dart';
 
 import '../chatDetailPage.dart';
 
-class SocketDemo extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() {
-    return ChatPageState();
-  }
-}
-
-class ChatPageState extends State<SocketDemo> {
-  IOWebSocketChannel? channel; //channel varaible for websocket
-  bool? connected; // boolean value to track connection status
-
-  String myid = "222"; //my id
-  String recieverid = "111"; //reciever id
-  // swap myid and recieverid value on another mobile to test send and recieve
-  String auth = "chatapphdfgjd34534hjdfk"; //auth key
-
-  List<MessageData> msglist = [];
-  List<ChatMessage> messages = [];
-
-  TextEditingController msgtext = TextEditingController();
-
-  @override
-  void initState() {
-    connected = false;
-    msgtext.text = "";
-    // channelconnect();
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    throw UnimplementedError();
-  }
-}
-
 class Attachement {
   String? id;
   String? docType;
@@ -63,28 +27,32 @@ class MessageData {
       {required this.msgtext, required this.userid, required this.isme});
 }
 
+IOWebSocketChannel? channel;
+bool SocConnection = false;
+
 channelconnect() {
   //function to connect
-  IOWebSocketChannel? channel;
-  bool connected = false;
+
+  Map<String, String> mainheader = {
+    "Content-type": "application/json",
+    "authentication-token": authToken
+  };
   try {
-    Map<String, String> mainheader = {
-      "Content-type": "application/json",
-      "authentication-token": authToken
-    };
-
-    channel = IOWebSocketChannel.connect("wss://qa.twixor.digital/moc/actions",
+    channel = IOWebSocketChannel.connect(
+        APP_URL.replaceAll("https://", "wss://") + "/actions",
         headers: mainheader);
+  } catch (Exp) {
+    print("SocketError");
+  }
+  //channel IP : Port\\"ws://192.168.0.109:6060/$myid"
+  channel!.stream.listen((message) {
+    print((message.toString()));
+    var message1 = json.decode(message);
+    if (message1["action"] == "onOpen") {
+      SocConnection = true;
 
-    //channel IP : Port\\"ws://192.168.0.109:6060/$myid"
-    // channel.stream.listen(
-    // (message) {
-    //   print((message.toString()));
-    //   var message1 = json.decode(message);
-    //   if (message1["action"] == "onOpen") {
-    //     connected = true;
-
-    //     print("Connection establised.");
+      print("Connection establised.");
+    }
     //   } else if (message1["action"] == "customerReplyChat") {
     //     print("Message sent");
     //   } else if (message1 == "customerStartChat") {
@@ -99,23 +67,22 @@ channelconnect() {
     //if WebSocket is disconnected
     // print("Web socket is closed");
 
-  } catch (_) {
-    print("error on connecting to websocket.");
-  }
-  // return connected;
+    // return connected;
+  });
 }
 
 getSocketResponse(String msgAction) async {
-  IOWebSocketChannel? channel;
+  // IOWebSocketChannel? channel;
   try {
     Map<String, String> mainheader = {
       "Content-type": "application/json",
       "authentication-token": authToken
     };
 
-    channel = IOWebSocketChannel.connect("wss://qa.twixor.digital/moc/actions",
-        headers: mainheader);
-    channel.stream.listen(
+    // channel = IOWebSocketChannel.connect(
+    //     APP_URL.replaceAll("https://", "wss://") + "/actions",
+    //     headers: mainheader);
+    channel!.stream.listen(
       (message) {
         var message1 = json.decode(message);
         if (message1["action"] == "onOpen") {
@@ -150,15 +117,17 @@ getSocketResponse(String msgAction) async {
 }
 
 Future<void> sendmessage(SendMessage sendMessage) async {
-  IOWebSocketChannel? channel;
+  // IOWebSocketChannel? channel;
   bool connected = false;
 
   Map<String, String> mainheader = {
     "Content-type": "application/json",
     "authentication-token": socketToken
   };
-  channel = IOWebSocketChannel.connect("wss://qa.twixor.digital/moc/actions",
-      headers: mainheader); //channel IP : Port\\"ws://192.168.0.109:6060/$myid"
+
+  // channel = IOWebSocketChannel.connect(
+  //     APP_URL.replaceAll("https://", "wss://") + "/actions",
+  //     headers: mainheader); //channel IP : Port\\"ws://192.168.0.109:6060/$myid"
 
   var data = {};
   data["action"] = sendMessage.action;
@@ -172,5 +141,5 @@ Future<void> sendmessage(SendMessage sendMessage) async {
   data["message"] = sendMessage.message;
   data["service"] = "";
   // var temp = print(json.encode(data).toString());
-  channel.sink.add(json.encode(data)); //send message to reciever channel
+  channel!.sink.add(json.encode(data)); //send message to reciever channel
 }

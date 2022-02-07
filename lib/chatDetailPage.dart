@@ -67,7 +67,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   Attachment? attachment;
   List<ChatAgent>? chatAgents;
   static const APP_URL = String.fromEnvironment('APP_URL',
-      defaultValue: 'http://qa.twixor.digital/moc');
+      defaultValue: 'https://qa.twixor.digital/moc');
 
   // Attachment? attachments;
 
@@ -1130,10 +1130,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         "Content-type": "application/json",
         "authentication-token": socketToken
       };
-
-      channel = await IOWebSocketChannel.connect(
-          "wss://qa.twixor.digital/moc/actions",
-          headers: mainheader);
+      var SOUrl = APP_URL.replaceAll("https://", "wss://") + "/actions";
+      channel = await IOWebSocketChannel.connect(SOUrl, headers: mainheader);
       channel.stream.listen(
         (message) async {
           print(message.toString());
@@ -1234,10 +1232,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 
   void uploadSelectedFile(objFile) async {
     //---Create http package multipart request object
-    var headers = {
-      'authentication-token':
-          'D+hsmfpocX0zksWgM8BC+5JI8xHugmxj/+LYQc521vwfXZJCEMLuKFgxM9RtZPcl'
-    };
+    var headers = {'authentication-token': socketToken};
     var mimeType = lookupMimeType(objFile.path);
     var t1 = mimeType.toString().split("/");
 

@@ -11,6 +11,7 @@ import 'API/apidata-service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'helper_files/FileReader.dart';
+import 'helper_files/Websocket.dart';
 
 void main() {
   runApp(const CustomerApp());
@@ -99,6 +100,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     configLoading();
     getPref();
+    channelconnect();
   }
 
   getPref() async {
