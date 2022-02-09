@@ -4,7 +4,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:twixor_customer/helper_files/Websocket.dart';
+import 'package:twixor_customer/helper_files/utilities_files.dart';
 import 'package:twixor_customer/models/Attachmentmodel.dart';
 import 'package:twixor_customer/models/ChatSummaryModel.dart';
 import 'package:twixor_customer/models/chatMessageModel.dart';
@@ -13,23 +15,33 @@ import 'package:twixor_customer/models/chatUsersModel.dart';
 const APP_URL = String.fromEnvironment('APP_URL',
     defaultValue: 'https://qa.twixor.digital/moc');
 String url = APP_URL + '/c/enterprises/';
-String eId = "374";
+const eId = String.fromEnvironment('eid', defaultValue: '374');
 
-String authToken =
-    "P11FI/5sJrC08gVXgVsbZpJI8xHugmxj/+LYQc521vwfXZJCEMLuKFgxM9RtZPcl";
-String socketToken =
-    'BgLEkVzBi6r3Bx0bed4moFE04H/JWlVmcbODDnTw448fXZJCEMLuKFgxM9RtZPcl';
-Map<String, String> mainheader = {
-  "Content-Type": "application/json",
-  "authentication-token": authToken
-};
+late SharedPreferences prefs;
+
+String? authToken;
+
+getTokenApi() async {
+  prefs = await SharedPreferences.getInstance();
+  authToken = prefs.getString('authToken') != null
+      ? prefs.getString('authToken')
+      : await customerRegisterInfo();
+  print("EID ${eId}");
+  return authToken;
+
+  print(authToken);
+}
+
+// // ""; //"P11FI/5sJrC08gVXgVsbZpJI8xHugmxj/+LYQc521vwfXZJCEMLuKFgxM9RtZPcl";
+// String socketToken = "";
+// //""; //    'BgLEkVzBi6r3Bx0bed4moFE04H/JWlVmcbODDnTw448fXZJCEMLuKFgxM9RtZPcl';
 
 Future<List<Attachment>> getAttachments(int mediaType) async {
   List<Attachment>? attachments = [];
-  final response = await http.get(
+  var response = await http.get(
       Uri.parse(url +
           "artifacts?type=${mediaType.toString()}&from=0&perPage=10&desc=&visibility=public"),
-      headers: mainheader);
+      headers: {"authentication-token": await getTokenApi()});
   print(response.body.toString());
 
   if (response.statusCode == 200) {
@@ -48,8 +60,8 @@ Future<List<Attachment>> getAttachments(int mediaType) async {
 }
 
 Future<List<ChatUsers>> getChatUserLists() async {
-  final response =
-      await http.get(Uri.parse(url + 'chat/summary'), headers: mainheader);
+  var response = await http.get(Uri.parse(url + 'chat/summary'),
+      headers: {"authentication-token": await getTokenApi()});
   List<ChatUsers> chatUsersData = [];
 
   if (response.statusCode == 200) {
@@ -81,86 +93,124 @@ Future<List<ChatUsers>> getChatUserLists() async {
       }
     }
 
-    // print('return data $chatUsersData');
+    // print('return data $chatUsersData';
     return chatUsersData;
   }
   print('return data $chatUsersData');
   return chatUsersData;
 }
 
-Future<ChatUsers?> getChatUserInfo(String ChatId) async {
-  var token = await customerRegisterInfo();
-  final response = await http.get(
-      Uri.parse(APP_URL + '/c/enterprises/' + eId + '/chat/' + ChatId),
-      headers: {'authentication-token': token});
-  socketToken = token;
+Future<ChatUsers?> getChatUserInfo(BuildContext context, String ChatId) async {
+  var response = await http.get(Uri.parse(url + eId + '/chat/' + ChatId),
+      headers: {"authentication-token": await getTokenApi()});
+
   ChatUsers? chatUserData;
   print(response.headers.toString());
   if (response.statusCode == 200) {
     //print(response.body.toString());
     var obj = json.decode(response.body.replaceAll("\$", ""));
-    var chatUser = obj["response"]["chat"];
-    List chatuserDetails = obj["response"]["users"];
-    chatUser["chatuserDetails"] = chatuserDetails;
-    var oh = obj["response"];
-    print(obj["response"]["chat"].runtimeType);
+    try {
+      var chatUser = obj["response"]["chat"];
+      List chatuserDetails = obj["response"]["users"];
+      chatUser["chatuserDetails"] = chatuserDetails;
+      var oh = obj["response"];
+      print(obj["response"]["chat"].runtimeType);
 
-    List<ChatMessage> messages = [];
+      List<ChatMessage> messages = [];
 
-    //print('return data $chatUsersData');
-    chatUserData = ChatUsers.fromJson(chatUser);
+      //print('return data $chatUsersData');
+      chatUserData = ChatUsers.fromJson(chatUser);
 
-    // print('return data $chatUsersData');
+      // print('return data $chatUsersData');
+      return chatUserData;
+    } catch (Exp) {
+      ErrorAlert(context, "Session TimeOut");
+      customerRegisterInfo();
+    }
+    //print('return data $chatUserData');
     return chatUserData;
   }
-  print('return data $chatUserData');
-  return chatUserData;
 }
 
-newChatCreate() async {
+newChatCreate(BuildContext context) async {
   var map = new Map<String, dynamic>();
   map['stickySession'] = 'false';
 
-  final response = await http.post(
-      Uri.parse(APP_URL + '/c/enterprises/' + eId + '/chat/create'),
+  var response = await http.post(Uri.parse(url + eId + '/chat/create'),
       headers: {
-        'authentication-token': await customerRegisterInfo(),
+        'authentication-token': await getTokenApi(),
         'Content-Type': 'application/x-www-form-urlencoded'
       },
       body: map);
   ChatUsers? chatUserData;
 
-  print(response.headers.toString());
+  //print(response.headers.toString());
   if (response.statusCode == 200) {
     //print(response.body.toString());
-    var obj = json.decode(response.body.replaceAll("\$", ""));
-    var chatId = obj["response"]["chatId"];
-    return chatId.toString();
+    try {
+      var obj = json.decode(response.body.replaceAll("\$", ""));
+      var chatId = obj["response"]["chatId"];
+      print("Chat Id generated");
+      return chatId.toString();
+    } catch (Exp) {
+      ErrorAlert(context, "Session TimeOutError");
+    }
   }
 }
 
 customerRegisterInfo() async {
   var map = new Map<String, dynamic>();
-  map['name'] = '1234';
-  map['phoneNumber'] = '1234';
+  map['name'] = '8190083902';
+  map['phoneNumber'] = '8190083902';
   map['countryCode'] = '+91';
   map['countryAlpha2Code'] = 'IN';
   map['needVerification'] = 'false';
 
   map['byInvitation'] = 'false';
   map['subscribeToAll'] = 'true';
-  map['enterprisesToSubscribe'] = '{"eIds":[374]}';
+  map['enterprisesToSubscribe'] = '{"eIds":[${int.parse(eId)}]}';
   map['clearMsgs'] = 'true';
 
   final response = await http
       .post(Uri.parse(APP_URL + '/account/customer/register'), body: map);
   ChatUsers? chatUserData;
 
-  print(response.headers.toString());
+  //print(response.headers.toString());
   if (response.statusCode == 200) {
     //print(response.body.toString());
     var obj = json.decode(response.body.replaceAll("\$", ""));
     var token = obj["response"]["token"];
+    authToken = token;
+    prefs = await SharedPreferences.getInstance();
+    prefs.setString('authToken', token);
     return token;
   }
+}
+
+getChatList(BuildContext context) async {
+  // https://aim.twixor.com/c/enterprises/103/chats
+  List<ChatUsers> chatUsers = [];
+  final response = await http.get(Uri.parse(url + eId + '/chats'), headers: {
+    'authentication-token': await getTokenApi(),
+    'Content-Type': 'application/x-www-form-urlencoded'
+  });
+
+  //print(response.headers.toString());
+  if (response.statusCode == 200) {
+    //print(response.body.toString());
+    var obj = json.decode(response.body.replaceAll("\$", ""));
+    try {
+      var chats = obj["response"]["chats"];
+      chats.forEach((v) {
+        chatUsers.add(new ChatUsers.fromJson(v));
+        //print(v);
+      });
+
+      return chatUsers;
+    } catch (Exp) {
+      ErrorAlert(context, "Session TimeOut");
+      customerRegisterInfo();
+    }
+  }
+  return chatUsers;
 }

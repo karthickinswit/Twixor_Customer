@@ -35,11 +35,11 @@ channelconnect() {
 
   Map<String, String> mainheader = {
     "Content-type": "application/json",
-    "authentication-token": authToken
+    "authentication-token": authToken!
   };
   try {
     channel = IOWebSocketChannel.connect(
-        APP_URL.replaceAll("https://", "wss://") + "/actions",
+        APP_URL.replaceAll("http", "ws") + "/actions",
         headers: mainheader);
   } catch (Exp) {
     print("SocketError");
@@ -76,7 +76,7 @@ getSocketResponse(String msgAction) async {
   try {
     Map<String, String> mainheader = {
       "Content-type": "application/json",
-      "authentication-token": authToken
+      "authentication-token": authToken!
     };
 
     // channel = IOWebSocketChannel.connect(
@@ -122,16 +122,16 @@ Future<void> sendmessage(SendMessage sendMessage) async {
 
   Map<String, String> mainheader = {
     "Content-type": "application/json",
-    "authentication-token": socketToken
+    "authentication-token": authToken!
   };
 
-  // channel = IOWebSocketChannel.connect(
-  //     APP_URL.replaceAll("https://", "wss://") + "/actions",
-  //     headers: mainheader); //channel IP : Port\\"ws://192.168.0.109:6060/$myid"
+  var channel = IOWebSocketChannel.connect(
+      APP_URL.replaceAll("http", "ws") + "/actions",
+      headers: mainheader); //channel IP : Port\\"ws://192.168.0.109:6060/$myid"
 
   var data = {};
   data["action"] = sendMessage.action;
-  // data["actionBy"] = sendMessage.actionBy;
+  //data["actionBy"] = sendMessage.actionBy;
   // data["actionType"] = sendMessage.actionType;
   // data["attachment"] =
   //     sendMessage.attachment!.url != null ? sendMessage.attachment : {};
@@ -140,6 +140,6 @@ Future<void> sendmessage(SendMessage sendMessage) async {
   data["eId"] = sendMessage.eId;
   data["message"] = sendMessage.message;
   data["service"] = "";
-  // var temp = print(json.encode(data).toString());
-  channel!.sink.add(json.encode(data)); //send message to reciever channel
+  //print(json.encode(data).toString());
+  channel.sink.add(json.encode(data)); //send message to reciever channel
 }

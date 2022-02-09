@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -12,6 +13,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'helper_files/FileReader.dart';
 import 'helper_files/Websocket.dart';
+import 'helper_files/utilities_files.dart';
+import 'models/chatMessageModel.dart';
 
 void main() {
   runApp(const CustomerApp());
@@ -19,6 +22,7 @@ void main() {
 
 class CustomerApp extends StatelessWidget {
   const CustomerApp({Key? key}) : super(key: key);
+
   @override
 
   // This widget is the root of your application.
@@ -29,7 +33,7 @@ class CustomerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Twixor',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -42,17 +46,13 @@ class CustomerApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Twixor Customer Chat'),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  initState() async {
-    // SharedPreferences prefs = await SharedPreferences.getInstance();
-  }
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -93,18 +93,27 @@ class _MyHomePageState extends State<MyHomePage> {
   String? ChatId;
   late SharedPreferences prefs;
   bool allowStorage = false;
+  List<String>? chatIds = [];
+  List<ChatUsers> chatUsers = [];
 
   @override
   initState() {
     // TODO: implement initState
+
+    //getApiPref();
+    getPref();
     super.initState();
     configLoading();
-    getPref();
-    channelconnect();
+
+    //
   }
 
   getPref() async {
-    prefs = await SharedPreferences.getInstance();
+    // getApiPref();
+    if (authToken == null || authToken == "") {
+      var token = await getTokenApi();
+      // print(token);
+    }
   }
 
   void _incrementCounter() async {
@@ -115,24 +124,32 @@ class _MyHomePageState extends State<MyHomePage> {
       requestWritePermission();
     }
 
-    ChatId = prefs.getString('chatId') != null ? prefs.getString('chatId') : "";
-
-    if (ChatId == null || ChatId == '') {
+    if (true) {
       // SharedPreferences prefs = await SharedPreferences.getInstance();
-      var chatId = await newChatCreate();
-      prefs.setString('chatId', chatId);
+      var chatId = await newChatCreate(context);
+      // chatIds!.add(chatId);
+      // prefs.setStringList('chatIds', chatIds!);
+      // print(prefs?.getStringList("chatIds"));
       ChatId = chatId;
+      print("new Chat Id ${ChatId}");
     }
+    if (ChatId != null) {
+      ChatId != null
+          ? userDetails = json.encode(await getChatUserInfo(context, ChatId!))
+          : ErrorAlert(context, "Chat Id is not present here");
 
-    userDetails = json.encode(await getChatUserInfo(ChatId!));
+      isLoading = false;
+      isVisible = true;
 
-    isLoading = false;
-    isVisible = true;
-
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => ChatDetailPage(userDetails, "")));
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => ChatDetailPage(userDetails, "")));
+    } else {
+      ErrorAlert(context, "UserDetails Not Present");
+      ChatId = await newChatCreate(context);
+      _incrementCounter();
+    }
   }
 
   @override
@@ -143,72 +160,181 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: isLoading
-          ? //check loadind status
-          Center(child: CircularProgressIndicator())
-          : Center(
-              // Center is a layout widget. It takes a single child and positions it
-              // in the middle of the parent.
-              child: Column(
-                // Column is also a layout widget. It takes a list of children and
-                // arranges them vertically. By default, it sizes itself to fit its
-                // children horizontally, and tries to be as tall as its parent.
-                //
-                // Invoke "debug painting" (press "p" in the console, choose the
-                // "Toggle Debug Paint" action from the Flutter Inspector in Android
-                // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-                // to see the wireframe for each widget.
-                //
-                // Column has various properties to control how it sizes itself and
-                // how it positions its children. Here we use mainAxisAlignment to
-                // center the children vertically; the main axis here is the vertical
-                // axis because Columns are vertical (the cross axis would be
-                // horizontal).
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  const Text(
-                    '',
-                  ),
-                  Text(
-                    '',
-                    style: Theme.of(context).textTheme.headline4,
-                  ),
-                  FloatingActionButton(
-                    onPressed: () => {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  FileApp())) //FileReaderPage(
-                      //       filePath:
-                      //           'storage/emulated/0/Download/twixor_agent/sample document.pdf',
-                      //     )))
-                    },
-                    tooltip: 'Increment',
-                    child: const Icon(
-                      IconData(0xe4cc, fontFamily: 'MaterialIcons'),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-      floatingActionButton: Visibility(
-        visible: isVisible,
-        child: new FloatingActionButton(
-          onPressed: _incrementCounter,
-          tooltip: 'Increment',
-          child: const Icon(
-            IconData(0xf8b8, fontFamily: 'MaterialIcons'),
+    return WillPopScope(
+        onWillPop: () async {
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('The System Back Button is Deactivated')));
+          return false;
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            // Here we take the value from the MyHomePage object that was created by
+            // the App.build method, and use it to set our appbar title.
+            title: Text(widget.title),
           ),
-        ), // This trailing comma makes auto-formatting nicer for build methods.
-      ),
-    );
+          body: isLoading
+              ? //check loadind status
+              Center(child: CircularProgressIndicator())
+              :
+              // Column is also a layout widget. It takes a list of children and
+              // arranges them vertically. By default, it sizes itself to fit its
+              // children horizontally, and tries to be as tall as its parent.
+              //
+              // Invoke "debug painting" (press "p" in the console, choose the
+              // "Toggle Debug Paint" action from the Flutter Inspector in Android
+              // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
+              // to see the wireframe for each widget.
+              //
+              // Column has various properties to control how it sizes itself and
+              // how it positions its children. Here we use mainAxisAlignment to
+              // center the children vertically; the main axis here is the vertical
+              // axis because Columns are vertical (the cross axis would be
+              // horizontal).
+
+              Container(
+                  child: FutureBuilder(
+                      builder: (context, snapshot) {
+                        print("snapChat data -> ${snapshot.data.toString()}");
+                        if (snapshot.hasData) {
+                          chatUsers = snapshot.data as List<ChatUsers>;
+                          List<ChatUsers> chatUsers1 = [];
+                          //print('receiver data -> $chatUsers');
+
+                          chatUsers.forEach((element) {
+                            if (element.state != "0") {
+                              chatUsers1.add(element);
+                            }
+                          });
+                          chatUsers = chatUsers1;
+
+                          print("${chatUsers.toString()}" +
+                              " ${chatUsers.length}");
+
+                          return chatUsers.length == 0
+                              ? Center(child: Text("There is no Active Chats "))
+                              : ListView.builder(
+                                  itemCount: chatUsers.length,
+                                  shrinkWrap: true,
+                                  padding: EdgeInsets.only(top: 10),
+                                  itemBuilder: (context1, index) {
+                                    // print(chatUsers[index].chatId);
+                                    if (chatUsers.length == 0)
+                                      return Center(
+                                          child:
+                                              Text("There is no Chats Found "));
+                                    else if (chatUsers[index].state != "0") {
+                                      return GestureDetector(
+                                        onTap: () async {
+                                          userDetails = json.encode(
+                                              await getChatUserInfo(
+                                                  context,
+                                                  chatUsers[index]
+                                                      .chatId
+                                                      .toString()));
+
+                                          isLoading = false;
+                                          isVisible = true;
+
+                                          Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          ChatDetailPage(
+                                                              userDetails, "")))
+                                              .then((x) {
+                                            setState(() {});
+                                          });
+                                        },
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 16, vertical: 10),
+                                          child: Row(
+                                            children: <Widget>[
+                                              Expanded(
+                                                child: Row(
+                                                  children: <Widget>[
+                                                    CircleAvatar(
+                                                      backgroundImage: NetworkImage(
+                                                          "https://aim.twixor.com/drive/docs/61ef9d425d9c400b3c6c03f9"),
+                                                      maxRadius: 30,
+                                                    ),
+                                                    SizedBox(
+                                                      width: 16,
+                                                    ),
+                                                    Expanded(
+                                                      child: Container(
+                                                        color:
+                                                            Colors.transparent,
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: <Widget>[
+                                                            Text(
+                                                              chatUsers[index]
+                                                                  .chatId
+                                                                  .toString(),
+                                                              style: TextStyle(
+                                                                  fontSize: 16),
+                                                            ),
+                                                            SizedBox(
+                                                              height: 6,
+                                                            ),
+                                                            Text(
+                                                              chatUsers[index]
+                                                                  .eId
+                                                                  .toString(),
+                                                              style: TextStyle(
+                                                                  fontSize: 13,
+                                                                  color: Colors
+                                                                      .grey
+                                                                      .shade600,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .normal),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              // Text(
+                                              //   "ConvertTime(chatUsers[index].time.toString())",
+                                              //   style: const TextStyle(
+                                              //       fontSize: 12,
+                                              //       fontWeight: FontWeight.normal),
+                                              // ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                      ///////////////////////////////
+                                    } else
+                                      return Container();
+                                  },
+                                );
+                        } else
+                          return Center(child: CircularProgressIndicator());
+                      },
+                      future: getChatList(context)),
+                ),
+          floatingActionButton:
+              Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
+            Visibility(
+              visible: isVisible,
+              child: new FloatingActionButton(
+                onPressed: _incrementCounter,
+                tooltip: 'Increment',
+                child: const Icon(
+                  IconData(0xf8b8, fontFamily: 'MaterialIcons'),
+                ),
+              ), // This trailing comma makes auto-formatting nicer for build methods.
+            ),
+            SizedBox(width: 10),
+          ]),
+        ));
   }
 
   requestWritePermission() async {

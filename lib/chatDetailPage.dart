@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:open_file/open_file.dart';
 import 'package:twixor_customer/API/apidata-service.dart';
+import 'package:twixor_customer/main.dart';
 
 import 'package:twixor_customer/models/SendMessageModel.dart';
 import 'package:twixor_customer/models/SocketResponseModel.dart';
@@ -172,6 +173,13 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   }
 
   @override
+  didPopRoute() {
+    bool override;
+
+    return new Future<bool>.value(true);
+  }
+
+  @override
   Widget build(BuildContext context) {
     // print("rcvd fdata ${rcvdData['name']}");
     var listView = ListView.builder(
@@ -215,131 +223,141 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       },
     );
 
-    return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.white,
-        flexibleSpace: SafeArea(
-          child: Container(
-            padding: EdgeInsets.only(right: 16),
-            child: Row(
-              children: <Widget>[
-                IconButton(
-                  onPressed: () {
-                    Navigator.pop(context, userdata as ChatUsers);
-                    //setState(() {});
-                  },
-                  icon: Icon(
-                    Icons.arrow_back,
-                    color: Colors.black,
-                  ),
-                ),
-                SizedBox(
-                  width: 2,
-                ),
-                // CircleAvatar(
-                //   backgroundImage: NetworkImage(chatAgents![0].iconUrl!),
-                //   maxRadius: 20,
-                // ),
-                SizedBox(
-                  width: 12,
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        //'${chatAgents![0].name}',
-                        'Chat With Agent',
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.w600),
+    return WillPopScope(
+        onWillPop: () async {
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('The System Back Button is Deactivated')));
+          return false;
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            elevation: 0,
+            automaticallyImplyLeading: false,
+            backgroundColor: Colors.white,
+            flexibleSpace: SafeArea(
+              child: Container(
+                padding: EdgeInsets.only(right: 16),
+                child: Row(
+                  children: <Widget>[
+                    IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => CustomerApp()));
+
+                        setState(() {});
+                      },
+                      icon: Icon(
+                        Icons.arrow_back,
+                        color: Colors.black,
                       ),
-                      // SizedBox(
-                      //   height: 6,
-                      // ),
-                      // Text(
-                      //   "Online",
-                      //   style: TextStyle(
-                      //       color: Colors.grey.shade600, fontSize: 12),
-                      // ),
-                    ],
-                  ),
+                    ),
+                    SizedBox(
+                      width: 2,
+                    ),
+                    // CircleAvatar(
+                    //   backgroundImage: NetworkImage(chatAgents![0].iconUrl!),
+                    //   maxRadius: 20,
+                    // ),
+                    SizedBox(
+                      width: 12,
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Text(
+                            //'${chatAgents![0].name}',
+                            'Chat With Agent',
+                            style: TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.w600),
+                          ),
+                          // SizedBox(
+                          //   height: 6,
+                          // ),
+                          // Text(
+                          //   "Online",
+                          //   style: TextStyle(
+                          //       color: Colors.grey.shade600, fontSize: 12),
+                          // ),
+                        ],
+                      ),
+                    ),
+                    // PopupMenuButton(
+                    //   itemBuilder: (BuildContext bc) => [
+                    //     PopupMenuItem(
+                    //         child: ListTile(
+                    //       title: Text(
+                    //         'Coversation',
+                    //         textAlign: TextAlign.left,
+                    //       ),
+                    //       enabled: true,
+                    //     )),
+                    //     PopupMenuItem(
+                    //         child: ListTile(
+                    //           leading: Icon(const IconData(0xf006a,
+                    //               fontFamily: 'MaterialIcons')),
+                    //           title: Text('Invite Agents'),
+                    //           enabled: true,
+                    //         ),
+                    //         value: "/chat"),
+                    //     PopupMenuItem(
+                    //         child: ListTile(
+                    //           leading: Icon(const IconData(0xe20a,
+                    //               fontFamily: 'MaterialIcons')),
+                    //           title: Text('Transfer Chat'),
+                    //           enabled: true,
+                    //         ),
+                    //         value: "/chat"),
+                    //     PopupMenuItem(
+                    //         child: ListTile(
+                    //           leading: Icon(const IconData(0xf02a3,
+                    //               fontFamily: 'MaterialIcons')),
+                    //           title: Text('Chat History'),
+                    //           enabled: true,
+                    //         ),
+                    //         value: "/chat"),
+                    //     PopupMenuItem(
+                    //         child: ListTile(
+                    //           leading: Icon(const IconData(0xe312,
+                    //               fontFamily: 'MaterialIcons')),
+                    //           title: Text('Close Chat'),
+                    //           enabled: true,
+                    //         ),
+                    //         value: "/chat"),
+                    //     PopupMenuItem(
+                    //         child: ListTile(
+                    //           leading: Icon(const IconData(0xf271,
+                    //               fontFamily: 'MaterialIcons')),
+                    //           title: Text('Customer Details'),
+                    //           enabled: true,
+                    //         ),
+                    //         value: "/chat"),
+                    //   ],
+                    //   onSelected: (route) {
+                    //     print(route);
+                    //   },
+                    // ),
+                  ],
                 ),
-                // PopupMenuButton(
-                //   itemBuilder: (BuildContext bc) => [
-                //     PopupMenuItem(
-                //         child: ListTile(
-                //       title: Text(
-                //         'Coversation',
-                //         textAlign: TextAlign.left,
-                //       ),
-                //       enabled: true,
-                //     )),
-                //     PopupMenuItem(
-                //         child: ListTile(
-                //           leading: Icon(const IconData(0xf006a,
-                //               fontFamily: 'MaterialIcons')),
-                //           title: Text('Invite Agents'),
-                //           enabled: true,
-                //         ),
-                //         value: "/chat"),
-                //     PopupMenuItem(
-                //         child: ListTile(
-                //           leading: Icon(const IconData(0xe20a,
-                //               fontFamily: 'MaterialIcons')),
-                //           title: Text('Transfer Chat'),
-                //           enabled: true,
-                //         ),
-                //         value: "/chat"),
-                //     PopupMenuItem(
-                //         child: ListTile(
-                //           leading: Icon(const IconData(0xf02a3,
-                //               fontFamily: 'MaterialIcons')),
-                //           title: Text('Chat History'),
-                //           enabled: true,
-                //         ),
-                //         value: "/chat"),
-                //     PopupMenuItem(
-                //         child: ListTile(
-                //           leading: Icon(const IconData(0xe312,
-                //               fontFamily: 'MaterialIcons')),
-                //           title: Text('Close Chat'),
-                //           enabled: true,
-                //         ),
-                //         value: "/chat"),
-                //     PopupMenuItem(
-                //         child: ListTile(
-                //           leading: Icon(const IconData(0xf271,
-                //               fontFamily: 'MaterialIcons')),
-                //           title: Text('Customer Details'),
-                //           enabled: true,
-                //         ),
-                //         value: "/chat"),
-                //   ],
-                //   onSelected: (route) {
-                //     print(route);
-                //   },
-                // ),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
-      body: Stack(
-        children: <Widget>[
-          // inspect(messages)
+          body: Stack(
+            children: <Widget>[
+              // inspect(messages)
 
-          listView,
-          //  alignList("text", false, "")
-          (attachment!.url != null && attachment!.url != "")
-              ? alignList(attachment!)
-              : alignList(new Attachment(type: "MSG")),
-        ],
-      ),
-      resizeToAvoidBottomInset: true,
-    );
+              listView,
+              //  alignList("text", false, "")
+              (attachment!.url != null && attachment!.url != "")
+                  ? alignList(attachment!)
+                  : alignList(new Attachment(type: "MSG")),
+            ],
+          ),
+          resizeToAvoidBottomInset: true,
+        ));
   }
 
   ChatUtilMessage(ChatMessage message, List chatAgent) {
@@ -734,7 +752,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
           print("Upload");
           // print(sendFileType);
           if (sendFileType == "jpg") {
-            print(objFile.path);
+            // print(objFile.path);
             print(objFile.toString());
             // messages!.add(new ChatMessage(
             //   messageContent: objFile.path.toString(),
@@ -798,11 +816,11 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         objFile = result.files.single;
 
         sendFileType = objFile.extension;
-        print(objFile.name);
-        print(objFile.bytes.toString());
-        print(objFile.size);
-        print(objFile.extension);
-        print(objFile.path);
+        // print(objFile.name);
+        // print(objFile.bytes.toString());
+        // print(objFile.size);
+        // print(objFile.extension);
+        // print(objFile.path);
         uploadSelectedFile(objFile);
       });
     }
@@ -934,14 +952,10 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 
   NetworkImage getNetworkImage(String url) {
     Map<String, String> header = Map();
-    // header["authentication-token"] = authKey;
     return NetworkImage(url);
   }
 
   Widget imagePreview(ChatMessage message) {
-    // String _image1=_image;
-
-    // ignore: unnecessary_new
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
@@ -978,15 +992,10 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   }
 
   videoPreview(ChatMessage message) {
-    // String _image1=_image;
-
-    // ignore: unnecessary_new
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Column(children: <Widget>[
-          // ignore: unnecessary_new
           new GestureDetector(
               onTap: () {
                 Navigator.push(
@@ -999,7 +1008,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                   builder: (context, snapshot) {
                     //try {} catch(Exception){}
 
-                    print(snapshot);
+                    // print(snapshot);
                     if (snapshot.connectionState != ConnectionState.waiting) {
                       print(snapshot.data.toString());
                       if (snapshot.hasData) {
@@ -1043,22 +1052,6 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                     } else
                       return CircularProgressIndicator();
                   })),
-
-          // FloatingActionButton(
-          //   onPressed: () {
-          //     setState(() {
-          //       _controller.value.isPlaying
-          //           ? _controller.pause()
-          //           : _controller.play();
-          //     });
-          //   },
-          //   child: Icon(
-          //     _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
-          //   ),
-          // ),
-
-          /////
-          ///
         ]),
         Container(
           margin: const EdgeInsets.only(top: 5.0),
@@ -1097,7 +1090,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         quality: 60,
         maxWidth: 200,
         timeMs: 2000);
-    print(fileName);
+    // print(fileName);
     return fileName;
   }
 
@@ -1128,13 +1121,13 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     try {
       Map<String, String> mainheader = {
         "Content-type": "application/json",
-        "authentication-token": socketToken
+        "authentication-token": await getTokenApi()
       };
-      var SOUrl = APP_URL.replaceAll("https://", "wss://") + "/actions";
+      var SOUrl = APP_URL.replaceAll("http", "ws") + "/actions";
       channel = await IOWebSocketChannel.connect(SOUrl, headers: mainheader);
       channel.stream.listen(
         (message) async {
-          print(message.toString());
+          //print(message.toString());
           var message1 = json.decode(message);
           if (message1["action"] == "onOpen") {
             // connected = true;
@@ -1195,8 +1188,10 @@ class _ChatDetailPageState extends State<ChatDetailPage>
             var json = SocketResponse.fromJson(message1);
             var chatId = json.content![0].response!.chat!.chatId;
             if (chatId == userdata!.chatId) {
-              ChatUsers? k = await getChatUserInfo(chatId!);
+              ChatUsers? k = await getChatUserInfo(context, chatId!);
               List<ChatAgent> m = json.content![0].response!.users!;
+              actionBy = json.content![0].response!.chat!.messages![0].actionBy
+                  .toString();
 
               //userdata = k;
               setState(() {
@@ -1232,7 +1227,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 
   void uploadSelectedFile(objFile) async {
     //---Create http package multipart request object
-    var headers = {'authentication-token': socketToken};
+
+    var headers = {'authentication-token': authToken!};
     var mimeType = lookupMimeType(objFile.path);
     var t1 = mimeType.toString().split("/");
 
@@ -1244,7 +1240,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 
     final request = http.MultipartRequest(
       "POST",
-      Uri.parse(APP_URL + "/e/drive/upload"),
+      Uri.parse(APP_URL + "/c/drive/upload"),
     );
     request.headers.addAll(headers);
     //-----add other fields if needed
@@ -1257,15 +1253,15 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         filename: objFile.name, contentType: new MediaType(t1[0], t1[1])));
 
     //-------Send request
-    print(request.headers.toString());
-    print(request.fields.toString());
+    // print(request.headers.toString());
+    //print(request.fields.toString());
     request
         .send()
         .then((result) async {
           http.Response.fromStream(result).then((response) {
             if (response.statusCode == 200) {
               print("Uploaded! ");
-              print('response.body ' + response.body);
+              //print('response.body ' + response.body);
               var temp = json.decode(response.body);
               print(temp["secureUrl"]);
               attachment?.url = temp["secureUrl"];

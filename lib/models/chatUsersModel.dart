@@ -17,6 +17,7 @@ class ChatUsers {
   String? chatId;
   String? eId;
   List? chatAgents;
+  String? state;
   ChatUsers(
       {required this.name,
       required this.messageText,
@@ -27,7 +28,8 @@ class ChatUsers {
       required this.actionBy,
       required this.chatId,
       required this.eId,
-      required this.chatAgents});
+      required this.chatAgents,
+      required this.state});
 
   ChatUsers.fromJson(Map<String, dynamic> json) {
     name = json["customerName"] != null ? json["customerName"].toString() : "";
@@ -52,7 +54,7 @@ class ChatUsers {
     if (json.containsKey('messages')) {
       json['messages'].forEach((v) {
         messages!.add(new ChatMessage.fromAPItoJson(v));
-        print(v);
+        //print(v);
       });
     }
 
@@ -65,9 +67,10 @@ class ChatUsers {
     if (json.containsKey('chatuserDetails')) {
       json['chatuserDetails'].forEach((v) {
         chatAgents!.add(new ChatAgent.fromJson(v));
-        print(v);
+        //print(v);
       });
     }
+    state = json['state'] != null ? json["state"].toString() : "";
   }
 
   ChatUsers.fromJson1(Map<String, dynamic> data) {
@@ -80,12 +83,13 @@ class ChatUsers {
     chatId = data['chatId'];
     eId = data['eId'];
     actionBy = data["actionBy"];
+    state = data["state"] as String;
     messages = <ChatMessage>[];
     chatAgents = <ChatAgent>[];
     var temp = data["messages"];
     if (temp != null)
       temp.forEach((v) {
-        print(v.toString());
+        //print(v.toString());
         messages!.add(ChatMessage.fromLocaltoJson(v));
       });
     if (data.containsKey('chatuserDetails')) {
@@ -107,6 +111,7 @@ class ChatUsers {
     data['actionBy'] = this.actionBy;
     data['chatId'] = this.chatId;
     data['eId'] = this.eId as String;
+    data['state'] = this.state as String;
     data['chatuserDetails'] = this.chatAgents;
     return data;
   }
