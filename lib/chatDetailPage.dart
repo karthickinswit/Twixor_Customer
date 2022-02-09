@@ -244,7 +244,10 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => CustomerApp()));
+                                builder: (context) => CustomerApp(
+                                      eId: "374",
+                                      customerId: "8190083902",
+                                    )));
 
                         setState(() {});
                       },

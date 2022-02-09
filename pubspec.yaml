@@ -40,6 +40,15 @@ dependencies:
   shared_preferences: any
   video_thumbnail: ^0.4.3
   open_file: ^3.2.1
+  flutter_offline: ^2.0.0
+  url_launcher: ^6.0.8
+  webview_flutter: ^3.0.0
+  web_socket_channel: ^2.0.0
+  http: ^0.13.4
+  permission_handler: ^8.3.0
+  intl: ^0.17.0
+  simple_url_preview: ^3.0.1
+  mime: ^1.0.1
 
 
 dev_dependencies:
@@ -55,15 +64,7 @@ dev_dependencies:
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
-  flutter_offline: ^2.0.0
-  url_launcher: ^6.0.8
-  webview_flutter: ^3.0.0
-  web_socket_channel: ^2.0.0
-  http: ^0.13.4
-  permission_handler: ^8.3.0
-  intl: ^0.17.0
-  simple_url_preview: ^3.0.1
-  mime: ^1.0.1
+  
 # The following section is specific to Flutter.
 flutter:
 

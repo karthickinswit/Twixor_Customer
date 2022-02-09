@@ -21,6 +21,7 @@ void main() {
 }
 
 class CustomerApp extends StatelessWidget {
+  //CustomerApp(this.eId, this.customerId);
   const CustomerApp({Key? key}) : super(key: key);
 
   @override
