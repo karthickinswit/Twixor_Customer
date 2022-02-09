@@ -591,11 +591,11 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   Widget modelSheet(context1) {
     return GestureDetector(
       onTap: () {
-        showModalBottomSheet(
-            isDismissible: true,
-            backgroundColor: Colors.transparent,
-            context: context,
-            builder: (builder) => bottomSheet(context1));
+        // showModalBottomSheet(
+        //     isDismissible: true,
+        //     backgroundColor: Colors.transparent,
+        //     context: context,
+        //     builder: (builder) => bottomSheet(context1));
       },
       child: Container(
         height: 30,

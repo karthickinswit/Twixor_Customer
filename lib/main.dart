@@ -211,7 +211,9 @@ class _MyHomePageState extends State<MyHomePage> {
                               " ${chatUsers.length}");
 
                           return chatUsers.length == 0
-                              ? Center(child: Text("There is no Active Chats "))
+                              ? Center(
+                                  child:
+                                      Text("There are no more Active Chats "))
                               : ListView.builder(
                                   itemCount: chatUsers.length,
                                   shrinkWrap: true,
