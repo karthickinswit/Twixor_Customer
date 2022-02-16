@@ -9,6 +9,7 @@ class SendMessage {
   String? contentType;
   int? eId;
   String? message;
+  List<String>? actiondIds;
 
   SendMessage(
       {this.action,
@@ -18,33 +19,36 @@ class SendMessage {
       this.chatId,
       this.contentType,
       this.eId,
-      this.message});
+      this.message,
+      this.actiondIds});
 
   SendMessage.fromJson(Map<String, dynamic> json) {
-    action = json['action'];
-    actionBy = json['actionBy'];
-    actionType = json['actionType'];
+    action = json['action'] ?? "";
+    actionBy = json['actionBy'] ?? "";
+    actionType = json['actionType'] ?? "";
     attachment = json['attachment'] != null
-        ? new Attachment.fromJson(json['attachment'])
+        ? Attachment.fromJson(json['attachment'])
         : null;
-    chatId = json['chatId'];
-    contentType = json['contentType'];
-    eId = json['eId'];
-    message = json['message'];
+    chatId = json['chatId'] ?? "";
+    contentType = json['contentType'] ?? "";
+    eId = json['eId'] ?? "";
+    message = json['message'] ?? "";
+    actiondIds = json['actionIds'] ?? [];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['action'] = this.action;
-    data['actionBy'] = this.actionBy;
-    data['actionType'] = this.actionType;
-    if (this.attachment != null) {
-      data['attachment'] = this.attachment!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['action'] = action;
+    data['actionBy'] = actionBy;
+    data['actionType'] = actionType;
+    if (attachment != null) {
+      data['attachment'] = attachment!.toJson();
     }
-    data['chatId'] = this.chatId;
-    data['contentType'] = this.contentType;
-    data['eId'] = this.eId;
-    data['message'] = this.message;
+    data['chatId'] = chatId;
+    data['contentType'] = contentType;
+    data['eId'] = eId;
+    data['message'] = message;
+    data["actiondIds"] = actiondIds;
     return data;
   }
 }

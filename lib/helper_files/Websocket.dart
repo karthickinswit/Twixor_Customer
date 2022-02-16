@@ -1,133 +1,56 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:twixor_customer/API/apidata-service.dart';
+import 'package:twixor_customer/helper_files/utilities_files.dart';
 import 'package:twixor_customer/models/Attachmentmodel.dart';
 import 'package:twixor_customer/models/SendMessageModel.dart';
 import 'package:twixor_customer/models/chatMessageModel.dart';
 import 'package:web_socket_channel/io.dart';
-
+import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:web_socket_channel/status.dart' as status;
 import '../chatDetailPage.dart';
 
-class Attachement {
-  String? id;
-  String? docType;
-  String? docFileUrl;
-
-  Attachement(this.id, this.docType, this.docFileUrl);
-}
-
-class MessageData {
-  //message data model
-  String msgtext, userid;
-  bool isme;
-  MessageData(
-      {required this.msgtext, required this.userid, required this.isme});
-}
-
 IOWebSocketChannel? channel;
-bool SocConnection = false;
+bool isSocketConnection = false;
+var channelStream;
 
-channelconnect() {
-  //function to connect
-
+SocketConnect() async {
   Map<String, String> mainheader = {
     "Content-type": "application/json",
-    "authentication-token": authToken!
+    "authentication-token": await getTokenApi()!
   };
   try {
     channel = IOWebSocketChannel.connect(
         APP_URL.replaceAll("http", "ws") + "/actions",
         headers: mainheader);
+
+    isSocketConnection = true;
   } catch (Exp) {
-    print("SocketError");
+    //ErrorAlert(context, msg)
+    isSocketConnection = false;
   }
-  //channel IP : Port\\"ws://192.168.0.109:6060/$myid"
-  channel!.stream.listen((message) {
-    print((message.toString()));
-    var message1 = json.decode(message);
-    if (message1["action"] == "onOpen") {
-      SocConnection = true;
-
-      print("Connection establised.");
-    }
-    //   } else if (message1["action"] == "customerReplyChat") {
-    //     print("Message sent");
-    //   } else if (message1 == "customerStartChat") {
-    //     print("Customer Start Chat");
-    //   } else if (message1 == "waitingInviteAccept") {
-    //     print("waitingInviteAccept");
-    //   } else if (message1 == "waitingTransferAccept") {
-    //     print("waitingTransferAccept");
-    //   }
-    // },
-    // onDone: () {
-    //if WebSocket is disconnected
-    // print("Web socket is closed");
-
-    // return connected;
-  });
 }
 
-getSocketResponse(String msgAction) async {
-  // IOWebSocketChannel? channel;
-  try {
-    Map<String, String> mainheader = {
-      "Content-type": "application/json",
-      "authentication-token": authToken!
-    };
+getConnectSocket() {}
+getCloseSocket() async {
+  channel!.sink.close(status.goingAway);
+  print("Socket closed");
+  isSocketConnection = false;
+}
 
-    // channel = IOWebSocketChannel.connect(
-    //     APP_URL.replaceAll("https://", "wss://") + "/actions",
-    //     headers: mainheader);
-    channel!.stream.listen(
-      (message) {
-        var message1 = json.decode(message);
-        if (message1["action"] == "onOpen") {
-          // connected = true;
+Stream getSocketResponse() {
+  channel!.stream.asBroadcastStream();
 
-          print("Connection establised.");
-        } else if (message1["action"] == "customerReplyChat") {
-          print("Message sent");
-        } else if (message1 == "customerStartChat") {
-          print("Customer Start Chat");
-          return message;
-        } else if (message1 == "waitingInviteAccept") {
-          print("waitingInviteAccept");
-        } else if (message1 == "waitingTransferAccept") {
-          print("waitingTransferAccept");
-        }
-      },
-      onDone: () {
-        //if WebSocket is disconnected
-        print("Web socket is closed");
-        // setState(() {
-        //   //connected = false;
-        // });
-      },
-      onError: (error) {
-        print(error.toString());
-      },
-    );
-  } catch (_) {
-    print("SocketIO Error");
-  }
+  return channel!.stream;
 }
 
 Future<void> sendmessage(SendMessage sendMessage) async {
   // IOWebSocketChannel? channel;
-  bool connected = false;
-
-  Map<String, String> mainheader = {
-    "Content-type": "application/json",
-    "authentication-token": authToken!
-  };
-
-  var channel = IOWebSocketChannel.connect(
-      APP_URL.replaceAll("http", "ws") + "/actions",
-      headers: mainheader); //channel IP : Port\\"ws://192.168.0.109:6060/$myid"
+  //channel IP : Port\\"ws://192.168.0.109:6060/$myid"
 
   var data = {};
   data["action"] = sendMessage.action;
@@ -141,5 +64,16 @@ Future<void> sendmessage(SendMessage sendMessage) async {
   data["message"] = sendMessage.message;
   data["service"] = "";
   //print(json.encode(data).toString());
-  channel.sink.add(json.encode(data)); //send message to reciever channel
+  channel!.sink.add(json.encode(data)); //send message to reciever channel
+}
+
+Future<void> updateMessageStatus(SendMessage sendMessage) async {
+  var data = {};
+  data["action"] = sendMessage.action; //"chatMessageStatus";
+  data["actionIds"] = sendMessage.actiondIds;
+  data["chatId"] = sendMessage.chatId;
+  data["from"] = 2;
+  data["state"] = 2;
+  print(json.encode(data));
+  channel!.sink.add(json.encode(data));
 }

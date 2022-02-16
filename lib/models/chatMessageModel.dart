@@ -15,6 +15,8 @@ class ChatMessage {
   String? eId;
   String? actedOn;
   Attachment? attachment;
+  String? actionId;
+  String? status;
   ChatMessage(
       {required this.messageContent,
       required this.messageType,
@@ -25,14 +27,16 @@ class ChatMessage {
       required this.attachment,
       required this.actionType,
       required this.eId,
-      this.actedOn});
+      this.actedOn,
+      this.actionId,
+      this.status});
 
   ChatMessage.fromAPItoJson(Map<String, dynamic> json) {
     messageContent = json["message"] != null ? json["message"] as String : "";
     messageType = json["status"] != null
         ? json["status"] == 0
             ? "sender"
-            : "receiver" as String
+            : "receiver"
         : "";
     isUrl = json['isUrl'] == null ? false : true;
     contentType =
@@ -40,19 +44,17 @@ class ChatMessage {
     attachment = (json['attachment'] != null && json['attachment'].length != 0
         ? Attachment.fromJson(json['attachment'])
         : null);
-    url = json['url'] != null ? json['url'] : "" as String;
+    url = json['url'] ?? "";
     eId = json["eId"] != null ? json['eId'].toString() : "";
     actionType =
         json["actionType"] != null ? json['actionType'].toString() : "";
     actedOn = json["actedOn"] != null ? json['actedOn'].toString() : "";
+    actionId = json["actionId"] != null ? json['actionId'].toString() : "";
+    status = json["status"] != null ? json['status'].toString() : "";
   }
   ChatMessage.fromLocaltoJson(Map<String, dynamic> json) {
     ///eId = json['eId'] as String;
-    messageContent = json["messageContent"] != null
-        ? json["messageContent"]
-        : json["message"] != null
-            ? json["message"]
-            : "";
+    messageContent = json["messageContent"] ?? json["message"] ?? "";
     messageType = json["messageType"];
     isUrl = json["isUrl"];
     contentType = json["contentType"];
@@ -64,22 +66,26 @@ class ChatMessage {
     eId = json["eId"].toString();
     actionType = json["actionType"].toString();
     actedOn = json["actedOn"].toString();
+    actionId = json["actionId"] != null ? json['actionId'].toString() : "";
+    status = json["status"] != null ? json['status'].toString() : "";
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['messageContent'] = this.messageContent;
-    data['messageType'] = this.messageType;
-    data['isUrl'] = this.isUrl;
-    data['contentType'] = this.contentType;
-    data['url'] = this.url;
-    if (this.attachment != null && this.attachment!.url != "") {
-      data['attachment'] = this.attachment!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['messageContent'] = messageContent;
+    data['messageType'] = messageType;
+    data['isUrl'] = isUrl;
+    data['contentType'] = contentType;
+    data['url'] = url;
+    if (attachment != null && attachment!.url != "") {
+      data['attachment'] = attachment!.toJson();
     }
-    data['eId'] = this.eId;
-    data['actionBy'] = this.actionBy;
-    data["actionType"] = this.actionType;
-    data["actedOn"] = this.actedOn;
+    data['eId'] = eId;
+    data['actionBy'] = actionBy;
+    data["actionType"] = actionType;
+    data["actedOn"] = actedOn;
+    data["actionId"] = actionId;
+    data["status"] = status.toString();
     return data;
   }
 }

@@ -18,6 +18,7 @@ class ChatUsers {
   String? eId;
   List? chatAgents;
   String? state;
+  String? newMessageCount;
   ChatUsers(
       {required this.name,
       required this.messageText,
@@ -29,7 +30,8 @@ class ChatUsers {
       required this.chatId,
       required this.eId,
       required this.chatAgents,
-      required this.state});
+      required this.state,
+      required this.newMessageCount});
 
   ChatUsers.fromJson(Map<String, dynamic> json) {
     name = json["customerName"] != null ? json["customerName"].toString() : "";
@@ -53,7 +55,7 @@ class ChatUsers {
     messages = <ChatMessage>[];
     if (json.containsKey('messages')) {
       json['messages'].forEach((v) {
-        messages!.add(new ChatMessage.fromAPItoJson(v));
+        messages!.add(ChatMessage.fromAPItoJson(v));
         //print(v);
       });
     }
@@ -66,11 +68,12 @@ class ChatUsers {
     chatAgents = <ChatAgent>[];
     if (json.containsKey('chatuserDetails')) {
       json['chatuserDetails'].forEach((v) {
-        chatAgents!.add(new ChatAgent.fromJson(v));
+        chatAgents!.add(ChatAgent.fromJson(v));
         //print(v);
       });
     }
     state = json['state'] != null ? json["state"].toString() : "";
+    newMessageCount = "0";
   }
 
   ChatUsers.fromJson1(Map<String, dynamic> data) {
@@ -84,23 +87,25 @@ class ChatUsers {
     eId = data['eId'];
     actionBy = data["actionBy"];
     state = data["state"] as String;
+    newMessageCount = "0";
     messages = <ChatMessage>[];
     chatAgents = <ChatAgent>[];
     var temp = data["messages"];
-    if (temp != null)
+    if (temp != null) {
       temp.forEach((v) {
         //print(v.toString());
         messages!.add(ChatMessage.fromLocaltoJson(v));
       });
+    }
     if (data.containsKey('chatuserDetails')) {
       for (var i = 0; i < data['chatuserDetails'].length; i++) {
-        chatAgents!.add(new ChatAgent.fromJson(data['chatuserDetails'][i]));
+        chatAgents!.add(ChatAgent.fromJson(data['chatuserDetails'][i]));
       }
     }
   }
 
   Map<dynamic, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = Map<String, dynamic>();
     data['imageUrl'] = this.imageURL;
     data['name'] = this.name;
     data['messageText'] = this.messageText;
@@ -113,6 +118,7 @@ class ChatUsers {
     data['eId'] = this.eId as String;
     data['state'] = this.state as String;
     data['chatuserDetails'] = this.chatAgents;
+    data['newMessageCount'] = "0";
     return data;
   }
 }
@@ -137,7 +143,7 @@ class ChatAgent {
   }
 
   Map<dynamic, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = Map<String, dynamic>();
     data['_id'] = this.sId;
     data['iconUrl'] = this.iconUrl;
     data['name'] = this.name;

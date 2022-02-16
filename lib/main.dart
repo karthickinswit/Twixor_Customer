@@ -1,4 +1,8 @@
+// ignore_for_file: avoid_print, prefer_typing_uninitialized_variables
+
+import 'dart:async';
 import 'dart:convert';
+
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -14,17 +18,28 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'helper_files/FileReader.dart';
 import 'helper_files/Websocket.dart';
 import 'helper_files/utilities_files.dart';
+import 'models/SocketResponseModel.dart';
 import 'models/chatMessageModel.dart';
+import 'API/apidata-service.dart'; //29900
 
 void main() {
-  runApp(const CustomerApp());
+  runApp(CustomerApp(
+    customerId: '8190083902',
+    eId: '374',
+  ));
 }
 
 class CustomerApp extends StatelessWidget {
-  //CustomerApp(this.eId, this.customerId);
-  const CustomerApp({Key? key}) : super(key: key);
+  String customerId;
+  String eId;
 
-  @override
+  //CustomerApp(this.eId, this.customerId);
+  CustomerApp({Key? key, required this.customerId, required this.eId})
+      : super(key: key);
+
+  initState() {
+    clearToken();
+  }
 
   // This widget is the root of your application.
   Future<void> requestPermission(Permission permission) async {
@@ -47,13 +62,22 @@ class CustomerApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Twixor Customer Chat'),
+      home: MyHomePage(
+        title: 'Twixor Customer Chat',
+        customerId1: customerId,
+        eId1: '374',
+      ),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
+  const MyHomePage(
+      {Key? key,
+      required this.title,
+      required this.customerId1,
+      required this.eId1})
+      : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -63,11 +87,13 @@ class MyHomePage extends StatefulWidget {
   // case the title) provided by the parent (in this case the App widget) and
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
-
+  final String customerId1;
+  final String eId1;
   final String title;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<MyHomePage> createState() =>
+      _MyHomePageState(customerId1: this.customerId1, eId1: this.eId1);
 }
 
 void configLoading() {
@@ -87,6 +113,8 @@ void configLoading() {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  String customerId1;
+  String eId1;
   int _counter = 0;
   bool isLoading = false;
   bool isVisible = true;
@@ -97,12 +125,17 @@ class _MyHomePageState extends State<MyHomePage> {
   List<String>? chatIds = [];
   List<ChatUsers> chatUsers = [];
 
+  final List<TextEditingController> _notifyControllers = [];
+
+  _MyHomePageState({required this.customerId1, required this.eId1});
+
   @override
   initState() {
-    // TODO: implement initState
+    customerId = this.customerId1;
+    eId = this.eId1;
 
-    //getApiPref();
     getPref();
+
     super.initState();
     configLoading();
 
@@ -111,10 +144,16 @@ class _MyHomePageState extends State<MyHomePage> {
 
   getPref() async {
     // getApiPref();
+    //await clearToken();
+
     if (authToken == null || authToken == "") {
       var token = await getTokenApi();
-      // print(token);
+    } else {
+      print(authToken);
+      getChatList(context);
     }
+    await SocketConnect();
+    socketMsgReceiveMain();
   }
 
   void _incrementCounter() async {
@@ -125,7 +164,7 @@ class _MyHomePageState extends State<MyHomePage> {
       requestWritePermission();
     }
 
-    if (true) {
+    if (isValidToken) {
       // SharedPreferences prefs = await SharedPreferences.getInstance();
       var chatId = await newChatCreate(context);
       // chatIds!.add(chatId);
@@ -133,23 +172,27 @@ class _MyHomePageState extends State<MyHomePage> {
       // print(prefs?.getStringList("chatIds"));
       ChatId = chatId;
       print("new Chat Id ${ChatId}");
-    }
-    if (ChatId != null) {
-      ChatId != null
-          ? userDetails = json.encode(await getChatUserInfo(context, ChatId!))
-          : ErrorAlert(context, "Chat Id is not present here");
 
-      isLoading = false;
-      isVisible = true;
+      if (ChatId != null) {
+        ChatId != null
+            ? userDetails = json.encode(await getChatUserInfo(context, ChatId!))
+            : ErrorAlert(context, "Chat Id is not present here");
 
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => ChatDetailPage(userDetails, "")));
+        isLoading = false;
+        isVisible = true;
+
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ChatDetailPage(userDetails, "")));
+      } else {
+        ErrorAlert(context, "UserDetails Not Present");
+        ChatId = await newChatCreate(context);
+        _incrementCounter();
+      }
     } else {
-      ErrorAlert(context, "UserDetails Not Present");
-      ChatId = await newChatCreate(context);
-      _incrementCounter();
+      clearToken();
+      customerRegisterInfo();
     }
   }
 
@@ -163,8 +206,8 @@ class _MyHomePageState extends State<MyHomePage> {
     // than having to individually change instances of widgets.
     return WillPopScope(
         onWillPop: () async {
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('The System Back Button is Deactivated')));
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text('The System Back Button is Deactivated')));
           return false;
         },
         child: Scaffold(
@@ -175,7 +218,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           body: isLoading
               ? //check loadind status
-              Center(child: CircularProgressIndicator())
+              const Center(child: CircularProgressIndicator())
               :
               // Column is also a layout widget. It takes a list of children and
               // arranges them vertically. By default, it sizes itself to fit its
@@ -192,142 +235,186 @@ class _MyHomePageState extends State<MyHomePage> {
               // axis because Columns are vertical (the cross axis would be
               // horizontal).
 
-              Container(
-                  child: FutureBuilder(
-                      builder: (context, snapshot) {
-                        print("snapChat data -> ${snapshot.data.toString()}");
-                        if (snapshot.hasData) {
-                          chatUsers = snapshot.data as List<ChatUsers>;
-                          List<ChatUsers> chatUsers1 = [];
-                          //print('receiver data -> $chatUsers');
+              FutureBuilder(
+                  builder: (context, snapshot) {
+                    _notifyControllers.add(TextEditingController());
 
-                          chatUsers.forEach((element) {
-                            if (element.state != "0") {
-                              chatUsers1.add(element);
-                            }
-                          });
-                          chatUsers = chatUsers1;
+                    print("snapChat data -> ${snapshot.data.toString()}");
+                    if (snapshot.hasData) {
+                      chatUsers = snapshot.data as List<ChatUsers>;
+                      List<ChatUsers> chatUsers1 = [];
 
-                          print("${chatUsers.toString()}" +
-                              " ${chatUsers.length}");
+                      //print('receiver data -> $chatUsers');
 
-                          return chatUsers.length == 0
-                              ? Center(
-                                  child:
-                                      Text("There are no more Active Chats "))
-                              : ListView.builder(
-                                  itemCount: chatUsers.length,
-                                  shrinkWrap: true,
-                                  padding: EdgeInsets.only(top: 10),
-                                  itemBuilder: (context1, index) {
-                                    // print(chatUsers[index].chatId);
-                                    if (chatUsers.length == 0)
-                                      return Center(
-                                          child:
-                                              Text("There is no Chats Found "));
-                                    else if (chatUsers[index].state != "0") {
-                                      return GestureDetector(
-                                        onTap: () async {
-                                          userDetails = json.encode(
-                                              await getChatUserInfo(
-                                                  context,
-                                                  chatUsers[index]
-                                                      .chatId
-                                                      .toString()));
+                      for (var element in chatUsers) {
+                        if (element.state == "2") {
+                          chatUsers1.add(element);
+                        }
+                      }
+                      chatUsers = chatUsers1;
 
-                                          isLoading = false;
-                                          isVisible = true;
+                      print("${chatUsers.toString()}" " ${chatUsers.length}");
 
-                                          Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          ChatDetailPage(
-                                                              userDetails, "")))
-                                              .then((x) {
-                                            setState(() {});
-                                          });
-                                        },
-                                        child: Container(
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 16, vertical: 10),
-                                          child: Row(
-                                            children: <Widget>[
-                                              Expanded(
-                                                child: Row(
-                                                  children: <Widget>[
-                                                    CircleAvatar(
-                                                      backgroundImage: NetworkImage(
-                                                          "https://aim.twixor.com/drive/docs/61ef9d425d9c400b3c6c03f9"),
-                                                      maxRadius: 30,
-                                                    ),
-                                                    SizedBox(
-                                                      width: 16,
-                                                    ),
-                                                    Expanded(
-                                                      child: Container(
-                                                        color:
-                                                            Colors.transparent,
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: <Widget>[
-                                                            Text(
-                                                              chatUsers[index]
-                                                                  .chatId
-                                                                  .toString(),
-                                                              style: TextStyle(
+                      return chatUsers.isEmpty
+                          ? const Center(
+                              child: Text("There are no more Active Chats "))
+                          : ListView.builder(
+                              itemCount: chatUsers.length,
+                              shrinkWrap: true,
+                              padding: const EdgeInsets.only(top: 10),
+                              itemBuilder: (context1, index) {
+                                //_notifyControllers[index].text = "0";
+                                // print(chatUsers[index].chatId);
+                                List<ChatMessage> nonReadMessages = [];
+                                for (ChatMessage message1
+                                    in chatUsers[index].messages!) {
+                                  if (message1.status != "2") {
+                                    nonReadMessages.add(message1);
+                                  }
+                                }
+                                print(
+                                    "nonReadmessages Length ${nonReadMessages.length}");
+                                _notifyControllers[index].text =
+                                    nonReadMessages.length.toString();
+
+                                if (chatUsers.isEmpty) {
+                                  return const Center(
+                                      child: Text("There is no Chats Found "));
+                                } else if (chatUsers[index].state != "0") {
+                                  return GestureDetector(
+                                    onTap: () async {
+                                      userDetails = json.encode(
+                                          await getChatUserInfo(
+                                              context,
+                                              chatUsers[index]
+                                                  .chatId
+                                                  .toString()));
+
+                                      isLoading = false;
+                                      isVisible = true;
+                                      //subscriber!.cancel();
+                                      Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ChatDetailPage(
+                                                          userDetails, "")))
+                                          .then((x) {
+                                        setState(() {});
+                                      });
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 16, vertical: 10),
+                                      child: Row(
+                                        children: <Widget>[
+                                          Expanded(
+                                            child: Row(
+                                              children: <Widget>[
+                                                const CircleAvatar(
+                                                  backgroundImage: NetworkImage(
+                                                      "https://aim.twixor.com/drive/docs/61ef9d425d9c400b3c6c03f9"),
+                                                  maxRadius: 30,
+                                                ),
+                                                const SizedBox(
+                                                  width: 16,
+                                                ),
+                                                Expanded(
+                                                  child: Container(
+                                                    color: Colors.transparent,
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: <Widget>[
+                                                        Text(
+                                                          chatUsers[index]
+                                                              .chatId
+                                                              .toString(),
+                                                          style:
+                                                              const TextStyle(
                                                                   fontSize: 16),
-                                                            ),
-                                                            SizedBox(
-                                                              height: 6,
-                                                            ),
-                                                            Text(
-                                                              chatUsers[index]
-                                                                  .eId
-                                                                  .toString(),
-                                                              style: TextStyle(
-                                                                  fontSize: 13,
-                                                                  color: Colors
-                                                                      .grey
-                                                                      .shade600,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .normal),
-                                                            ),
-                                                          ],
+                                                        ),
+                                                        const SizedBox(
+                                                          height: 6,
+                                                        ),
+                                                        Text(
+                                                          chatUsers[index]
+                                                              .eId
+                                                              .toString(),
+                                                          style: TextStyle(
+                                                              fontSize: 13,
+                                                              color: Colors.grey
+                                                                  .shade600,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .normal),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 10),
+                                                _notifyControllers[index]
+                                                            .text ==
+                                                        "0"
+                                                    ? Container()
+                                                    : Container(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(2),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: Colors.red,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(6),
+                                                        ),
+                                                        constraints:
+                                                            const BoxConstraints(
+                                                          minWidth: 14,
+                                                          minHeight: 14,
+                                                        ),
+                                                        child: Text(
+                                                          _notifyControllers[
+                                                                  index]
+                                                              .text,
+                                                          style:
+                                                              const TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 8,
+                                                          ),
+                                                          textAlign:
+                                                              TextAlign.center,
                                                         ),
                                                       ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              // Text(
-                                              //   "ConvertTime(chatUsers[index].time.toString())",
-                                              //   style: const TextStyle(
-                                              //       fontSize: 12,
-                                              //       fontWeight: FontWeight.normal),
-                                              // ),
-                                            ],
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                      );
-                                      ///////////////////////////////
-                                    } else
-                                      return Container();
-                                  },
-                                );
-                        } else
-                          return Center(child: CircularProgressIndicator());
-                      },
-                      future: getChatList(context)),
-                ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  return const Center(
+                                      child: Text("There was a Problem "));
+                                }
+                              },
+                            );
+                    } else if (snapshot.hasError) {
+                      ErrorAlert(context, snapshot.error.toString());
+                      return const Center(child: Text("There was a Problem "));
+                    } else {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                  },
+                  future: getChatList(context)),
           floatingActionButton:
               Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
             Visibility(
               visible: isVisible,
-              child: new FloatingActionButton(
+
+              child: FloatingActionButton(
                 onPressed: _incrementCounter,
                 tooltip: 'Increment',
                 child: const Icon(
@@ -335,7 +422,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ), // This trailing comma makes auto-formatting nicer for build methods.
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
           ]),
         ));
   }
@@ -345,7 +432,52 @@ class _MyHomePageState extends State<MyHomePage> {
         await Permission.manageExternalStorage.status;
     if (permissionStatus.isGranted) {
       allowStorage = true;
-    } else
+    } else {
       Permission.manageExternalStorage.request();
+    }
+  }
+
+  socketMsgReceiveMain() async {
+    var message1;
+
+    getCloseSocket();
+    print("isSocketConnection $isSocketConnection");
+    await SocketConnect();
+    print("isSocketConnection $isSocketConnection");
+    Stream mainSocket = getSocketResponse();
+    mainSocket.listen((data) {
+      message1 = json.decode(data);
+      if (message1["action"] == "onOpen") {
+        print("Connection establised.");
+      } else if (message1["action"] == "customerReplyChat") {
+        print("Message sent Socket");
+        setState(() {
+          setState(() {});
+        });
+      } else if (message1["action"] == "agentReplyChat") {
+        print("Message sent Socket");
+        var json = SocketResponse.fromJson(message1);
+        var temp = json.content![0].response!.chat!.chatId;
+        print("ChatId $temp");
+        var index = chatUsers.indexWhere((element) => element.chatId == temp);
+
+        int count = _notifyControllers[index].text != ""
+            ? int.parse(_notifyControllers[index].text)
+            : 0;
+        _notifyControllers[index].text =
+            _notifyControllers[index].text != "" ? (count + 1).toString() : "1";
+        print("${chatUsers[index].chatId} ${_notifyControllers[index].text}");
+        setState(() {});
+      }
+      print("mainPageMessage ${data.toString()}");
+    });
+  }
+
+  @override
+  void dispose() {
+    getCloseSocket();
+    print("isSocketConnection $isSocketConnection");
+    //_notifyControllers
+    super.dispose();
   }
 }
