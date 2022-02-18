@@ -35,7 +35,6 @@ SocketConnect() async {
   }
 }
 
-getConnectSocket() {}
 getCloseSocket() async {
   channel!.sink.close(status.goingAway);
   print("Socket closed");

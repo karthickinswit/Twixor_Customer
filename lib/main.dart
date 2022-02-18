@@ -152,7 +152,7 @@ class _MyHomePageState extends State<MyHomePage> {
       print(authToken);
       getChatList(context);
     }
-    await SocketConnect();
+
     socketMsgReceiveMain();
   }
 
@@ -180,11 +180,18 @@ class _MyHomePageState extends State<MyHomePage> {
 
         isLoading = false;
         isVisible = true;
+        Navigator.pushAndRemoveUntil<dynamic>(
+          context,
+          MaterialPageRoute<dynamic>(
+            builder: (BuildContext context) => ChatDetailPage(userDetails, ""),
+          ),
+          (route) => false, //if you want to disable back feature set to false
+        );
 
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => ChatDetailPage(userDetails, "")));
+        // Navigator.push(
+        //     context,
+        //     MaterialPageRoute(
+        //         builder: (context) => ChatDetailPage(userDetails, "")));
       } else {
         ErrorAlert(context, "UserDetails Not Present");
         ChatId = await newChatCreate(context);
@@ -268,14 +275,16 @@ class _MyHomePageState extends State<MyHomePage> {
                                 List<ChatMessage> nonReadMessages = [];
                                 for (ChatMessage message1
                                     in chatUsers[index].messages!) {
-                                  if (message1.status != "2") {
-                                    nonReadMessages.add(message1);
-                                  }
+                                  // if (message1.status != "2") {
+                                  //   nonReadMessages.add(message1);
+                                  // }
                                 }
+                                _notifyControllers[index].text =
+                                    _notifyControllers[index].text;
                                 print(
                                     "nonReadmessages Length ${nonReadMessages.length}");
-                                _notifyControllers[index].text =
-                                    nonReadMessages.length.toString();
+                                // _notifyControllers[index].text =
+                                //     nonReadMessages.length.toString();
 
                                 if (chatUsers.isEmpty) {
                                   return const Center(
@@ -293,14 +302,25 @@ class _MyHomePageState extends State<MyHomePage> {
                                       isLoading = false;
                                       isVisible = true;
                                       //subscriber!.cancel();
-                                      Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      ChatDetailPage(
-                                                          userDetails, "")))
-                                          .then((x) {
+                                      Navigator.pushAndRemoveUntil<dynamic>(
+                                        context,
+                                        MaterialPageRoute<dynamic>(
+                                          builder: (BuildContext context) =>
+                                              ChatDetailPage(userDetails, ""),
+                                        ),
+                                        (route) =>
+                                            false, //if you want to disable back feature set to false
+                                      ).then((x) {
                                         setState(() {});
+                                        // Navigator.push(
+                                        //         context,
+                                        //         MaterialPageRoute(
+                                        //             builder: (context) =>
+                                        //                 ChatDetailPage(
+                                        //                     userDetails, "")))
+                                        //     .then((x) {
+                                        //   setState(() {});
+                                        // });
                                       });
                                     },
                                     child: Container(
@@ -454,6 +474,8 @@ class _MyHomePageState extends State<MyHomePage> {
         setState(() {
           setState(() {});
         });
+      } else if (message1["action"] == "agentPickupChat") {
+        setState(() {});
       } else if (message1["action"] == "agentReplyChat") {
         print("Message sent Socket");
         var json = SocketResponse.fromJson(message1);
@@ -475,7 +497,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void dispose() {
-    getCloseSocket();
     print("isSocketConnection $isSocketConnection");
     //_notifyControllers
     super.dispose();

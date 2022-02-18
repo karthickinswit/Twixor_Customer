@@ -129,7 +129,7 @@ getChatList(BuildContext context) async {
   List<ChatUsers> chatUsers = [];
   var tempUrl = APP_URL +
       'c/enterprises/chat/summary?fromDate=2019-02-16T06:34:16.859Z'; //url + eId + '/chats
-  final response = await http.get(Uri.parse(tempUrl), headers: {
+  final response = await http.get(Uri.parse(url + eId + '/chats'), headers: {
     'authentication-token': await getTokenApi(),
     'Content-Type': 'application/x-www-form-urlencoded'
   });

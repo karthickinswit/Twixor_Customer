@@ -86,21 +86,6 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   bool _visible = false;
   double _overlap = 0;
 
-  _getFromGallery() async {
-    //  picker.pickImage(source: source)
-    var pickedFile = (await picker.pickImage(
-      source: ImageSource.gallery,
-    ));
-    if (pickedFile != null) {
-      setState(() {
-        //fileImg=pickedFile as File;
-        imageFile = File(pickedFile.path);
-        //print("pickedFile");
-        //print(pickedFile);
-      });
-    }
-  }
-
   String? preview;
 
   final ScrollController _controller =
@@ -276,12 +261,19 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                   children: <Widget>[
                     IconButton(
                       onPressed: () {
-                        getCloseSocket();
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => CustomerApp(
-                                    customerId: customerId, eId: eId!)));
+                        Navigator.pushAndRemoveUntil<dynamic>(
+                          context,
+                          MaterialPageRoute<dynamic>(
+                              builder: (BuildContext context) => CustomerApp(
+                                  customerId: customerId, eId: eId!)),
+                          (route) =>
+                              false, //if you want to disable back feature set to false
+                        );
+                        // Navigator.push(
+                        //     context,
+                        //     MaterialPageRoute(
+                        //         builder: (context) => CustomerApp(
+                        //             customerId: customerId, eId: eId!)));
 
                         setState(() {});
                       },
@@ -502,7 +494,6 @@ class _ChatDetailPageState extends State<ChatDetailPage>
           children: [
             MaterialButton(
               onPressed: () {
-                getCloseSocket();
                 Navigator.of(context).pop(false);
                 setState(() {});
               },
@@ -615,11 +606,11 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   Widget modelSheet(context1) {
     return GestureDetector(
       onTap: () {
-        // showModalBottomSheet(
-        //     isDismissible: true,
-        //     backgroundColor: Colors.transparent,
-        //     context: context,
-        //     builder: (builder) => bottomSheet(context1));
+        showModalBottomSheet(
+            isDismissible: true,
+            backgroundColor: Colors.transparent,
+            context: context,
+            builder: (builder) => bottomSheet(context1));
       },
       child: Container(
         height: 30,
@@ -684,13 +675,13 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 
   Widget bottomSheet(context1) {
     return Container(
-      height: 278,
+      height: 240,
       width: MediaQuery.of(context).size.width,
       child: Card(
-        margin: const EdgeInsets.all(18.0),
+        margin: const EdgeInsets.all(22.0),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15.0),
           child: Column(
             children: [
               Row(
@@ -703,10 +694,10 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                   ),
                   iconCreation(
                       context1,
-                      const IconData(0xe380, fontFamily: 'MaterialIcons'),
+                      const IconData(0xe130, fontFamily: 'MaterialIcons'),
                       Colors.pink,
-                      "Url",
-                      "url",
+                      "Camera",
+                      "camera",
                       3),
                   const SizedBox(
                     width: 40,
@@ -723,20 +714,20 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                 children: [
                   iconCreation(
                       context1,
-                      const IconData(0xe154, fontFamily: 'MaterialIcons'),
+                      const IconData(0xe7b4, fontFamily: 'MaterialIcons'),
                       Colors.orange,
-                      "Message",
-                      "message",
+                      "Audio",
+                      "audio",
                       7),
                   const SizedBox(
                     width: 40,
                   ),
                   iconCreation(
                       context1,
-                      const IconData(0xe74e, fontFamily: 'MaterialIcons'),
+                      const IconData(0xe752, fontFamily: 'MaterialIcons'),
                       Colors.teal,
-                      "Upload",
-                      "upload",
+                      "Location",
+                      "location",
                       9),
                   const SizedBox(
                     width: 40,
@@ -762,11 +753,10 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       String type, int mediaType) {
     return InkWell(
       onTap: () async {
-        if (type == "gallery1") {
+        print("icon creaation");
+        if (type == "gallery") {
           await _getFromGallery();
           var img1 = await imageFile!.path;
-          var isImage = img1.isEmpty ? true : false;
-          // getCloseSocket();
           Navigator.pop(context);
           imageFile?.path == ""
               ? const CircularProgressIndicator()
@@ -774,23 +764,39 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                   backgroundColor: Colors.transparent,
                   context: context,
                   builder: (builder) => ImageDialog(true, img1));
-        } else if (type == "upload") {
+        } else if (type == "camera") {
+          await _getFromCamera();
+          var img1 = await imageFile!.path;
+          Navigator.pop(context);
+          imageFile?.path == ""
+              ? const CircularProgressIndicator()
+              : showModalBottomSheet(
+                  backgroundColor: Colors.transparent,
+                  context: context,
+                  builder: (builder) => ImageDialog(true, img1));
+        } else if (type == "document") {
           await chooseFileUsingFilePicker();
           print("Upload");
           if (sendFileType == "jpg") {
             print(objFile.toString());
+            objFile?.path == ""
+                ? const CircularProgressIndicator()
+                : showModalBottomSheet(
+                    backgroundColor: Colors.transparent,
+                    context: context,
+                    builder: (builder) => ImageDialog(true, objFile));
           }
         } else {}
       },
       child: Column(
         children: [
           CircleAvatar(
-            radius: 30,
+            radius: 25,
             backgroundColor: color,
             child: Icon(
               icons,
               // semanticLabel: "Help",
-              size: 29,
+              size: 15,
               color: Colors.white,
             ),
           ),
@@ -823,7 +829,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     var result = await FilePicker.platform.pickFiles(
       withReadStream: true,
       type: FileType.custom,
-      allowedExtensions: ['jpg', 'pdf', 'doc'],
+      allowedExtensions: ['jpg', 'pdf', 'doc', 'mp3', 'mp4'],
     );
     if (result != null) {
       setState(() {
@@ -833,6 +839,38 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       });
     }
   }
+
+  _getFromGallery() async {
+    var pickedFile = (await picker.pickImage(
+      source: ImageSource.gallery,
+    ));
+    if (pickedFile != null) {
+      setState(() {
+        imageFile = File(pickedFile.path);
+      });
+    }
+  }
+
+  _getFromCamera() async {
+    //  picker.pickImage(source: source)
+    var pickedFile = (await picker.pickImage(
+      source: ImageSource.camera,
+      maxWidth: 200,
+      maxHeight: 200,
+    ));
+    var imageFile;
+    if (pickedFile != null) {
+      setState(() {
+        //fileImg=pickedFile as File;
+        imageFile = pickedFile.path;
+        //print("pickedFile");
+        //print(pickedFile);
+      });
+      return imageFile;
+    }
+  }
+
+// ignore: unused_element
 
   Widget ImageDialog(isFileUrl, content) {
     return AlertDialog(
@@ -858,7 +896,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
               ? Container(
                   width: 120,
                   height: 100,
-                  child: Image.network((content),
+                  child: Image.file((content),
                       fit: BoxFit.contain, width: 300, height: 180))
               : Container(
                   width: 120,
@@ -1141,7 +1179,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       } else if (message1["action"] == "customerReplyChat") {
         print("Message sent Socket");
         var json = SocketResponse.fromJson(message1);
-        List<ChatMessage> k = json.content![0].response!.chat!.messages!;
+        //List<ChatMessage> k = json.content![0].response!.chat!.messages!;
         setState(() {
           setState(() {});
           _scrollToEnd();
@@ -1238,7 +1276,6 @@ class _ChatDetailPageState extends State<ChatDetailPage>
               attachment?.id = temp["id"];
 
               setState(() {
-                getCloseSocket();
                 Navigator.pop(context);
               });
             }
