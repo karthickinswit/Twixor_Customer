@@ -180,6 +180,7 @@ checktoken() async {
     return isValidToken;
   } else {
     isValidToken = false;
+    return isValidToken;
   }
 }
 

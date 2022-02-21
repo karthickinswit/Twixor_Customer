@@ -37,7 +37,7 @@ class CustomerApp extends StatelessWidget {
   late SharedPreferences prefs;
 
   initState() {
-    clearToken();
+    //clearToken();
   }
 
   Future<bool> _checkPrefs() async {
@@ -181,7 +181,7 @@ class _MyHomePageState extends State<MyHomePage> {
       var token = await getTokenApi();
     } else {
       print(authToken);
-      getChatList(context);
+      // getChatList(context);
     }
 
     socketMsgReceiveMain();
