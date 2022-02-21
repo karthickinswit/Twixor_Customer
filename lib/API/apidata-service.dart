@@ -172,22 +172,14 @@ checktoken() async {
     isValidToken = true;
     print(response.body.toString());
     var obj = checkApiResponse(response.body.replaceAll("\$", ""));
-    //json.decode(response.body.replaceAll("\$", ""));
     try {
-      var chats = obj["response"]["chats"];
-      chats.forEach((v) {
-        chatUsers.add(ChatUsers.fromJson(v));
-        //print(v);
-      });
-
-      ///return chatUsers;
+      isValidToken = true;
     } catch (Exp) {
       isValidToken = false;
     }
     return isValidToken;
   } else {
     isValidToken = false;
-    return isValidToken;
   }
 }
 

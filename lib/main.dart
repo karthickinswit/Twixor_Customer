@@ -55,6 +55,8 @@ class CustomerApp extends StatelessWidget {
         return true;
       }
     } else if (tempCustId != customerId) {
+      prefs.setString('customerId', customerId);
+      prefs.setString('eId', eId);
       clearToken();
       return true;
     } else {
