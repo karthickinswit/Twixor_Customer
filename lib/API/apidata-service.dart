@@ -184,8 +184,10 @@ checktoken() async {
     } catch (Exp) {
       isValidToken = false;
     }
+    return isValidToken;
   } else {
     isValidToken = false;
+    return isValidToken;
   }
 }
 

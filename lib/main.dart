@@ -21,7 +21,7 @@ import 'models/chatMessageModel.dart';
 
 void main() {
   runApp(CustomerApp(
-    customerId: '8190083902',
+    customerId: '8190083903',
     eId: '374',
   ));
 }
@@ -34,8 +34,33 @@ class CustomerApp extends StatelessWidget {
   CustomerApp({Key? key, required this.customerId, required this.eId})
       : super(key: key);
 
+  late SharedPreferences prefs;
+
   initState() {
     clearToken();
+  }
+
+  Future<bool> _checkPrefs() async {
+    var tempCustId, tempEid;
+    prefs = await SharedPreferences.getInstance();
+    tempCustId = prefs.getString('customerId') ?? "";
+    tempEid = prefs.getString('eId') ?? "";
+    if (tempCustId == "" && tempEid == "") {
+      clearToken();
+      prefs.setString('customerId', customerId);
+      prefs.setString('eId', eId);
+      return true;
+    } else if (tempCustId == customerId && tempEid == eId) {
+      if (await checktoken()) {
+        return true;
+      }
+    } else if (tempCustId != customerId) {
+      clearToken();
+      return true;
+    } else {
+      return false;
+    }
+    return false;
   }
 
   // This widget is the root of your application.
@@ -57,11 +82,21 @@ class CustomerApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(
-        title: 'Twixor Customer Chat',
-        customerId1: customerId,
-        eId1: '374',
-      ),
+      home: FutureBuilder<bool>(
+          future: _checkPrefs(),
+          builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+            if (snapshot.data == false) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            } else {
+              return MyHomePage(
+                title: 'Twixor Customer Chat',
+                customerId1: customerId,
+                eId1: eId,
+              );
+            }
+          }),
     );
   }
 }
