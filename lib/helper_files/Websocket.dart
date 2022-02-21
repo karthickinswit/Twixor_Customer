@@ -1,18 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:twixor_customer/API/apidata-service.dart';
-import 'package:twixor_customer/helper_files/utilities_files.dart';
-import 'package:twixor_customer/models/Attachmentmodel.dart';
 import 'package:twixor_customer/models/SendMessageModel.dart';
-import 'package:twixor_customer/models/chatMessageModel.dart';
 import 'package:web_socket_channel/io.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as status;
-import '../chatDetailPage.dart';
 
 IOWebSocketChannel? channel;
 bool isSocketConnection = false;
@@ -27,6 +19,7 @@ SocketConnect() async {
     channel = IOWebSocketChannel.connect(
         APP_URL.replaceAll("http", "ws") + "/actions",
         headers: mainheader);
+    //print("Channel sink ${await channel!.sink.done}");
 
     isSocketConnection = true;
   } catch (Exp) {
@@ -36,6 +29,7 @@ SocketConnect() async {
 }
 
 getCloseSocket() async {
+  print(channel);
   channel!.sink.close(status.goingAway);
   print("Socket closed");
   isSocketConnection = false;

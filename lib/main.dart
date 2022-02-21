@@ -1,9 +1,7 @@
-// ignore_for_file: avoid_print, prefer_typing_uninitialized_variables
+// ignore_for_file: avoid_print, prefer_typing_uninitialized_variables, must_be_immutable, no_logic_in_create_state, non_constant_identifier_names
 
 import 'dart:async';
 import 'dart:convert';
-
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -15,12 +13,11 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'API/apidata-service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'helper_files/FileReader.dart';
 import 'helper_files/Websocket.dart';
 import 'helper_files/utilities_files.dart';
 import 'models/SocketResponseModel.dart';
 import 'models/chatMessageModel.dart';
-import 'API/apidata-service.dart'; //29900
+//29900
 
 void main() {
   runApp(CustomerApp(
@@ -42,9 +39,7 @@ class CustomerApp extends StatelessWidget {
   }
 
   // This widget is the root of your application.
-  Future<void> requestPermission(Permission permission) async {
-    final status = await permission.request();
-  }
+  Future<void> requestPermission(Permission permission) async {}
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +88,7 @@ class MyHomePage extends StatefulWidget {
 
   @override
   State<MyHomePage> createState() =>
-      _MyHomePageState(customerId1: this.customerId1, eId1: this.eId1);
+      _MyHomePageState(customerId1: customerId1, eId1: eId1);
 }
 
 void configLoading() {
@@ -115,7 +110,6 @@ void configLoading() {
 class _MyHomePageState extends State<MyHomePage> {
   String customerId1;
   String eId1;
-  int _counter = 0;
   bool isLoading = false;
   bool isVisible = true;
   late String userDetails;
@@ -131,8 +125,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   initState() {
-    customerId = this.customerId1;
-    eId = this.eId1;
+    customerId = customerId1;
+    eId = eId1;
 
     getPref();
 
@@ -180,18 +174,18 @@ class _MyHomePageState extends State<MyHomePage> {
 
         isLoading = false;
         isVisible = true;
-        Navigator.pushAndRemoveUntil<dynamic>(
-          context,
-          MaterialPageRoute<dynamic>(
-            builder: (BuildContext context) => ChatDetailPage(userDetails, ""),
-          ),
-          (route) => false, //if you want to disable back feature set to false
-        );
+        // Navigator.pushAndRemoveUntil<dynamic>(
+        //   context,
+        //   MaterialPageRoute<dynamic>(
+        //     builder: (BuildContext context) => ChatDetailPage(userDetails, ""),
+        //   ),
+        //   (route) => false, //if you want to disable back feature set to false
+        // );
 
-        // Navigator.push(
-        //     context,
-        //     MaterialPageRoute(
-        //         builder: (context) => ChatDetailPage(userDetails, "")));
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ChatDetailPage(userDetails, "")));
       } else {
         ErrorAlert(context, "UserDetails Not Present");
         ChatId = await newChatCreate(context);
@@ -222,6 +216,7 @@ class _MyHomePageState extends State<MyHomePage> {
             // Here we take the value from the MyHomePage object that was created by
             // the App.build method, and use it to set our appbar title.
             title: Text(widget.title),
+            actions: [],
           ),
           body: isLoading
               ? //check loadind status
@@ -250,21 +245,26 @@ class _MyHomePageState extends State<MyHomePage> {
                     if (snapshot.hasData) {
                       chatUsers = snapshot.data as List<ChatUsers>;
                       List<ChatUsers> chatUsers1 = [];
+                      List<ChatUsers> inActivechatUsers = [];
 
                       //print('receiver data -> $chatUsers');
 
-                      for (var element in chatUsers) {
-                        if (element.state == "2") {
-                          chatUsers1.add(element);
-                        }
-                      }
+                      // for (var element in chatUsers) {
+                      //   if (element.state == "2") {
+                      //     chatUsers1.add(element);
+                      //   }
+                      // }
+                      // chatUsers = chatUsers1;
+                      chatUsers.asMap().forEach((key, value) {
+                        if (value.state == "2") chatUsers1.add(value);
+                      });
                       chatUsers = chatUsers1;
 
                       print("${chatUsers.toString()}" " ${chatUsers.length}");
 
                       return chatUsers.isEmpty
                           ? const Center(
-                              child: Text("There are no more Active Chats "))
+                              child: Text("Currently no Active Chats "))
                           : ListView.builder(
                               itemCount: chatUsers.length,
                               shrinkWrap: true,
@@ -376,8 +376,12 @@ class _MyHomePageState extends State<MyHomePage> {
                                                 ),
                                                 const SizedBox(width: 10),
                                                 _notifyControllers[index]
-                                                            .text ==
-                                                        "0"
+                                                                .text ==
+                                                            "0" ||
+                                                        _notifyControllers[
+                                                                    index]
+                                                                .text ==
+                                                            ""
                                                     ? Container()
                                                     : Container(
                                                         padding:

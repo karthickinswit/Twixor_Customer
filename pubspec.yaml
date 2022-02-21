@@ -49,6 +49,7 @@ dependencies:
   intl: ^0.17.0
   simple_url_preview: ^3.0.1
   mime: ^1.0.1
+  angular_router: ^3.0.1
 
 
 dev_dependencies:

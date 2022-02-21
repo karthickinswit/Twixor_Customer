@@ -1,14 +1,12 @@
-// ignore_for_file: await_only_futures
+// ignore_for_file: await_only_futures, duplicate_import, unnecessary_import, avoid_print, non_constant_identifier_names, constant_identifier_names
 
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:open_file/open_file.dart';
 import 'package:twixor_customer/API/apidata-service.dart';
 import 'package:twixor_customer/main.dart';
@@ -19,28 +17,23 @@ import 'package:twixor_customer/models/chatMessageModel.dart';
 import 'package:twixor_customer/models/chatUsersModel.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
-import 'package:web_socket_channel/io.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:simple_url_preview/simple_url_preview.dart';
 
-import 'dart:developer';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'helper_files/Websocket.dart';
 import 'helper_files/utilities_files.dart';
 import 'helper_files/webView.dart';
 import 'API/apidata-service.dart';
-import 'package:flutter/material.dart';
 import 'dart:ui';
-import 'package:mime/mime.dart';
+import 'package:mime/mime.dart' show lookupMimeType;
 import 'models/Attachmentmodel.dart';
-import 'package:path_provider/path_provider.dart';
 
 enum ImageSourceType { gallery, camera }
 
+// ignore: must_be_immutable
 class ChatDetailPage extends StatefulWidget {
   String? jsonData = "";
   String attachmentData = "";
@@ -50,6 +43,7 @@ class ChatDetailPage extends StatefulWidget {
 
   @override
   _ChatDetailPageState createState() =>
+      // ignore: no_logic_in_create_state
       _ChatDetailPageState(jsonData!, attachmentData);
 }
 
@@ -61,7 +55,6 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   String? actionBy;
   String? chatId;
   String? eId;
-  String _url = '';
   String jsonData;
   String attachmentData;
   ChatUsers? userdata;
@@ -77,14 +70,12 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 
   // Attachment? attachments;
 
-  var objFile = null;
+  var objFile;
   String? contents;
   ImagePicker picker = ImagePicker();
   var sendFileType;
 
   File? imageFile;
-  bool _visible = false;
-  double _overlap = 0;
 
   String? preview;
 
@@ -95,7 +86,6 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 
   _onUrlChanged(String updatedUrl) {
     setState(() {
-      _url = updatedUrl;
       //fetchPost();
     });
   }
@@ -115,25 +105,24 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     socketMsgReceive();
     setState(() {
       var temp = jsonDecode(jsonData);
-      var temp2 = attachmentData.length != 0 ? jsonDecode(attachmentData) : "";
       attachment = (attachmentData.isNotEmpty)
           ? Attachment.fromJson(jsonDecode(attachmentData))
           : Attachment();
       userdata = ChatUsers.fromJson1(temp);
       // print(userdata.toString());
-      this.imageUrl = userdata!.imageURL;
-      this.name = userdata!.name;
-      this.msgindex = userdata!.msgindex;
-      this.messages = userdata!.messages;
+      imageUrl = userdata!.imageURL;
+      name = userdata!.name;
+      msgindex = userdata!.msgindex;
+      messages = userdata!.messages;
       for (ChatMessage message1 in messages!) {
         if (message1.status != "2") {
           nonReadMessages.add(message1);
         }
       }
-      this.messages;
+      messages;
 
-      this.chatAgents = userdata!.chatAgents!.cast<ChatAgent>();
-      this.eId = userdata!.eId;
+      chatAgents = userdata!.chatAgents!.cast<ChatAgent>();
+      eId = userdata!.eId;
 
       //var messages=
       // this.messages =
@@ -142,7 +131,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         msgController.text = attachment!.desc!;
       } else if (attachment!.type == "URL") {
         msgController.text = attachment!.url!;
-      } else if (attachment!.type == "URL") {
+      } else if (attachment!.type == "video") {
         // msgController.text = attachment!.url!;
         // _videoController!.add(VideoPlayerController.network(attachment!.url!)
         //   ..initialize().then((_) {
@@ -151,10 +140,10 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         //   }));
       }
 
-      this.actionBy = userdata!.actionBy;
+      actionBy = userdata!.actionBy;
 
-      this.chatId = userdata!.chatId;
-      this.eId = userdata!.eId;
+      chatId = userdata!.chatId;
+      eId = userdata!.eId;
     });
     WidgetsBinding.instance?.addObserver(this);
     //socketMsgReceive();
@@ -174,8 +163,6 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 
   @override
   didPopRoute() {
-    bool override;
-
     return Future<bool>.value(true);
   }
 
@@ -262,13 +249,13 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                     IconButton(
                       onPressed: () {
                         Navigator.pushAndRemoveUntil<dynamic>(
-                          context,
-                          MaterialPageRoute<dynamic>(
-                              builder: (BuildContext context) => CustomerApp(
-                                  customerId: customerId, eId: eId!)),
-                          (route) =>
-                              false, //if you want to disable back feature set to false
-                        );
+                            context,
+                            MaterialPageRoute<dynamic>(
+                                builder: (BuildContext context) => CustomerApp(
+                                    customerId: customerId, eId: eId!)),
+                            (route) =>
+                                false //if you want to disable back feature set to false
+                            );
                         // Navigator.push(
                         //     context,
                         //     MaterialPageRoute(
@@ -296,8 +283,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          const Text(
+                        children: const <Widget>[
+                          Text(
                             //'${chatAgents![0].name}',
                             'Chat With Agent',
                             style: TextStyle(
@@ -389,6 +376,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         ));
   }
 
+  // ignore: non_constant_identifier_names
   ChatUtilMessage(ChatMessage message, List chatAgent) {
     var utilMsg = "";
     if (message.actionType == "2") {
@@ -419,6 +407,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   }
 
   Widget alignList(Attachment localAttachment) {
+    // ignore: non_constant_identifier_names
     var TextNode = [
       modelSheet(context),
       const SizedBox(
@@ -678,7 +667,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       height: 240,
       width: MediaQuery.of(context).size.width,
       child: Card(
-        margin: const EdgeInsets.all(22.0),
+        margin: const EdgeInsets.all(20.0),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15.0),
@@ -814,17 +803,6 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     );
   }
 
-  _launchURL(urllink) async {
-    String url = urllink;
-    print("LaunchUrl");
-    print(url);
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }
-  }
-
   chooseFileUsingFilePicker() async {
     var result = await FilePicker.platform.pickFiles(
       withReadStream: true,
@@ -893,12 +871,12 @@ class _ChatDetailPageState extends State<ChatDetailPage>
             shape: const CircleBorder(),
           ),
           isFileUrl
-              ? Container(
+              ? SizedBox(
                   width: 120,
                   height: 100,
                   child: Image.file((content),
                       fit: BoxFit.contain, width: 300, height: 180))
-              : Container(
+              : SizedBox(
                   width: 120,
                   height: 100,
                   child: TextField(
@@ -1156,14 +1134,12 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     final keyboardTopPoints = keyboardTopPixels / window.devicePixelRatio;
     final overlap = widgetRect.bottom - keyboardTopPoints;
     if (overlap >= 0) {
-      setState(() {
-        _overlap = overlap;
-      });
+      setState(() {});
     }
   }
 
   socketMsgReceive() async {
-    print("socketMsgReceive isSocketConnection ${isSocketConnection}");
+    print("socketMsgReceive isSocketConnection $isSocketConnection");
     var message1;
     actionBy != "" ? getCloseSocket() : "";
     //getSocketResponse().
@@ -1191,7 +1167,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
           List<ChatMessage> k = json.content![0].response!.chat!.messages!;
           setState(() {
             messages!.addAll(k);
-            setState(() {});
+            //setState(() {});
             _scrollToEnd();
           });
           print("haai");
@@ -1215,7 +1191,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
               json.content![0].response!.chat!.messages![0].actionBy.toString();
           setState(() {
             messages!.addAll(k!.messages!);
-            this.chatAgents = m.cast<ChatAgent>();
+            chatAgents = m.cast<ChatAgent>();
             setState(() {});
             _scrollToEnd();
           });
@@ -1283,6 +1259,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
             return response.body;
           });
         })
+        // ignore: invalid_return_type_for_catch_error
         .catchError((err) => print('error : ' + err.toString()))
         .whenComplete(() {});
   }

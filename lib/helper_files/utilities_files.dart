@@ -1,17 +1,11 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, non_constant_identifier_names, avoid_print
 
 import 'package:flutter/foundation.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:webview_flutter/webview_flutter.dart';
-
-import 'dart:async';
-import 'dart:io';
 
 var httpClient = HttpClient();
 
@@ -93,14 +87,10 @@ String ConvertTime(String time) {
     now = DateTime.fromMillisecondsSinceEpoch(int.parse(time));
   }
 
-  now = now.add(new Duration(hours: 5, minutes: 30));
-  var formatter = new DateFormat('dd-MM-yyyy');
-
-  var month = now.month.toString().padLeft(2, '0');
+  now = now.add(const Duration(hours: 5, minutes: 30));
 
   var day = now.day.toString().padLeft(2, '0');
   String formattedTime = DateFormat('h:mm a').format(now);
-  String formattedDate = formatter.format(now);
   //print(formattedTime);
   // print(formattedDate);
   return '${months[now.month - 1]} $day, ${now.year} ' + ' ' + formattedTime;
@@ -111,22 +101,20 @@ StoredtoFile(String url, String filename) async {
     // Either the permission was already granted before or the user just granted it.
     var request = await httpClient.getUrl(Uri.parse(url));
     var response = await request.close();
-    final folderName = "twixor_customer";
+    const folderName = "twixor_customer";
     var bytes = await consolidateHttpClientResponseBytes(response);
     String dir = (await getApplicationSupportDirectory()).path;
     final path = Directory('$dir/$folderName');
     //print(path.path);
-    File file = new File(path.path + '/$filename');
+    File file = File(path.path + '/$filename');
     //print(file);
     //await file.writeAsBytes(bytes);
     if ((await path.exists())) {
-      // TODO:
       print("exist");
       //print(file.toString());
       await file.writeAsBytes(bytes);
       return file.uri.path;
     } else {
-      // TODO:
       print("not exist");
       path.create();
       print("created");

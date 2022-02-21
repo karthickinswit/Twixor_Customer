@@ -158,6 +158,37 @@ getChatList(BuildContext context) async {
   }
 }
 
+checktoken() async {
+  List<ChatUsers> chatUsers = [];
+  var tempUrl = APP_URL +
+      'c/enterprises/chat/summary?fromDate=2019-02-16T06:34:16.859Z'; //url + eId + '/chats
+  final response = await http.get(Uri.parse(url + eId + '/chats'), headers: {
+    'authentication-token': await getTokenApi(),
+    'Content-Type': 'application/x-www-form-urlencoded'
+  });
+
+  print(response.headers.toString());
+  if (response.statusCode == 200) {
+    isValidToken = true;
+    print(response.body.toString());
+    var obj = checkApiResponse(response.body.replaceAll("\$", ""));
+    //json.decode(response.body.replaceAll("\$", ""));
+    try {
+      var chats = obj["response"]["chats"];
+      chats.forEach((v) {
+        chatUsers.add(ChatUsers.fromJson(v));
+        //print(v);
+      });
+
+      ///return chatUsers;
+    } catch (Exp) {
+      isValidToken = false;
+    }
+  } else {
+    isValidToken = false;
+  }
+}
+
 checkApiResponse(response) {
   var temp = json.decode(response);
   if (temp["status"] == true) {
