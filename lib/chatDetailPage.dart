@@ -415,6 +415,44 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       ),
       Expanded(
         child: TextField(
+          textInputAction: TextInputAction.go,
+          onSubmitted: (value) {
+            if (value.isNotEmpty) {
+              var temp = ChatMessage(
+                  messageContent: value,
+                  messageType: "sender",
+                  isUrl: Uri.parse(value).isAbsolute,
+                  contentType: "TEXT",
+                  url: '',
+                  attachment: Attachment(),
+                  eId: eId,
+                  actionType: "1",
+                  actionBy: actionBy!,
+                  actedOn: DateTime.now().toUtc().toString());
+              messages!.add(temp);
+              print(actionBy);
+
+              sendmessage(SendMessage(
+                  action: actionBy != ""
+                      ? "customerReplyChat"
+                      : "customerStartChat",
+                  actionBy: actionBy != "" ? int.parse(actionBy!) : 0,
+                  actionType: 1,
+                  attachment: Attachment(),
+                  chatId: chatId!,
+                  contentType: "TEXT",
+                  eId: int.parse(eId!),
+                  message: value));
+
+              setState(() {
+                attachment = Attachment(type: "MSG");
+                attachmentData = "";
+                _scrollToEnd();
+                setState(() {});
+              });
+            }
+            msgController.clear();
+          },
           onChanged: (newValue) => _onUrlChanged(newValue),
           controller: msgController,
           decoration: const InputDecoration(
