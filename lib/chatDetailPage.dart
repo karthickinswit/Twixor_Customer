@@ -252,11 +252,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                             context,
                             MaterialPageRoute<dynamic>(
                                 builder: (BuildContext context) => CustomerApp(
-                                      customerId: customerId,
-                                      eId: eId!,
-                                      MyTheme: themeData,
-                                      title: "TwixorCustomerChat",
-                                    )),
+                                    customerId: customerId, eId: eId!)),
                             (route) =>
                                 false //if you want to disable back feature set to false
                             );
@@ -748,8 +744,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       onTap: () async {
         print("icon creaation");
         if (type == "gallery") {
-          await _getFromGallery();
-          var img1 = await imageFile!.path;
+          //await _getFromGallery();
+          var img1 = await _getFromGallery(); //await imageFile;
           Navigator.pop(context);
           imageFile?.path == ""
               ? const CircularProgressIndicator()
@@ -758,8 +754,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                   context: context,
                   builder: (builder) => ImageDialog(true, img1));
         } else if (type == "camera") {
-          await _getFromCamera();
-          var img1 = await imageFile!.path;
+          // await _getFromCamera();
+          var img1 = await _getFromCamera();
           Navigator.pop(context);
           imageFile?.path == ""
               ? const CircularProgressIndicator()
@@ -768,7 +764,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                   context: context,
                   builder: (builder) => ImageDialog(true, img1));
         } else if (type == "document") {
-          await chooseFileUsingFilePicker();
+          //await chooseFileUsingFilePicker();
           print("Upload");
           if (sendFileType == "jpg") {
             print(objFile.toString());
@@ -817,7 +813,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       setState(() {
         objFile = result.files.single;
         sendFileType = objFile.extension;
-        uploadSelectedFile(objFile);
+        // uploadSelectedFile(objFile);
       });
     }
   }
@@ -827,9 +823,10 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       source: ImageSource.gallery,
     ));
     if (pickedFile != null) {
-      setState(() {
-        imageFile = File(pickedFile.path);
-      });
+      return File(pickedFile.path);
+      // setState(() {
+      //   imageFile = File(pickedFile.path);
+      // });
     }
   }
 
@@ -842,13 +839,13 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     ));
     var imageFile;
     if (pickedFile != null) {
-      setState(() {
-        //fileImg=pickedFile as File;
-        imageFile = pickedFile.path;
-        //print("pickedFile");
-        //print(pickedFile);
-      });
-      return imageFile;
+      return File(pickedFile.path);
+      //fileImg=pickedFile as File;
+      // imageFile = pickedFile.path;
+      //print("pickedFile");
+      //print(pickedFile);
+
+      //return imageFile;
     }
   }
 

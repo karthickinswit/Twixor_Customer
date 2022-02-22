@@ -21,6 +21,10 @@ String url = APP_URL + '/c/enterprises/';
 late String eId;
 late String customerId;
 
+class ThemeClass {
+  ThemeData? MyTheme;
+}
+
 bool isValidToken = false;
 
 late SharedPreferences prefs;
