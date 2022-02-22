@@ -252,7 +252,11 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                             context,
                             MaterialPageRoute<dynamic>(
                                 builder: (BuildContext context) => CustomerApp(
-                                    customerId: customerId, eId: eId!)),
+                                      customerId: customerId,
+                                      eId: eId!,
+                                      MyTheme: themeData,
+                                      title: "TwixorCustomerChat",
+                                    )),
                             (route) =>
                                 false //if you want to disable back feature set to false
                             );

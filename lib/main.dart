@@ -17,21 +17,38 @@ import 'helper_files/Websocket.dart';
 import 'helper_files/utilities_files.dart';
 import 'models/SocketResponseModel.dart';
 import 'models/chatMessageModel.dart';
+
 //29900
+//var MyTheme=Map());
+//var appBarTitle="TwixorCustomerChat";
+ThemeData themeData = ThemeData(
+  appBarTheme: const AppBarTheme(color: Colors.pink),
+  floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      backgroundColor: Colors.red, hoverColor: Colors.yellow),
+  primarySwatch: Colors.cyan,
+);
 
 void main() {
   runApp(CustomerApp(
-    customerId: '8190083903',
-    eId: '374',
-  ));
+      customerId: '8190083903',
+      eId: '374',
+      MyTheme: themeData,
+      title: "TwixorCustomerChat"));
 }
 
 class CustomerApp extends StatelessWidget {
   String customerId;
   String eId;
+  ThemeData MyTheme;
+  String title;
 
   //CustomerApp(this.eId, this.customerId);
-  CustomerApp({Key? key, required this.customerId, required this.eId})
+  CustomerApp(
+      {Key? key,
+      required this.customerId,
+      required this.eId,
+      required this.MyTheme,
+      required this.title})
       : super(key: key);
 
   late SharedPreferences prefs;
@@ -72,28 +89,17 @@ class CustomerApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Twixor',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-      ),
+      theme: MyTheme,
       home: FutureBuilder<bool>(
           future: _checkPrefs(),
           builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
             if (snapshot.data == false) {
-              return Center(
+              return const Center(
                 child: CircularProgressIndicator(),
               );
             } else {
               return MyHomePage(
-                title: 'Twixor Customer Chat',
+                title: title,
                 customerId1: customerId,
                 eId1: eId,
               );
@@ -187,7 +193,7 @@ class _MyHomePageState extends State<MyHomePage> {
     socketMsgReceiveMain();
   }
 
-  void _incrementCounter() async {
+  void _chatDetails() async {
     //getChatUserInfo();
     isLoading = true;
     isVisible = false;
@@ -226,7 +232,7 @@ class _MyHomePageState extends State<MyHomePage> {
       } else {
         ErrorAlert(context, "UserDetails Not Present");
         ChatId = await newChatCreate(context);
-        _incrementCounter();
+        _chatDetails();
       }
     } else {
       clearToken();
@@ -253,7 +259,6 @@ class _MyHomePageState extends State<MyHomePage> {
             // Here we take the value from the MyHomePage object that was created by
             // the App.build method, and use it to set our appbar title.
             title: Text(widget.title),
-            actions: [],
           ),
           body: isLoading
               ? //check loadind status
@@ -470,21 +475,21 @@ class _MyHomePageState extends State<MyHomePage> {
                     }
                   },
                   future: getChatList(context)),
-          floatingActionButton:
-              Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
-            Visibility(
-              visible: isVisible,
+          // floatingActionButton:
+          //     Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
+          //   Visibility(
+          //     visible: isVisible,
 
-              child: FloatingActionButton(
-                onPressed: _incrementCounter,
-                tooltip: 'Increment',
-                child: const Icon(
-                  IconData(0xf8b8, fontFamily: 'MaterialIcons'),
-                ),
-              ), // This trailing comma makes auto-formatting nicer for build methods.
-            ),
-            const SizedBox(width: 10),
-          ]),
+          //     child: FloatingActionButton(
+          //       onPressed: _incrementCounter,
+          //       tooltip: 'Increment',
+          //       child: const Icon(
+          //         IconData(0xf8b8, fontFamily: 'MaterialIcons'),
+          //       ),
+          //     ), // This trailing comma makes auto-formatting nicer for build methods.
+          //   ),
+          //   const SizedBox(width: 10),
+          // ]),
         ));
   }
 
