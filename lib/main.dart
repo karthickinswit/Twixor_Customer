@@ -475,21 +475,21 @@ class _MyHomePageState extends State<MyHomePage> {
                     }
                   },
                   future: getChatList(context)),
-          // floatingActionButton:
-          //     Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
-          //   Visibility(
-          //     visible: isVisible,
+          floatingActionButton:
+              Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
+            Visibility(
+              visible: isVisible,
 
-          //     child: FloatingActionButton(
-          //       onPressed: _incrementCounter,
-          //       tooltip: 'Increment',
-          //       child: const Icon(
-          //         IconData(0xf8b8, fontFamily: 'MaterialIcons'),
-          //       ),
-          //     ), // This trailing comma makes auto-formatting nicer for build methods.
-          //   ),
-          //   const SizedBox(width: 10),
-          // ]),
+              child: FloatingActionButton(
+                onPressed: _chatDetails,
+                tooltip: 'Increment',
+                child: const Icon(
+                  IconData(0xf8b8, fontFamily: 'MaterialIcons'),
+                ),
+              ), // This trailing comma makes auto-formatting nicer for build methods.
+            ),
+            const SizedBox(width: 10),
+          ]),
         ));
   }
 
