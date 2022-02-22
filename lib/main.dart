@@ -60,9 +60,10 @@ class CustomerApp extends StatelessWidget {
       clearToken();
       return true;
     } else {
+      clearToken();
       return false;
     }
-    return false;
+    return _checkPrefs();
   }
 
   // This widget is the root of your application.

@@ -208,14 +208,14 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                     padding: const EdgeInsets.only(
                         left: 16, right: 16, top: 5, bottom: 5),
                     child: Align(
-                      alignment: (messages![index].actionType == "1"
+                      alignment: (messages![index].actionType == "3"
                           ? Alignment.topLeft
                           : Alignment.topRight),
                       child: Container(
                         //width: MediaQuery.of(context).size.width,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
-                          color: (messages![index].actionType == "3"
+                          color: (messages![index].actionType == "1"
                               ? Colors.grey.shade200
                               : Colors.blue[50]),
                         ),
