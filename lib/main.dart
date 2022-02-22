@@ -26,6 +26,32 @@ void main() {
   ));
 }
 
+Future<bool> _checkPrefs() async {
+  var tempCustId, tempEid;
+  prefs = await SharedPreferences.getInstance();
+  tempCustId = prefs.getString('customerId') ?? "";
+  tempEid = prefs.getString('eId') ?? "";
+  if (tempCustId == "" && tempEid == "") {
+    clearToken();
+    prefs.setString('customerId', customerId);
+    prefs.setString('eId', eId);
+    return true;
+  } else if (tempCustId == customerId && tempEid == eId) {
+    if (await checktoken()) {
+      return true;
+    }
+  } else if (tempCustId != customerId) {
+    prefs.setString('customerId', customerId);
+    prefs.setString('eId', eId);
+    clearToken();
+    return true;
+  } else {
+    clearToken();
+    return false;
+  }
+  return _checkPrefs();
+}
+
 class CustomerApp extends StatelessWidget {
   String customerId;
   String eId;
@@ -38,32 +64,6 @@ class CustomerApp extends StatelessWidget {
 
   initState() {
     clearToken();
-  }
-
-  Future<bool> _checkPrefs() async {
-    var tempCustId, tempEid;
-    prefs = await SharedPreferences.getInstance();
-    tempCustId = prefs.getString('customerId') ?? "";
-    tempEid = prefs.getString('eId') ?? "";
-    if (tempCustId == "" && tempEid == "") {
-      clearToken();
-      prefs.setString('customerId', customerId);
-      prefs.setString('eId', eId);
-      return true;
-    } else if (tempCustId == customerId && tempEid == eId) {
-      if (await checktoken()) {
-        return true;
-      }
-    } else if (tempCustId != customerId) {
-      prefs.setString('customerId', customerId);
-      prefs.setString('eId', eId);
-      clearToken();
-      return true;
-    } else {
-      clearToken();
-      return false;
-    }
-    return _checkPrefs();
   }
 
   // This widget is the root of your application.
@@ -465,7 +465,13 @@ class _MyHomePageState extends State<MyHomePage> {
                             );
                     } else if (snapshot.hasError) {
                       ErrorAlert(context, snapshot.error.toString());
-                      return const Center(child: Text("There was a Problem "));
+                      return Column(children: <Widget>[
+                        const Text("There was a Problem "),
+                        IconButton(
+                            onPressed: () => {_checkPrefs()},
+                            icon: Icon(
+                                IconData(0xf2f7, fontFamily: 'MaterialIcons')))
+                      ]);
                     } else {
                       return const Center(child: CircularProgressIndicator());
                     }
