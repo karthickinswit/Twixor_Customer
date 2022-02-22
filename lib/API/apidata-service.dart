@@ -150,11 +150,12 @@ getChatList(BuildContext context) async {
         chatUsers.add(ChatUsers.fromJson(v));
         //print(v);
       });
-
+      //throw ("getting Chat List Failed");
       return chatUsers;
     } catch (Exp) {
       ErrorAlert(context, "Session TimeOut");
       isValidToken = false;
+      throw ("getting Chat List Failed");
     }
   } else {
     clearToken();

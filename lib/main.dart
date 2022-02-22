@@ -39,6 +39,9 @@ Future<bool> _checkPrefs() async {
   } else if (tempCustId == customerId && tempEid == eId) {
     if (await checktoken()) {
       return true;
+    } else {
+      //clearToken();
+      return false;
     }
   } else if (tempCustId != customerId || tempEid != eId) {
     prefs.setString('customerId', customerId);
@@ -89,7 +92,7 @@ class CustomerApp extends StatelessWidget {
           future: _checkPrefs(),
           builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
             if (snapshot.data == false) {
-              return Center(
+              return const Center(
                 child: CircularProgressIndicator(),
               );
             } else {
@@ -467,10 +470,15 @@ class _MyHomePageState extends State<MyHomePage> {
                       ErrorAlert(context, snapshot.error.toString());
                       return Center(
                         child: Column(children: <Widget>[
-                          const Text("There was a Problem "),
+                          const Text(
+                              "There was a Problem.Please click to retry "),
                           IconButton(
-                              onPressed: () => {_checkPrefs()},
-                              icon: Icon(IconData(0xf2f7,
+                              onPressed: () {
+                                _checkPrefs();
+                                clearToken();
+                                setState(() {});
+                              },
+                              icon: const Icon(IconData(0xf2f7,
                                   fontFamily: 'MaterialIcons')))
                         ]),
                       );
