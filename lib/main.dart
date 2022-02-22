@@ -465,13 +465,15 @@ class _MyHomePageState extends State<MyHomePage> {
                             );
                     } else if (snapshot.hasError) {
                       ErrorAlert(context, snapshot.error.toString());
-                      return Column(children: <Widget>[
-                        const Text("There was a Problem "),
-                        IconButton(
-                            onPressed: () => {_checkPrefs()},
-                            icon: Icon(
-                                IconData(0xf2f7, fontFamily: 'MaterialIcons')))
-                      ]);
+                      return Center(
+                        child: Column(children: <Widget>[
+                          const Text("There was a Problem "),
+                          IconButton(
+                              onPressed: () => {_checkPrefs()},
+                              icon: Icon(IconData(0xf2f7,
+                                  fontFamily: 'MaterialIcons')))
+                        ]),
+                      );
                     } else {
                       return const Center(child: CircularProgressIndicator());
                     }
