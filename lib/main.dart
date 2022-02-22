@@ -22,7 +22,7 @@ import 'models/chatMessageModel.dart';
 void main() {
   runApp(CustomerApp(
     customerId: '8190083902',
-    eId: '374',
+    eId: '375',
   ));
 }
 
@@ -40,7 +40,7 @@ Future<bool> _checkPrefs() async {
     if (await checktoken()) {
       return true;
     }
-  } else if (tempCustId != customerId) {
+  } else if (tempCustId != customerId || tempEid != eId) {
     prefs.setString('customerId', customerId);
     prefs.setString('eId', eId);
     clearToken();
