@@ -544,17 +544,17 @@ class _ChatDetailPageState extends State<ChatDetailPage>
             MaterialButton(
               onPressed: () {
                 print(actionBy);
-                messages!.add(ChatMessage(
-                    messageContent: "",
-                    messageType: "sender",
-                    isUrl: Uri.parse(msgController.text).isAbsolute,
-                    contentType: attachment!.type,
-                    url: attachment!.url,
-                    attachment: attachment,
-                    eId: eId,
-                    actionType: "1",
-                    actionBy: actionBy!,
-                    actedOn: DateTime.now().toUtc().toString()));
+                // messages!.add(ChatMessage(
+                //     messageContent: "",
+                //     messageType: "sender",
+                //     isUrl: Uri.parse(msgController.text).isAbsolute,
+                //     contentType: attachment!.type,
+                //     url: attachment!.url,
+                //     attachment: attachment,
+                //     eId: eId,
+                //     actionType: "1",
+                //     actionBy: actionBy!,
+                //     actedOn: DateTime.now().toUtc().toString()));
                 //  print(messages![messages!.length - 1].isUrl);
                 sendmessage(SendMessage(
                   action: actionBy != ""
@@ -1194,9 +1194,9 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       } else if (message1["action"] == "customerReplyChat") {
         print("Message sent Socket");
         var json = SocketResponse.fromJson(message1);
-        //List<ChatMessage> k = json.content![0].response!.chat!.messages!;
+        List<ChatMessage> k = json.content![0].response!.chat!.messages!;
         setState(() {
-          setState(() {});
+          messages!.addAll(k);
           _scrollToEnd();
         });
       } else if (message1["action"] == "agentReplyChat") {
