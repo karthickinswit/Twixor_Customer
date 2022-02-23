@@ -17,6 +17,7 @@ import 'helper_files/Websocket.dart';
 import 'helper_files/utilities_files.dart';
 import 'models/SocketResponseModel.dart';
 import 'models/chatMessageModel.dart';
+import 'package:twixor_customer/main.dart';
 //29900
 
 void main() {
@@ -478,8 +479,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                 clearToken();
                                 setState(() {
                                   MaterialPageRoute(
-                                      builder: (context) =>
-                                          ChatDetailPage(userDetails, ""));
+                                      builder: (context) => CustomerApp(
+                                            customerId: customerId,
+                                            eId: eId,
+                                          ));
                                 });
                               },
                               icon: const Icon(IconData(0xf2f7,
