@@ -418,19 +418,19 @@ class _ChatDetailPageState extends State<ChatDetailPage>
           textInputAction: TextInputAction.go,
           onSubmitted: (value) {
             if (value.isNotEmpty) {
-              var temp = ChatMessage(
-                  messageContent: value,
-                  messageType: "sender",
-                  isUrl: Uri.parse(value).isAbsolute,
-                  contentType: "TEXT",
-                  url: '',
-                  attachment: Attachment(),
-                  eId: eId,
-                  actionType: "1",
-                  actionBy: actionBy!,
-                  actedOn: DateTime.now().toUtc().toString());
-              messages!.add(temp);
-              print(actionBy);
+              // var temp = ChatMessage(
+              //     messageContent: value,
+              //     messageType: "sender",
+              //     isUrl: Uri.parse(value).isAbsolute,
+              //     contentType: "TEXT",
+              //     url: '',
+              //     attachment: Attachment(),
+              //     eId: eId,
+              //     actionType: "1",
+              //     actionBy: actionBy!,
+              //     actedOn: DateTime.now().toUtc().toString());
+              // messages!.add(temp);
+              // print(actionBy);
 
               sendmessage(SendMessage(
                   action: actionBy != ""
@@ -471,19 +471,19 @@ class _ChatDetailPageState extends State<ChatDetailPage>
           //Attachment attachment;
 
           if (msgController.text.isNotEmpty) {
-            var temp = ChatMessage(
-                messageContent: msgController.text,
-                messageType: "sender",
-                isUrl: Uri.parse(msgController.text).isAbsolute,
-                contentType: "TEXT",
-                url: '',
-                attachment: Attachment(),
-                eId: eId,
-                actionType: "1",
-                actionBy: actionBy!,
-                actedOn: DateTime.now().toUtc().toString());
-            messages!.add(temp);
-            print(actionBy);
+            // var temp = ChatMessage(
+            //     messageContent: msgController.text,
+            //     messageType: "sender",
+            //     isUrl: Uri.parse(msgController.text).isAbsolute,
+            //     contentType: "TEXT",
+            //     url: '',
+            //     attachment: Attachment(),
+            //     eId: eId,
+            //     actionType: "1",
+            //     actionBy: actionBy!,
+            //     actedOn: DateTime.now().toUtc().toString());
+            // messages!.add(temp);
+            // print(actionBy);
 
             sendmessage(SendMessage(
                 action:
