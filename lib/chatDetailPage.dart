@@ -702,13 +702,13 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 
   Widget bottomSheet(context1) {
     return Container(
-      height: 240,
+      height: 140,
       width: MediaQuery.of(context).size.width,
       child: Card(
         margin: const EdgeInsets.all(20.0),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15.0),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 15.0),
           child: Column(
             children: [
               Row(
@@ -731,35 +731,16 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                   ),
                   iconCreation(context1, Icons.insert_photo, Colors.purple,
                       "Gallery", "gallery", 1),
-                ],
-              ),
-              const SizedBox(
-                height: 30,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
+                  const SizedBox(
+                    width: 40,
+                  ),
                   iconCreation(
                       context1,
                       const IconData(0xe7b4, fontFamily: 'MaterialIcons'),
                       Colors.orange,
                       "Audio",
                       "audio",
-                      7),
-                  const SizedBox(
-                    width: 40,
-                  ),
-                  iconCreation(
-                      context1,
-                      const IconData(0xe752, fontFamily: 'MaterialIcons'),
-                      Colors.teal,
-                      "Location",
-                      "location",
-                      9),
-                  const SizedBox(
-                    width: 40,
-                  ),
-                  // iconCreation(Icons.person, Colors.blue, "Contact"),
+                      7)
                 ],
               ),
             ],
@@ -789,6 +770,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
               ? const CircularProgressIndicator()
               : showModalBottomSheet(
                   backgroundColor: Colors.transparent,
+                  isDismissible: true,
                   context: context,
                   builder: (builder) => ImageDialog(true, img1));
         } else if (type == "camera") {
@@ -802,7 +784,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                   context: context,
                   builder: (builder) => ImageDialog(true, img1));
         } else if (type == "document") {
-          //await chooseFileUsingFilePicker();
+          objFile = await chooseFileUsingFilePicker();
           print("Upload");
           if (sendFileType == "jpg") {
             print(objFile.toString());
@@ -811,7 +793,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                 : showModalBottomSheet(
                     backgroundColor: Colors.transparent,
                     context: context,
-                    builder: (builder) => ImageDialog(true, objFile));
+                    builder: (builder) => ImageDialog(true, objFile),
+                  );
           }
         } else {}
       },
@@ -849,9 +832,12 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     );
     if (result != null) {
       setState(() {
-        objFile = result.files.single;
-        sendFileType = objFile.extension;
-        // uploadSelectedFile(objFile);
+        print("ObjFile ${result.files.single.runtimeType}");
+        var objFile = result.files.single;
+        print("ObjFile ${result.files.single.runtimeType}");
+        //sendFileType = result.files.single.extension;
+        print("SendFileType ${sendFileType}");
+        return uploadSelectedFile(objFile);
       });
     }
   }
@@ -890,57 +876,61 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 // ignore: unused_element
 
   Widget ImageDialog(isFileUrl, content) {
-    return AlertDialog(
-      //contentPadding:,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(16.0))),
-      actions: <Widget>[
-        Row(children: [
-          MaterialButton(
-            onPressed: () {
-              Navigator.of(context).pop(false);
-            },
-            color: Colors.blue,
-            textColor: Colors.white,
-            child: const Icon(
-              IconData(0xe16a, fontFamily: 'MaterialIcons'),
-              size: 8,
+    return FractionallySizedBox(
+      heightFactor: 10,
+      child: AlertDialog(
+        //contentPadding:,
+        scrollable: true,
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(50.0))),
+        actions: <Widget>[
+          Row(mainAxisSize: MainAxisSize.max, children: [
+            MaterialButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              color: Colors.blue,
+              textColor: Colors.white,
+              child: const Icon(
+                IconData(0xe16a, fontFamily: 'MaterialIcons'),
+                size: 8,
+              ),
+              padding: const EdgeInsets.all(8),
+              shape: const CircleBorder(),
             ),
-            padding: const EdgeInsets.all(8),
-            shape: const CircleBorder(),
-          ),
-          isFileUrl
-              ? SizedBox(
-                  width: 120,
-                  height: 100,
-                  child: Image.file((content),
-                      fit: BoxFit.contain, width: 300, height: 180))
-              : SizedBox(
-                  width: 120,
-                  height: 100,
-                  child: TextField(
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: content,
+            isFileUrl
+                ? SizedBox(
+                    width: 120,
+                    height: 100,
+                    child: Image.file((content),
+                        fit: BoxFit.contain, width: 300, height: 180))
+                : SizedBox(
+                    width: 120,
+                    height: 100,
+                    child: TextField(
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: content,
+                      ),
                     ),
                   ),
-                ),
-          MaterialButton(
-            onPressed: () {
-              setState(() {});
-            },
-            color: Colors.blue,
-            textColor: Colors.white,
-            child: const Icon(
-              IconData(0xe571,
-                  fontFamily: 'MaterialIcons', matchTextDirection: true),
-              size: 8,
+            MaterialButton(
+              onPressed: () {
+                setState(() {});
+              },
+              color: Colors.blue,
+              textColor: Colors.white,
+              child: const Icon(
+                IconData(0xe571,
+                    fontFamily: 'MaterialIcons', matchTextDirection: true),
+                size: 8,
+              ),
+              padding: const EdgeInsets.all(8),
+              shape: const CircleBorder(),
             ),
-            padding: const EdgeInsets.all(8),
-            shape: const CircleBorder(),
-          ),
-        ]),
-      ],
+          ]),
+        ],
+      ),
     );
   }
 
