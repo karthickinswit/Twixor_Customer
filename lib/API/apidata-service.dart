@@ -100,7 +100,7 @@ newChatCreate(BuildContext context) async {
 }
 
 customerRegisterInfo() async {
-  var map = Map<String, dynamic>();
+  var map = <String, dynamic>{};
 
   map['name'] = customerId;
   map['phoneNumber'] = customerId;

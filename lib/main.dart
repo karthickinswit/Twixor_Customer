@@ -51,9 +51,9 @@ Future<bool> _checkPrefs() async {
     return true;
   } else {
     clearToken();
-    return false;
+
+    return _checkPrefs();
   }
-  return _checkPrefs();
 }
 
 class CustomerApp extends StatelessWidget {
@@ -92,6 +92,12 @@ class CustomerApp extends StatelessWidget {
       home: FutureBuilder<bool>(
           future: _checkPrefs(),
           builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+
             if (snapshot.data == false) {
               return const Center(
                 child: CircularProgressIndicator(),
