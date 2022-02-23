@@ -153,13 +153,14 @@ getChatList(BuildContext context) async {
       //throw ("getting Chat List Failed");
       return chatUsers;
     } catch (Exp) {
-      ErrorAlert(context, "Session TimeOut");
+      ErrorAlert(context, "getting Chat List Failed");
       isValidToken = false;
-      throw ("getting Chat List Failed");
+      //throw ("getting Chat List Failed");
+      return [].cast<ChatUsers>();
     }
   } else {
     clearToken();
-    throw ("getting Chat List Failed");
+    throw ("SessionTimeOut");
   }
 }
 

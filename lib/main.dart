@@ -22,7 +22,7 @@ import 'models/chatMessageModel.dart';
 void main() {
   runApp(CustomerApp(
     customerId: '8190083902',
-    eId: '375',
+    eId: '374',
   ));
 }
 
@@ -476,7 +476,11 @@ class _MyHomePageState extends State<MyHomePage> {
                               onPressed: () {
                                 _checkPrefs();
                                 clearToken();
-                                setState(() {});
+                                setState(() {
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          ChatDetailPage(userDetails, ""));
+                                });
                               },
                               icon: const Icon(IconData(0xf2f7,
                                   fontFamily: 'MaterialIcons')))
