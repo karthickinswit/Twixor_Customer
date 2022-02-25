@@ -180,7 +180,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         messageIds.add(messages![index].actionId.toString());
         print("messageIds ${messageIds.runtimeType}");
         if (messages![index].status != "2" &&
-            messages![index].actionType == "3") {
+            messages![index].actionType == "1") {
           print("messageIds1");
           SendMessage temp = SendMessage();
 

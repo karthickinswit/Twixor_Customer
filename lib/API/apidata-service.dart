@@ -64,7 +64,8 @@ Future<ChatUsers?> getChatUserInfo(BuildContext context, String ChatId) async {
     }
     return chatUserData;
   } else {
-    throw ("Get Chat Information is Failed");
+    clearToken();
+    throw ("SessionTimeOut");
   }
 }
 
@@ -176,17 +177,10 @@ checktoken() async {
   print(response.headers.toString());
   if (response.statusCode == 200) {
     isValidToken = true;
-    print(response.body.toString());
-    var obj = checkApiResponse(response.body.replaceAll("\$", ""));
-    try {
-      isValidToken = true;
-    } catch (Exp) {
-      isValidToken = false;
-    }
-    return isValidToken;
+    return true;
   } else {
-    isValidToken = false;
-    return isValidToken;
+    isValidToken = true;
+    return true;
   }
 }
 

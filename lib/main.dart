@@ -17,7 +17,6 @@ import 'helper_files/Websocket.dart';
 import 'helper_files/utilities_files.dart';
 import 'models/SocketResponseModel.dart';
 import 'models/chatMessageModel.dart';
-import 'package:twixor_customer/main.dart';
 //29900
 
 void main() {
@@ -32,27 +31,32 @@ Future<bool> _checkPrefs() async {
   prefs = await SharedPreferences.getInstance();
   tempCustId = prefs.getString('customerId') ?? "";
   tempEid = prefs.getString('eId') ?? "";
+  authToken = prefs.getString('authToken') ?? "";
   if (tempCustId == "" && tempEid == "") {
-    clearToken();
+    await clearToken();
     prefs.setString('customerId', customerId);
     prefs.setString('eId', eId);
-    return true;
+    authToken = await getTokenApi() ?? "";
+    prefs.setString('authToken', authToken!);
+
+    return await checktoken() ? true : await _checkPrefs();
   } else if (tempCustId == customerId && tempEid == eId) {
-    if (await checktoken()) {
-      return true;
+    if (authToken == "") {
+      authToken = await getTokenApi() ?? "";
+      prefs.setString('authToken', authToken!);
+      return await checktoken() ? true : await _checkPrefs();
     } else {
-      //clearToken();
-      return false;
+      return await checktoken() ? true : await _checkPrefs();
     }
   } else if (tempCustId != customerId || tempEid != eId) {
+    await clearToken();
     prefs.setString('customerId', customerId);
     prefs.setString('eId', eId);
-    clearToken();
-    return true;
+    authToken = await getTokenApi() ?? "";
+    prefs.setString('authToken', authToken!);
+    return await checktoken() ? true : await _checkPrefs();
   } else {
-    clearToken();
-
-    return _checkPrefs();
+    return await checktoken() ? true : await _checkPrefs();
   }
 }
 
@@ -67,11 +71,11 @@ class CustomerApp extends StatelessWidget {
   late SharedPreferences prefs;
 
   initState() {
-    clearToken();
+    //clearToken();
   }
 
   // This widget is the root of your application.
-  Future<void> requestPermission(Permission permission) async {}
+  // Future<void> requestPermission(Permission permission) async {}
 
   @override
   Widget build(BuildContext context) {
@@ -92,22 +96,21 @@ class CustomerApp extends StatelessWidget {
       home: FutureBuilder<bool>(
           future: _checkPrefs(),
           builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
+            print(const AsyncSnapshot.nothing().toString());
+            // if (snapshot.connectionState == ConnectionState.none) {
 
-            if (snapshot.data == false) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            } else {
+            // }
+
+            if (snapshot.connectionState == ConnectionState.done) {
+              print(
+                  "snapshot Data checkPrefs ${snapshot.data} --> $customerId --> ${eId} --> ${authToken}");
               return MyHomePage(
                 title: 'Twixor Customer Chat',
                 customerId1: customerId,
                 eId1: eId,
               );
+            } else {
+              return (Center(child: CircularProgressIndicator()));
             }
           }),
     );
@@ -188,12 +191,12 @@ class _MyHomePageState extends State<MyHomePage> {
     // getApiPref();
     //await clearToken();
 
-    if (authToken == null || authToken == "") {
-      var token = await getTokenApi();
-    } else {
-      print(authToken);
-      // getChatList(context);
-    }
+    // if (authToken == null || authToken == "") {
+    //   var token = await getTokenApi();
+    // } else {
+    //   print(authToken);
+    //   // getChatList(context);
+    // }
 
     socketMsgReceiveMain();
   }
@@ -206,7 +209,7 @@ class _MyHomePageState extends State<MyHomePage> {
       requestWritePermission();
     }
 
-    if (isValidToken) {
+    if (await checktoken()) {
       // SharedPreferences prefs = await SharedPreferences.getInstance();
       var chatId = await newChatCreate(context);
       // chatIds!.add(chatId);
@@ -241,7 +244,7 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     } else {
       clearToken();
-      customerRegisterInfo();
+      // customerRegisterInfo();
     }
   }
 
@@ -264,12 +267,9 @@ class _MyHomePageState extends State<MyHomePage> {
             // Here we take the value from the MyHomePage object that was created by
             // the App.build method, and use it to set our appbar title.
             title: Text(widget.title),
-            actions: [],
+            actions: const [],
           ),
-          body: isLoading
-              ? //check loadind status
-              const Center(child: CircularProgressIndicator())
-              :
+          body:
               // Column is also a layout widget. It takes a list of children and
               // arranges them vertically. By default, it sizes itself to fit its
               // children horizontally, and tries to be as tall as its parent.
@@ -475,6 +475,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             );
                     } else if (snapshot.hasError) {
                       ErrorAlert(context, snapshot.error.toString());
+
                       return Center(
                         child: Column(children: <Widget>[
                           const Text(
@@ -482,14 +483,15 @@ class _MyHomePageState extends State<MyHomePage> {
                           IconButton(
                               onPressed: () {
                                 _checkPrefs();
-                                clearToken();
-                                setState(() {
-                                  MaterialPageRoute(
-                                      builder: (context) => CustomerApp(
-                                            customerId: customerId,
-                                            eId: eId,
-                                          ));
-                                });
+                                // //clearToken();
+
+                                MaterialPageRoute(
+                                    builder: (context) => CustomerApp(
+                                          customerId: customerId,
+                                          eId: eId,
+                                        ));
+                                setState(() {});
+                                // setState(() {});
                               },
                               icon: const Icon(IconData(0xf2f7,
                                   fontFamily: 'MaterialIcons')))
