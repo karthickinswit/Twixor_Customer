@@ -49,14 +49,14 @@ Future<void> sendmessage(SendMessage sendMessage) async {
   data["action"] = sendMessage.action;
   //data["actionBy"] = sendMessage.actionBy;
   // data["actionType"] = sendMessage.actionType;
-  // data["attachment"] =
-  //     sendMessage.attachment!.url != null ? sendMessage.attachment : {};
+  data["attachment"] =
+      sendMessage.attachment!.url != null ? sendMessage.attachment : "";
   data["chatId"] = sendMessage.chatId;
   data["contentType"] = sendMessage.contentType;
   data["eId"] = sendMessage.eId;
   data["message"] = sendMessage.message;
   data["service"] = "";
-  //print(json.encode(data).toString());
+  print(json.encode(data).toString());
   channel!.sink.add(json.encode(data)); //send message to reciever channel
 }
 

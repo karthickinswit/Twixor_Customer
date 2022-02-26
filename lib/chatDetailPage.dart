@@ -514,77 +514,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         elevation: 0,
       ),
     ];
-    var ImageNode = [
-      Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            MaterialButton(
-              onPressed: () {
-                Navigator.of(context).pop(false);
-                setState(() {});
-              },
-              color: Colors.blue,
-              textColor: Colors.white,
-              child: const Icon(
-                IconData(0xe16a, fontFamily: 'MaterialIcons'),
-                size: 16,
-              ),
-              padding: const EdgeInsets.all(20),
-              elevation: 5,
-              shape: const CircleBorder(),
-            ),
-            Container(
-              child: Container(
-                  width: 120,
-                  height: 200,
-                  child: Image.network((localAttachment.url.toString()),
-                      fit: BoxFit.contain, width: 300, height: 180)),
-            ),
-            MaterialButton(
-              onPressed: () {
-                print(actionBy);
-                // messages!.add(ChatMessage(
-                //     messageContent: "",
-                //     messageType: "sender",
-                //     isUrl: Uri.parse(msgController.text).isAbsolute,
-                //     contentType: attachment!.type,
-                //     url: attachment!.url,
-                //     attachment: attachment,
-                //     eId: eId,
-                //     actionType: "1",
-                //     actionBy: actionBy!,
-                //     actedOn: DateTime.now().toUtc().toString()));
-                //  print(messages![messages!.length - 1].isUrl);
-                sendmessage(SendMessage(
-                  action: actionBy != ""
-                      ? "customerReplyChat"
-                      : "customerStartChat",
-                  actionBy: actionBy != "" ? int.parse(actionBy!) : 0,
-                  actionType: 1,
-                  attachment: attachment,
-                  chatId: chatId!,
-                  contentType: attachment!.type,
-                  eId: int.parse(eId!),
-                ));
-                setState(() {
-                  attachment = Attachment(type: "MSG");
-                  attachmentData = "";
-                  _scrollToEnd();
-                });
-              },
-              color: Colors.blue,
-              textColor: Colors.white,
-              child: const Icon(
-                IconData(0xe571,
-                    fontFamily: 'MaterialIcons', matchTextDirection: true),
-                size: 16,
-              ),
-              padding: const EdgeInsets.all(10),
-              shape: const CircleBorder(),
-            ),
-          ])
-    ];
+
     if (localAttachment.type == "MSG") {
       return Align(
         alignment: Alignment.bottomLeft,
@@ -596,35 +526,100 @@ class _ChatDetailPageState extends State<ChatDetailPage>
           child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
-              children: localAttachment.type == "MSG" ? (TextNode) : ImageNode),
+              children: TextNode),
         ),
       );
     } else if (localAttachment.type == "IMAGE") {
+      // return ImageDialog(true, localAttachment.url);
       return Align(
         alignment: Alignment.bottomLeft,
-        child: Container(
-          padding: const EdgeInsets.only(left: 10, bottom: 10, top: 20),
-          height: (localAttachment.type == "MSG") ? 60 : 200,
-          width: double.infinity,
-          color: Colors.white,
-          child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: localAttachment.type == "MSG" ? (TextNode) : ImageNode),
-        ),
+        child: FractionallySizedBox(
+            child: AlertDialog(
+          //contentPadding:,
+          scrollable: true,
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(60.0))),
+          actions: <Widget>[
+            Row(children: [
+              MaterialButton(
+                onPressed: () {
+                  setState(() {
+                    attachment = new Attachment();
+                  });
+                },
+                color: Colors.blue,
+                textColor: Colors.white,
+                child: const Icon(
+                  IconData(0xe16a, fontFamily: 'MaterialIcons'),
+                  size: 14,
+                ),
+                padding: const EdgeInsets.all(8),
+                shape: const CircleBorder(),
+              ),
+              SizedBox(
+                  width: 120,
+                  height: 100,
+                  child: Image.network((localAttachment.url!),
+                      fit: BoxFit.contain, width: 50, height: 50)),
+              MaterialButton(
+                onPressed: () {
+                  sendmessage(SendMessage(
+                    action: actionBy != ""
+                        ? "customerReplyChat"
+                        : "customerStartChat",
+                    actionBy: actionBy != "" ? int.parse(actionBy!) : 0,
+                    actionType: 1,
+                    attachment: attachment,
+                    chatId: chatId!,
+                    contentType: attachment!.type,
+                    eId: int.parse(eId!),
+                  ));
+                  setState(() {
+                    attachment = Attachment(type: "MSG");
+                    attachmentData = "";
+                    _scrollToEnd();
+                  });
+                },
+                color: Colors.blue,
+                textColor: Colors.white,
+                child: const Icon(
+                  IconData(0xe571,
+                      fontFamily: 'MaterialIcons', matchTextDirection: true),
+                  size: 14,
+                ),
+                padding: const EdgeInsets.all(8),
+                shape: const CircleBorder(),
+              ),
+            ]),
+          ],
+        )),
       );
+
+      // return Align(
+      //   alignment: Alignment.bottomLeft,
+      //   child: Container(
+      //     padding: const EdgeInsets.only(left: 10, bottom: 10, top: 20),
+      //     height: (localAttachment.type == "MSG") ? 60 : 200,
+      //     width: double.infinity,
+      //     color: Colors.white,
+      //     child: Row(
+      //         crossAxisAlignment: CrossAxisAlignment.center,
+      //         mainAxisAlignment: MainAxisAlignment.center,
+      //         children: localAttachment.type == "MSG" ? (TextNode) : ImageNode),
+      //   ),
+      // );
     } else {
       return Align(
         alignment: Alignment.bottomLeft,
         child: Container(
           padding: const EdgeInsets.only(left: 10, bottom: 10, top: 10),
-          height: (localAttachment.type == "MSG") ? 60 : 200,
+          height: 60,
           width: 200,
           color: Colors.white,
           child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
-              children: localAttachment.type == "MSG" ? (TextNode) : ImageNode),
+              children: TextNode),
         ),
       );
     }
@@ -633,11 +628,11 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   Widget modelSheet(context1) {
     return GestureDetector(
       onTap: () {
-        // showModalBottomSheet(
-        //     isDismissible: true,
-        //     backgroundColor: Colors.transparent,
-        //     context: context,
-        //     builder: (builder) => bottomSheet(context1));
+        showModalBottomSheet(
+            isDismissible: true,
+            backgroundColor: Colors.transparent,
+            context: context,
+            builder: (builder) => bottomSheet(context1));
       },
       child: Container(
         height: 30,
@@ -750,12 +745,12 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     );
   }
 
-  isFromAttachment(isFileUri, content) {
-    showModalBottomSheet(
-        backgroundColor: Colors.transparent,
-        context: context,
-        builder: (builder) => ImageDialog(true, content));
-  }
+  // isFromAttachment(isFileUri, content) {
+  //   showModalBottomSheet(
+  //       backgroundColor: Colors.transparent,
+  //       context: context,
+  //       builder: (builder) => ImageDialog(true, content));
+  // }
 
   Widget iconCreation(context1, IconData icons, Color color, String text,
       String type, int mediaType) {
@@ -764,39 +759,41 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         print("icon creaation");
         if (type == "gallery") {
           //await _getFromGallery();
-          var img1 = await _getFromGallery(); //await imageFile;
+          //await imageFile;
+          //print("img1--> ${img1}");
           Navigator.pop(context);
-          imageFile?.path == ""
-              ? const CircularProgressIndicator()
-              : showModalBottomSheet(
-                  backgroundColor: Colors.transparent,
-                  isDismissible: true,
-                  context: context,
-                  builder: (builder) => ImageDialog(true, img1));
+
+          await showModalBottomSheet(
+              backgroundColor: Colors.transparent,
+              isDismissible: true,
+              context: context,
+              builder: (builder) => ImageDialog(true, _getFromGallery()));
         } else if (type == "camera") {
           // await _getFromCamera();
-          var img1 = await _getFromCamera();
+          // var img1 = await _getFromCamera();
           Navigator.pop(context);
-          imageFile?.path == ""
-              ? const CircularProgressIndicator()
-              : showModalBottomSheet(
-                  backgroundColor: Colors.transparent,
-                  context: context,
-                  builder: (builder) => ImageDialog(true, img1));
+          // imageFile?.path == ""
+          //  ? const CircularProgressIndicator()
+          showModalBottomSheet(
+              backgroundColor: Colors.transparent,
+              context: context,
+              builder: (builder) => ImageDialog(true, _getFromCamera()));
         } else if (type == "document") {
-          objFile = await chooseFileUsingFilePicker();
+          Navigator.pop(context);
+          //objFile = await chooseFileUsingFilePicker();
           print("Upload");
-          if (sendFileType == "jpg") {
-            print(objFile.toString());
-            objFile?.path == ""
-                ? const CircularProgressIndicator()
-                : showModalBottomSheet(
-                    backgroundColor: Colors.transparent,
-                    context: context,
-                    builder: (builder) => ImageDialog(true, objFile),
-                  );
-          }
-        } else {}
+          //if (sendFileType == "jpg") {
+          print(objFile.toString());
+          //objFile?.path == ""
+          // ? const CircularProgressIndicator()
+          showModalBottomSheet(
+            backgroundColor: Colors.transparent,
+            context: context,
+            builder: (builder) =>
+                ImageDialog(true, chooseFileUsingFilePicker()),
+          );
+        }
+        // } else {}
       },
       child: Column(
         children: [
@@ -834,20 +831,24 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       setState(() {
         print("ObjFile ${result.files.single.runtimeType}");
         var objFile = result.files.single;
+        print("objfile type --> ${objFile.runtimeType}");
         print("ObjFile ${result.files.single.runtimeType}");
         //sendFileType = result.files.single.extension;
         print("SendFileType ${sendFileType}");
+        // ignore: void_checks
         return uploadSelectedFile(objFile);
       });
     }
   }
 
   _getFromGallery() async {
-    var pickedFile = (await picker.pickImage(
+    var pickedFile = await picker.pickImage(
       source: ImageSource.gallery,
-    ));
+    );
     if (pickedFile != null) {
-      return File(pickedFile.path);
+      print("pickedFile-->${pickedFile.path}");
+      return uploadSelectedFilefromGallery(pickedFile);
+      // return File(pickedFile.path);
       // setState(() {
       //   imageFile = File(pickedFile.path);
       // });
@@ -863,7 +864,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     ));
     var imageFile;
     if (pickedFile != null) {
-      return File(pickedFile.path);
+      print(" pickedFile type--> ${pickedFile.runtimeType}");
+      return uploadSelectedFilefromGallery(pickedFile);
       //fileImg=pickedFile as File;
       // imageFile = pickedFile.path;
       //print("pickedFile");
@@ -875,63 +877,70 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 
 // ignore: unused_element
 
-  Widget ImageDialog(isFileUrl, content) {
-    return FractionallySizedBox(
-      heightFactor: 10,
-      child: AlertDialog(
-        //contentPadding:,
-        scrollable: true,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(50.0))),
-        actions: <Widget>[
-          Row(mainAxisSize: MainAxisSize.max, children: [
-            MaterialButton(
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-              color: Colors.blue,
-              textColor: Colors.white,
-              child: const Icon(
-                IconData(0xe16a, fontFamily: 'MaterialIcons'),
-                size: 8,
-              ),
-              padding: const EdgeInsets.all(8),
-              shape: const CircleBorder(),
-            ),
-            isFileUrl
-                ? SizedBox(
-                    width: 120,
-                    height: 100,
-                    child: Image.file((content),
-                        fit: BoxFit.contain, width: 300, height: 180))
-                : SizedBox(
-                    width: 120,
-                    height: 100,
-                    child: TextField(
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: content,
-                      ),
+  Widget ImageDialog(isFileUrl, temp) {
+    return FutureBuilder<dynamic>(
+        future: temp,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return FractionallySizedBox(
+                child: Row(
+              children:
+                  //contentPadding:,
+                  // scrollable: true,
+                  // shape: const RoundedRectangleBorder(
+                  //     borderRadius: BorderRadius.all(Radius.circular(50.0))),
+                  // actions:
+                  <Widget>[
+                Row(children: [
+                  MaterialButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(false);
+                    },
+                    color: Colors.blue,
+                    textColor: Colors.white,
+                    child: const Icon(
+                      IconData(0xe16a, fontFamily: 'MaterialIcons'),
+                      size: 8,
                     ),
+                    padding: const EdgeInsets.all(8),
+                    shape: const CircleBorder(),
                   ),
-            MaterialButton(
-              onPressed: () {
-                setState(() {});
-              },
-              color: Colors.blue,
-              textColor: Colors.white,
-              child: const Icon(
-                IconData(0xe571,
-                    fontFamily: 'MaterialIcons', matchTextDirection: true),
-                size: 8,
-              ),
-              padding: const EdgeInsets.all(8),
-              shape: const CircleBorder(),
-            ),
-          ]),
-        ],
-      ),
-    );
+                  SizedBox(
+                      width: 120,
+                      height: 100,
+                      child: Image.network((snapshot.data),
+                          fit: BoxFit.contain, width: 50, height: 50)),
+                  MaterialButton(
+                    onPressed: () {
+                      setState(() {});
+                    },
+                    color: Colors.blue,
+                    textColor: Colors.white,
+                    child: const Icon(
+                      IconData(0xe571,
+                          fontFamily: 'MaterialIcons',
+                          matchTextDirection: true),
+                      size: 8,
+                    ),
+                    padding: const EdgeInsets.all(8),
+                    shape: const CircleBorder(),
+                  ),
+                ]),
+              ],
+            ));
+          } else {
+            return FractionallySizedBox(
+                heightFactor: 10,
+                child: const AlertDialog(
+                    //contentPadding:,
+                    scrollable: true,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(50.0))),
+                    actions: <Widget>[
+                      Center(child: const CircularProgressIndicator())
+                    ]));
+          }
+        });
   }
 
   Widget UrlPreview(index) {
@@ -1286,6 +1295,71 @@ class _ChatDetailPageState extends State<ChatDetailPage>
             }
 
             return response.body;
+          });
+        })
+        // ignore: invalid_return_type_for_catch_error
+        .catchError((err) => print('error : ' + err.toString()))
+        .whenComplete(() {});
+  }
+
+  uploadSelectedFilefromGallery(XFile objFile) async {
+    //---Create http package multipart request object
+
+    var headers = {'authentication-token': authToken!};
+    var mimeType = lookupMimeType(objFile.path);
+    var t1 = mimeType.toString().split("/");
+
+    var formData = {
+      'message': objFile.name.toString(),
+      'multipart': mimeType.toString(),
+      //'file':objFile
+    };
+    print(formData.toString());
+
+    final request = http.MultipartRequest(
+      "POST",
+      Uri.parse(APP_URL + "/c/drive/upload"),
+    );
+    request.headers.addAll(headers);
+    //-----add other fields if needed
+    request.fields.addAll(formData);
+    // request.fields["id"] = "abc";
+    //-----add selected file with request
+    // ignore: unnecessary_new
+    var bytes = objFile.readAsBytes();
+
+    request.files.add(http.MultipartFile.fromBytes(
+        'file', await File.fromUri(Uri.parse(objFile.path)).readAsBytes(),
+        filename: objFile.name, contentType: new MediaType(t1[0], t1[1])));
+    print("${request.files.first.toString()}");
+
+    //-------Send request
+    // print(request.headers.toString());
+    //print(request.fields.toString());
+    await request
+        .send()
+        .then((result) async {
+          http.Response.fromStream(result).then((response) {
+            if (response.statusCode == 200) {
+              print("Uploaded! ");
+              print('response.body ' + response.body);
+              var temp = json.decode(response.body);
+              print(temp["secureUrl"]);
+              attachment?.url = temp["secureUrl"];
+              attachment?.name = temp["name"];
+              attachment?.type =
+                  ContentReturnType(temp["contentType"]).toString();
+              attachment?.contentType = temp["contentType"];
+              attachment?.isDocument = false;
+              attachment?.desc = "";
+              attachment?.id = temp["id"];
+
+              setState(() {
+                Navigator.pop(context);
+              });
+            }
+
+            return attachment!.url;
           });
         })
         // ignore: invalid_return_type_for_catch_error
