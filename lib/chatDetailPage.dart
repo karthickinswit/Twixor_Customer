@@ -608,6 +608,184 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       //         children: localAttachment.type == "MSG" ? (TextNode) : ImageNode),
       //   ),
       // );
+    } else if (localAttachment.type == "VIDEO") {
+      return Align(
+        alignment: Alignment.bottomLeft,
+        child: FractionallySizedBox(
+            child: AlertDialog(
+          //contentPadding:,
+          scrollable: true,
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(60.0))),
+          actions: <Widget>[
+            Row(children: [
+              MaterialButton(
+                onPressed: () {
+                  setState(() {
+                    attachment = new Attachment();
+                  });
+                },
+                color: Colors.blue,
+                textColor: Colors.white,
+                child: const Icon(
+                  IconData(0xe16a, fontFamily: 'MaterialIcons'),
+                  size: 14,
+                ),
+                padding: const EdgeInsets.all(8),
+                shape: const CircleBorder(),
+              ),
+              FutureBuilder<dynamic>(
+                  future: getThumbnail(localAttachment.url.toString()),
+                  builder: (context, snapshot) {
+                    //try {} catch(Exception){}
+
+                    // print(snapshot);
+                    if (snapshot.connectionState != ConnectionState.waiting) {
+                      print(snapshot.data.toString());
+                      if (snapshot.hasData) {
+                        return Container(
+                          padding: const EdgeInsets.all(1.0),
+                          width: 120.0,
+                          height: 100.0,
+                          child: const Positioned(
+                              child: Icon(
+                            IconData(0xf2b1, fontFamily: 'MaterialIcons'),
+                            size: 40,
+                            color: Colors.white,
+                          )),
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              image: DecorationImage(
+                                  image: MemoryImage(snapshot.data),
+                                  fit: BoxFit.cover)),
+                        );
+                      } else if (snapshot.hasError) {
+                        return Container(
+                          padding: const EdgeInsets.all(8), // Border width
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              backgroundBlendMode: BlendMode.softLight,
+                              borderRadius: BorderRadius.circular(20)),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: SizedBox.fromSize(
+                              size: const Size.fromRadius(48), // Image radius
+                              child: Image.network(
+                                  APP_URL +
+                                      '/drive/docs/61eba0785d9c400b3c6a8dcf',
+                                  fit: BoxFit.cover),
+                            ),
+                          ),
+                        );
+                      } else {
+                        return Container();
+                      }
+                    } else {
+                      return const CircularProgressIndicator();
+                    }
+                  }),
+              MaterialButton(
+                onPressed: () {
+                  sendmessage(SendMessage(
+                    action: actionBy != ""
+                        ? "customerReplyChat"
+                        : "customerStartChat",
+                    actionBy: actionBy != "" ? int.parse(actionBy!) : 0,
+                    actionType: 1,
+                    attachment: attachment,
+                    chatId: chatId!,
+                    contentType: attachment!.type,
+                    eId: int.parse(eId!),
+                  ));
+                  setState(() {
+                    attachment = Attachment(type: "MSG");
+                    attachmentData = "";
+                    _scrollToEnd();
+                  });
+                },
+                color: Colors.blue,
+                textColor: Colors.white,
+                child: const Icon(
+                  IconData(0xe571,
+                      fontFamily: 'MaterialIcons', matchTextDirection: true),
+                  size: 14,
+                ),
+                padding: const EdgeInsets.all(8),
+                shape: const CircleBorder(),
+              ),
+            ]),
+          ],
+        )),
+      );
+    } else if (localAttachment.type == "DOC") {
+      return Align(
+        alignment: Alignment.bottomLeft,
+        child: FractionallySizedBox(
+            child: AlertDialog(
+          //contentPadding:,
+          scrollable: true,
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(60.0))),
+          actions: <Widget>[
+            Row(children: [
+              MaterialButton(
+                onPressed: () {
+                  setState(() {
+                    attachment = new Attachment();
+                  });
+                },
+                color: Colors.blue,
+                textColor: Colors.white,
+                child: const Icon(
+                  IconData(0xe16a, fontFamily: 'MaterialIcons'),
+                  size: 14,
+                ),
+                padding: const EdgeInsets.all(8),
+                shape: const CircleBorder(),
+              ),
+              SizedBox(
+                width: 100,
+                child: Text(
+                  localAttachment.name.toString(),
+                  softWrap: true,
+                  overflow: TextOverflow.visible,
+                  maxLines: 3,
+                  style: const TextStyle(fontSize: 14, color: Colors.amber),
+                ),
+              ),
+              MaterialButton(
+                onPressed: () {
+                  sendmessage(SendMessage(
+                    action: actionBy != ""
+                        ? "customerReplyChat"
+                        : "customerStartChat",
+                    actionBy: actionBy != "" ? int.parse(actionBy!) : 0,
+                    actionType: 1,
+                    attachment: attachment,
+                    chatId: chatId!,
+                    contentType: attachment!.type,
+                    eId: int.parse(eId!),
+                  ));
+                  setState(() {
+                    attachment = Attachment(type: "MSG");
+                    attachmentData = "";
+                    _scrollToEnd();
+                  });
+                },
+                color: Colors.blue,
+                textColor: Colors.white,
+                child: const Icon(
+                  IconData(0xe571,
+                      fontFamily: 'MaterialIcons', matchTextDirection: true),
+                  size: 14,
+                ),
+                padding: const EdgeInsets.all(8),
+                shape: const CircleBorder(),
+              ),
+            ]),
+          ],
+        )),
+      );
     } else {
       return Align(
         alignment: Alignment.bottomLeft,
@@ -929,15 +1107,15 @@ class _ChatDetailPageState extends State<ChatDetailPage>
               ],
             ));
           } else {
-            return FractionallySizedBox(
+            return const FractionallySizedBox(
                 heightFactor: 10,
-                child: const AlertDialog(
+                child: AlertDialog(
                     //contentPadding:,
                     scrollable: true,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(50.0))),
                     actions: <Widget>[
-                      Center(child: const CircularProgressIndicator())
+                      Center(child: CircularProgressIndicator())
                     ]));
           }
         });
@@ -1150,7 +1328,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         maxHeight:
             100, // specify the height of the thumbnail, let the width auto-scaled to keep the source aspect ratio
         quality: 60,
-        maxWidth: 200,
+        maxWidth: 80,
         timeMs: 2000);
     // print(fileName);
     return fileName;

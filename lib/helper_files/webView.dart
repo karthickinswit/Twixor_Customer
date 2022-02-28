@@ -1,12 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:twixor_customer/models/Attachmentmodel.dart';
-import 'package:twixor_customer/helper_files/Websocket.dart';
 import 'package:twixor_customer/models/Attachmentmodel.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:path_provider/path_provider.dart';
@@ -20,14 +17,13 @@ class WebViewEx extends StatefulWidget {
 }
 
 class WebViewExampleState extends State<WebViewEx> {
-  static var httpClient = new HttpClient();
+  static var httpClient = HttpClient();
   late String url;
   late String name;
   Attachment attachment;
   WebViewExampleState(this.attachment);
   final Completer<WebViewController> _controller =
       Completer<WebViewController>();
-  bool _finished = false;
   @override
   void initState() {
     super.initState();
@@ -39,11 +35,11 @@ class WebViewExampleState extends State<WebViewEx> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Media'),
+        title: const Text('Media'),
         toolbarOpacity: 1.0,
         leading: IconButton(
-          icon: Icon(
-            const IconData(0xe094, fontFamily: 'MaterialIcons'),
+          icon: const Icon(
+            IconData(0xe094, fontFamily: 'MaterialIcons'),
           ),
           onPressed: () {
             Navigator.pop(context);
@@ -79,12 +75,10 @@ class WebViewExampleState extends State<WebViewEx> {
       allowsInlineMediaPlayback: true,
       onPageFinished: (String url) {
         print("Page load Finished");
-        setState(() => _finished = true);
       },
       onProgress: (int p) {
         print("Page load Finished");
         print(p);
-        setState(() => _finished = true);
       },
     );
   }
@@ -97,9 +91,9 @@ class WebViewExampleState extends State<WebViewEx> {
       final folderName = "twixor_customer";
       var bytes = await consolidateHttpClientResponseBytes(response);
       String dir = (await getApplicationDocumentsDirectory()).path;
-      final path = Directory("storage/emulated/0/Download/$folderName");
+      final path = Directory('$dir/$folderName');
       print(path.toString());
-      File file = new File('storage/emulated/0/Download/$folderName/$filename');
+      File file = File(path.path + '/$filename');
       //print(file);
       //await file.writeAsBytes(bytes);
       if ((await path.exists())) {
