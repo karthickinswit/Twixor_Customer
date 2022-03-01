@@ -879,7 +879,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       width: MediaQuery.of(context).size.width,
       child: Card(
         margin: const EdgeInsets.all(20.0),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 15.0),
           child: Column(
@@ -905,15 +905,15 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                   iconCreation(context1, Icons.insert_photo, Colors.purple,
                       "Gallery", "gallery", 1),
                   const SizedBox(
-                    width: 40,
+                    width: 0,
                   ),
-                  iconCreation(
-                      context1,
-                      const IconData(0xe7b4, fontFamily: 'MaterialIcons'),
-                      Colors.orange,
-                      "Audio",
-                      "audio",
-                      7)
+                  // iconCreation(
+                  //     context1,
+                  //     const IconData(0xe7b4, fontFamily: 'MaterialIcons'),
+                  //     Colors.orange,
+                  //     "Audio",
+                  //     "audio",
+                  //     7)
                 ],
               ),
             ],

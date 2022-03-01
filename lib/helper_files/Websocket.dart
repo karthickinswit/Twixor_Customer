@@ -47,8 +47,8 @@ Future<void> sendmessage(SendMessage sendMessage) async {
 
   var data = {};
   data["action"] = sendMessage.action;
-  //data["actionBy"] = sendMessage.actionBy;
-  // data["actionType"] = sendMessage.actionType;
+  data["actionBy"] = sendMessage.actionBy;
+  data["actionType"] = sendMessage.actionType;
   data["attachment"] =
       sendMessage.attachment!.url != null ? sendMessage.attachment : "";
   data["chatId"] = sendMessage.chatId;
@@ -56,6 +56,7 @@ Future<void> sendmessage(SendMessage sendMessage) async {
   data["eId"] = sendMessage.eId;
   data["message"] = sendMessage.message;
   data["service"] = "";
+
   print(json.encode(data).toString());
   channel!.sink.add(json.encode(data)); //send message to reciever channel
 }
@@ -67,6 +68,7 @@ Future<void> updateMessageStatus(SendMessage sendMessage) async {
   data["chatId"] = sendMessage.chatId;
   data["from"] = 2;
   data["state"] = 2;
+
   print(json.encode(data));
   channel!.sink.add(json.encode(data));
 }

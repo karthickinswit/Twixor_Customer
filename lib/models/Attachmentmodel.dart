@@ -17,8 +17,7 @@ class Attachment {
       this.desc});
 //json["message"] != null ? json["message"] as String : "";
   Attachment.fromJson(Map<dynamic, dynamic> json) {
-    isDocument =
-        json['isDocument'] != null ? json["isDocument"] as bool : false;
+    isDocument = true;
 
     name = json['name'] != null ? json["name"] as String : "";
 
@@ -30,8 +29,7 @@ class Attachment {
     desc = json['desc'] != null ? json["desc"] as String : "";
   }
   Attachment.fromAPItoJson(Map<dynamic, dynamic> json) {
-    isDocument =
-        json['isDocument'] != null ? json["isDocument"] as bool : false;
+    isDocument = true;
 
     name = json['name'] != null ? json["name"] as String : "";
 
@@ -49,8 +47,7 @@ class Attachment {
 
   Map<dynamic, dynamic> toJson() {
     final Map<dynamic, dynamic> data = new Map<dynamic, dynamic>();
-    data['isDocument'] =
-        this.isDocument != null ? this.isDocument as bool : false;
+    data['isDocument'] = true;
     data['name'] = this.name as String;
     data['id'] = this.id as String;
     data['type'] = this.type as String;

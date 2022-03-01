@@ -17,6 +17,7 @@ late String customerId;
 
 class ThemeClass {
   ThemeData? MyTheme;
+  var customObject = {};
 }
 
 bool isValidToken = false;
