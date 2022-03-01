@@ -1003,7 +1003,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     var result = await FilePicker.platform.pickFiles(
       withReadStream: true,
       type: FileType.custom,
-      allowedExtensions: ['jpg', 'pdf', 'doc', 'mp3', 'mp4'],
+      allowedExtensions: ['jpg', 'pdf', 'doc', 'mp4', 'jpeg'],
     );
     if (result != null) {
       setState(() {
