@@ -315,14 +315,16 @@ class _MyHomePageState extends State<MyHomePage> {
                               child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
-                                  Text("Currently no Active Chats "),
+                                  Text("Currently no Active Chats, "),
                                   SizedBox(height: 10),
                                   Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: <Widget>[
                                         const Text(
-                                            "To start a new Chat, please press"),
+                                          "To start a new Chat, please press",
+                                          textScaleFactor: 0.5,
+                                        ),
                                         SizedBox(width: 3),
                                         Image.network(
                                           "https://qa.twixor.digital/moc/drive/docs/6221e181524ff067fa675220",
@@ -331,7 +333,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                           color: Colors.black,
                                         ),
                                         SizedBox(width: 3),
-                                        Text("below"),
+                                        Text(
+                                          "below",
+                                          textScaleFactor: 0.5,
+                                        ),
                                       ])
                                 ]))
                           : ListView.builder(
