@@ -287,8 +287,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
               FutureBuilder(
                   builder: (context, snapshot) {
-                    _notifyControllers.add(TextEditingController());
-
                     print("snapChat data -> ${snapshot.data.toString()}");
                     if (snapshot.hasData) {
                       chatUsers = snapshot.data as List<ChatUsers>;
@@ -304,7 +302,10 @@ class _MyHomePageState extends State<MyHomePage> {
                       // }
                       // chatUsers = chatUsers1;
                       chatUsers.asMap().forEach((key, value) {
-                        if (value.state == "2") chatUsers1.add(value);
+                        if (value.state == "2") {
+                          chatUsers1.add(value);
+                          _notifyControllers.add(TextEditingController());
+                        }
                       });
                       chatUsers = chatUsers1;
 
@@ -315,7 +316,10 @@ class _MyHomePageState extends State<MyHomePage> {
                               child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
-                                  Text("Currently no Active Chats, "),
+                                  Text(
+                                    "Currently no Active Chats, ",
+                                    textScaleFactor: 1.2,
+                                  ),
                                   SizedBox(height: 10),
                                   Row(
                                       mainAxisAlignment:
@@ -323,19 +327,19 @@ class _MyHomePageState extends State<MyHomePage> {
                                       children: <Widget>[
                                         const Text(
                                           "To start a new Chat, please press",
-                                          textScaleFactor: 0.5,
+                                          textScaleFactor: 0.96,
                                         ),
                                         const SizedBox(width: 3),
                                         Image.network(
                                           "https://qa.twixor.digital/moc/drive/docs/6221e181524ff067fa675220",
-                                          height: 15,
-                                          width: 15,
+                                          height: 36,
+                                          width: 34,
                                           color: Colors.black,
                                         ),
                                         const SizedBox(width: 3),
                                         const Text(
                                           "below",
-                                          textScaleFactor: 0.5,
+                                          textScaleFactor: 0.96,
                                         ),
                                       ])
                                 ]))
@@ -353,8 +357,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                   //   nonReadMessages.add(message1);
                                   // }
                                 }
+                                // print("${_notifyControllers}");
+
                                 _notifyControllers[index].text =
                                     _notifyControllers[index].text;
+
                                 print(
                                     "nonReadmessages Length ${nonReadMessages.length}");
                                 // _notifyControllers[index].text =
@@ -407,7 +414,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                               children: <Widget>[
                                                 const CircleAvatar(
                                                   backgroundImage: NetworkImage(
-                                                      "https://qa.twixor.digital/moc/drive/docs/6221e181524ff067fa675220"),
+                                                      "https://aim.twixor.com/drive/docs/61ef9d425d9c400b3c6c03f9"),
                                                   maxRadius: 30,
                                                 ),
                                                 const SizedBox(
@@ -450,12 +457,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                                 ),
                                                 const SizedBox(width: 10),
                                                 _notifyControllers[index]
-                                                                .text ==
-                                                            "0" ||
-                                                        _notifyControllers[
-                                                                    index]
-                                                                .text ==
-                                                            ""
+                                                            .text ==
+                                                        ""
                                                     ? Container()
                                                     : Container(
                                                         padding:
