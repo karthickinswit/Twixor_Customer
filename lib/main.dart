@@ -325,15 +325,15 @@ class _MyHomePageState extends State<MyHomePage> {
                                           "To start a new Chat, please press",
                                           textScaleFactor: 0.5,
                                         ),
-                                        SizedBox(width: 3),
+                                        const SizedBox(width: 3),
                                         Image.network(
                                           "https://qa.twixor.digital/moc/drive/docs/6221e181524ff067fa675220",
                                           height: 15,
                                           width: 15,
                                           color: Colors.black,
                                         ),
-                                        SizedBox(width: 3),
-                                        Text(
+                                        const SizedBox(width: 3),
+                                        const Text(
                                           "below",
                                           textScaleFactor: 0.5,
                                         ),
