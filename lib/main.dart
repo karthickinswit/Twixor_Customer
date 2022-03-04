@@ -325,7 +325,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                             "To start a new Chat, please press"),
                                         SizedBox(width: 3),
                                         Image.network(
-                                          "https://qa.twixor.digital/moc/drive/docs/6220b115524ff067fa674e1c",
+                                          "https://qa.twixor.digital/moc/drive/docs/6221e181524ff067fa675220",
                                           height: 15,
                                           width: 15,
                                           color: Colors.black,
@@ -402,7 +402,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                               children: <Widget>[
                                                 const CircleAvatar(
                                                   backgroundImage: NetworkImage(
-                                                      "https://aim.twixor.com/drive/docs/61ef9d425d9c400b3c6c03f9"),
+                                                      "https://qa.twixor.digital/moc/drive/docs/6221e181524ff067fa675220"),
                                                   maxRadius: 30,
                                                 ),
                                                 const SizedBox(
@@ -533,9 +533,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   tooltip: 'Increment',
                   child: const ImageIcon(
                     NetworkImage(
-                        "https://qa.twixor.digital/moc/drive/docs/6220b115524ff067fa674e1c"),
-                    // color: Colors.white,
-                    size: 24,
+                        "https://qa.twixor.digital/moc/drive/docs/6221e181524ff067fa675220"),
+                    //color: Colors.white,
+
+                    size: 30,
+                    color: Colors.white,
                   )), // This trailing comma makes auto-formatting nicer for build methods.
             ),
             const SizedBox(width: 10),
