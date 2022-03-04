@@ -81,18 +81,7 @@ class CustomerApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Twixor',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeData.light(),
       home: FutureBuilder<bool>(
           future: _checkPrefs(),
           builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
@@ -170,6 +159,8 @@ class _MyHomePageState extends State<MyHomePage> {
   List<String>? chatIds = [];
   List<ChatUsers> chatUsers = [];
 
+  bool allowClick = false;
+
   final List<TextEditingController> _notifyControllers = [];
 
   _MyHomePageState({required this.customerId1, required this.eId1});
@@ -199,6 +190,15 @@ class _MyHomePageState extends State<MyHomePage> {
     // }
 
     socketMsgReceiveMain();
+  }
+
+  checkClick() {
+    if (!allowClick) {
+      allowClick = true;
+      print("Clicked");
+      _incrementCounter();
+    }
+    return;
   }
 
   void _incrementCounter() async {
@@ -311,8 +311,29 @@ class _MyHomePageState extends State<MyHomePage> {
                       print("${chatUsers.toString()}" " ${chatUsers.length}");
 
                       return chatUsers.isEmpty
-                          ? const Center(
-                              child: Text("Currently no Active Chats "))
+                          ? Center(
+                              child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                  Text("Currently no Active Chats "),
+                                  SizedBox(height: 10),
+                                  Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        const Text(
+                                            "To start a new Chat, please press"),
+                                        SizedBox(width: 3),
+                                        Image.network(
+                                          "https://qa.twixor.digital/moc/drive/docs/6220b115524ff067fa674e1c",
+                                          height: 15,
+                                          width: 15,
+                                          color: Colors.black,
+                                        ),
+                                        SizedBox(width: 3),
+                                        Text("below"),
+                                      ])
+                                ]))
                           : ListView.builder(
                               itemCount: chatUsers.length,
                               shrinkWrap: true,
@@ -508,12 +529,14 @@ class _MyHomePageState extends State<MyHomePage> {
               visible: isVisible,
 
               child: FloatingActionButton(
-                onPressed: _incrementCounter,
-                tooltip: 'Increment',
-                child: const Icon(
-                  IconData(0xf8b8, fontFamily: 'MaterialIcons'),
-                ),
-              ), // This trailing comma makes auto-formatting nicer for build methods.
+                  onPressed: checkClick,
+                  tooltip: 'Increment',
+                  child: const ImageIcon(
+                    NetworkImage(
+                        "https://qa.twixor.digital/moc/drive/docs/6220b115524ff067fa674e1c"),
+                    // color: Colors.white,
+                    size: 24,
+                  )), // This trailing comma makes auto-formatting nicer for build methods.
             ),
             const SizedBox(width: 10),
           ]),

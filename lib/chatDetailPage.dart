@@ -64,6 +64,23 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 
   List<ChatMessage> nonReadMessages = [];
   StreamController chatSocketStream = StreamController();
+  ThemeData themeData = ThemeData(
+    colorScheme: ColorScheme.fromSwatch(
+      primarySwatch: Colors.blue,
+    ).copyWith(
+      secondary: Colors.green,
+    ),
+    appBarTheme: AppBarTheme(
+      color: Colors.transparent,
+      brightness: Brightness.light,
+      elevation: 0,
+      //I want the defaults, which is why I'm copying an 'empty' ThemeData
+      //perhaps there's a better way to do this?
+      textTheme: ThemeData().textTheme,
+      iconTheme: ThemeData().iconTheme,
+    ),
+    textTheme: const TextTheme(bodyText2: TextStyle(color: Colors.purple)),
+  );
 
   static const APP_URL = String.fromEnvironment('APP_URL',
       defaultValue: 'https://qa.twixor.digital/moc');
@@ -231,149 +248,152 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     );
 
     return WillPopScope(
-        onWillPop: () async {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text('The System Back Button is Deactivated')));
-          return false;
-        },
-        child: Scaffold(
-          appBar: AppBar(
-            elevation: 0,
-            automaticallyImplyLeading: false,
-            backgroundColor: Colors.white,
-            flexibleSpace: SafeArea(
-              child: Container(
-                padding: const EdgeInsets.only(right: 16),
-                child: Row(
-                  children: <Widget>[
-                    IconButton(
-                      onPressed: () {
-                        Navigator.pushAndRemoveUntil<dynamic>(
-                            context,
-                            MaterialPageRoute<dynamic>(
-                                builder: (BuildContext context) => CustomerApp(
-                                    customerId: customerId, eId: eId!)),
-                            (route) =>
-                                false //if you want to disable back feature set to false
-                            );
-                        // Navigator.push(
-                        //     context,
-                        //     MaterialPageRoute(
-                        //         builder: (context) => CustomerApp(
-                        //             customerId: customerId, eId: eId!)));
+      onWillPop: () async {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('The System Back Button is Deactivated')));
+        return false;
+      },
+      child: MaterialApp(
+          // theme: themeData,
+          home: Scaffold(
+        appBar: AppBar(
+          elevation: 0,
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.white,
+          flexibleSpace: SafeArea(
+            child: Container(
+              padding: const EdgeInsets.only(right: 16),
+              child: Row(
+                children: <Widget>[
+                  IconButton(
+                    onPressed: () {
+                      Navigator.pushAndRemoveUntil<dynamic>(
+                          context,
+                          MaterialPageRoute<dynamic>(
+                              builder: (BuildContext context) => CustomerApp(
+                                  customerId: customerId, eId: eId!)),
+                          (route) =>
+                              false //if you want to disable back feature set to false
+                          );
+                      // Navigator.push(
+                      //     context,
+                      //     MaterialPageRoute(
+                      //         builder: (context) => CustomerApp(
+                      //             customerId: customerId, eId: eId!)));
 
-                        setState(() {});
-                      },
-                      icon: const Icon(
-                        Icons.arrow_back,
-                        color: Colors.black,
-                      ),
+                      setState(() {});
+                    },
+                    icon: const Icon(
+                      Icons.arrow_back,
+                      color: Colors.black,
                     ),
-                    const SizedBox(
-                      width: 2,
+                  ),
+                  const SizedBox(
+                    width: 2,
+                  ),
+                  // CircleAvatar(
+                  //   backgroundImage: NetworkImage(chatAgents![0].iconUrl!),
+                  //   maxRadius: 20,
+                  // ),
+                  const SizedBox(
+                    width: 12,
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const <Widget>[
+                        Text(
+                          //'${chatAgents![0].name}',
+                          'Chat With Agent',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.w600),
+                        ),
+                        // SizedBox(
+                        //   height: 6,
+                        // ),
+                        // Text(
+                        //   "Online",
+                        //   style: TextStyle(
+                        //       color: Colors.grey.shade600, fontSize: 12),
+                        // ),
+                      ],
                     ),
-                    // CircleAvatar(
-                    //   backgroundImage: NetworkImage(chatAgents![0].iconUrl!),
-                    //   maxRadius: 20,
-                    // ),
-                    const SizedBox(
-                      width: 12,
-                    ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const <Widget>[
-                          Text(
-                            //'${chatAgents![0].name}',
-                            'Chat With Agent',
-                            style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.w600),
-                          ),
-                          // SizedBox(
-                          //   height: 6,
-                          // ),
-                          // Text(
-                          //   "Online",
-                          //   style: TextStyle(
-                          //       color: Colors.grey.shade600, fontSize: 12),
-                          // ),
-                        ],
-                      ),
-                    ),
-                    // PopupMenuButton(
-                    //   itemBuilder: (BuildContext bc) => [
-                    //     PopupMenuItem(
-                    //         child: ListTile(
-                    //       title: Text(
-                    //         'Coversation',
-                    //         textAlign: TextAlign.left,
-                    //       ),
-                    //       enabled: true,
-                    //     )),
-                    //     PopupMenuItem(
-                    //         child: ListTile(
-                    //           leading: Icon(const IconData(0xf006a,
-                    //               fontFamily: 'MaterialIcons')),
-                    //           title: Text('Invite Agents'),
-                    //           enabled: true,
-                    //         ),
-                    //         value: "/chat"),
-                    //     PopupMenuItem(
-                    //         child: ListTile(
-                    //           leading: Icon(const IconData(0xe20a,
-                    //               fontFamily: 'MaterialIcons')),
-                    //           title: Text('Transfer Chat'),
-                    //           enabled: true,
-                    //         ),
-                    //         value: "/chat"),
-                    //     PopupMenuItem(
-                    //         child: ListTile(
-                    //           leading: Icon(const IconData(0xf02a3,
-                    //               fontFamily: 'MaterialIcons')),
-                    //           title: Text('Chat History'),
-                    //           enabled: true,
-                    //         ),
-                    //         value: "/chat"),
-                    //     PopupMenuItem(
-                    //         child: ListTile(
-                    //           leading: Icon(const IconData(0xe312,
-                    //               fontFamily: 'MaterialIcons')),
-                    //           title: Text('Close Chat'),
-                    //           enabled: true,
-                    //         ),
-                    //         value: "/chat"),
-                    //     PopupMenuItem(
-                    //         child: ListTile(
-                    //           leading: Icon(const IconData(0xf271,
-                    //               fontFamily: 'MaterialIcons')),
-                    //           title: Text('Customer Details'),
-                    //           enabled: true,
-                    //         ),
-                    //         value: "/chat"),
-                    //   ],
-                    //   onSelected: (route) {
-                    //     print(route);
-                    //   },
-                    // ),
-                  ],
-                ),
+                  ),
+                  // PopupMenuButton(
+                  //   itemBuilder: (BuildContext bc) => [
+                  //     PopupMenuItem(
+                  //         child: ListTile(
+                  //       title: Text(
+                  //         'Coversation',
+                  //         textAlign: TextAlign.left,
+                  //       ),
+                  //       enabled: true,
+                  //     )),
+                  //     PopupMenuItem(
+                  //         child: ListTile(
+                  //           leading: Icon(const IconData(0xf006a,
+                  //               fontFamily: 'MaterialIcons')),
+                  //           title: Text('Invite Agents'),
+                  //           enabled: true,
+                  //         ),
+                  //         value: "/chat"),
+                  //     PopupMenuItem(
+                  //         child: ListTile(
+                  //           leading: Icon(const IconData(0xe20a,
+                  //               fontFamily: 'MaterialIcons')),
+                  //           title: Text('Transfer Chat'),
+                  //           enabled: true,
+                  //         ),
+                  //         value: "/chat"),
+                  //     PopupMenuItem(
+                  //         child: ListTile(
+                  //           leading: Icon(const IconData(0xf02a3,
+                  //               fontFamily: 'MaterialIcons')),
+                  //           title: Text('Chat History'),
+                  //           enabled: true,
+                  //         ),
+                  //         value: "/chat"),
+                  //     PopupMenuItem(
+                  //         child: ListTile(
+                  //           leading: Icon(const IconData(0xe312,
+                  //               fontFamily: 'MaterialIcons')),
+                  //           title: Text('Close Chat'),
+                  //           enabled: true,
+                  //         ),
+                  //         value: "/chat"),
+                  //     PopupMenuItem(
+                  //         child: ListTile(
+                  //           leading: Icon(const IconData(0xf271,
+                  //               fontFamily: 'MaterialIcons')),
+                  //           title: Text('Customer Details'),
+                  //           enabled: true,
+                  //         ),
+                  //         value: "/chat"),
+                  //   ],
+                  //   onSelected: (route) {
+                  //     print(route);
+                  //   },
+                  // ),
+                ],
               ),
             ),
           ),
-          body: Stack(
-            children: <Widget>[
-              // inspect(messages)
+        ),
+        body: Stack(
+          children: <Widget>[
+            // inspect(messages)
 
-              listView,
-              //  alignList("text", false, "")
-              (attachment!.url != null && attachment!.url != "")
-                  ? alignList(attachment!)
-                  : alignList(Attachment(type: "MSG")),
-            ],
-          ),
-          resizeToAvoidBottomInset: true,
-        ));
+            listView,
+            //  alignList("text", false, "")
+            (attachment!.url != null && attachment!.url != "")
+                ? alignList(attachment!)
+                : alignList(Attachment(type: "MSG")),
+          ],
+        ),
+        resizeToAvoidBottomInset: true,
+      )),
+    );
   }
 
   // ignore: non_constant_identifier_names

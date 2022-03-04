@@ -1,6 +1,3 @@
-import 'package:flutter/cupertino.dart';
-import 'package:twixor_customer/helper_files/Websocket.dart';
-
 import 'Attachmentmodel.dart';
 
 class ChatMessage {
