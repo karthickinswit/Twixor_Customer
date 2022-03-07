@@ -1,4 +1,4 @@
-// ignore_for_file: await_only_futures, duplicate_import, unnecessary_import, avoid_print, non_constant_identifier_names, constant_identifier_names
+// ignore_for_file: await_only_futures, duplicate_import, unnecessary_import, avoid_print, non_constant_identifier_names, constant_identifier_names, deprecated_member_use
 
 import 'dart:async';
 import 'dart:convert';
@@ -242,7 +242,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
             appBar: AppBar(
               elevation: 0,
               automaticallyImplyLeading: false,
-              backgroundColor: Colors.white,
+              backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
               flexibleSpace: SafeArea(
                 child: Container(
                   padding: const EdgeInsets.only(right: 16),
@@ -258,7 +258,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                                         customerId: customerId,
                                         eId: eId!,
                                         mainPageTitle: MainPageTitle,
-                                        mytheme: customTheme,
+                                        theme: customTheme,
                                       )),
                               (route) =>
                                   false //if you want to disable back feature set to false
@@ -271,9 +271,11 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 
                           setState(() {});
                         },
-                        icon: const Icon(
-                          Icons.arrow_back,
-                          color: Colors.black,
+                        icon: IconTheme(
+                          data: Theme.of(context).copyWith().iconTheme,
+                          child: const Icon(
+                            Icons.arrow_back,
+                          ),
                         ),
                       ),
                       const SizedBox(
@@ -513,10 +515,13 @@ class _ChatDetailPageState extends State<ChatDetailPage>
           }
           msgController.clear();
         },
-        child: const Icon(
-          Icons.send,
-          color: Colors.white,
-          size: 18,
+        child: IconTheme(
+          data: Theme.of(context).copyWith().iconTheme,
+          child: Icon(
+            Icons.send,
+            color: Colors.white,
+            size: 18,
+          ),
         ),
         backgroundColor: Colors.blue,
         elevation: 0,
@@ -555,8 +560,9 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                     attachment = new Attachment();
                   });
                 },
-                color: Colors.blue,
-                textColor: Colors.white,
+                // ignore: deprecated_member_use
+                color: Theme.of(context).buttonColor,
+                textColor: Theme.of(context).copyWith().iconTheme.color,
                 child: const Icon(
                   IconData(0xe16a, fontFamily: 'MaterialIcons'),
                   size: 14,
@@ -588,12 +594,15 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                     _scrollToEnd();
                   });
                 },
-                color: Colors.blue,
-                textColor: Colors.white,
-                child: const Icon(
-                  IconData(0xe571,
-                      fontFamily: 'MaterialIcons', matchTextDirection: true),
-                  size: 14,
+                color: Theme.of(context).buttonColor,
+                textColor: Theme.of(context).copyWith().iconTheme.color,
+                child: IconTheme(
+                  data: Theme.of(context).copyWith().iconTheme,
+                  child: Icon(
+                    IconData(0xe571,
+                        fontFamily: 'MaterialIcons', matchTextDirection: true),
+                    size: 14,
+                  ),
                 ),
                 padding: const EdgeInsets.all(8),
                 shape: const CircleBorder(),
@@ -633,11 +642,14 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                     attachment = new Attachment();
                   });
                 },
-                color: Colors.blue,
-                textColor: Colors.white,
-                child: const Icon(
-                  IconData(0xe16a, fontFamily: 'MaterialIcons'),
-                  size: 14,
+                color: Theme.of(context).buttonColor,
+                textColor: Theme.of(context).copyWith().iconTheme.color,
+                child: IconTheme(
+                  data: Theme.of(context).copyWith().iconTheme,
+                  child: Icon(
+                    IconData(0xe16a, fontFamily: 'MaterialIcons'),
+                    size: 14,
+                  ),
                 ),
                 padding: const EdgeInsets.all(8),
                 shape: const CircleBorder(),
@@ -711,8 +723,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                     _scrollToEnd();
                   });
                 },
-                color: Colors.blue,
-                textColor: Colors.white,
+                color: Theme.of(context).buttonColor,
+                textColor: Theme.of(context).copyWith().iconTheme.color,
                 child: const Icon(
                   IconData(0xe571,
                       fontFamily: 'MaterialIcons', matchTextDirection: true),
@@ -742,8 +754,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                     attachment = new Attachment();
                   });
                 },
-                color: Colors.blue,
-                textColor: Colors.white,
+                color: Theme.of(context).buttonColor,
+                textColor: Theme.of(context).copyWith().iconTheme.color,
                 child: const Icon(
                   IconData(0xe16a, fontFamily: 'MaterialIcons'),
                   size: 14,
@@ -780,8 +792,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                     _scrollToEnd();
                   });
                 },
-                color: Colors.blue,
-                textColor: Colors.white,
+                color: Theme.of(context).buttonColor,
+                textColor: Theme.of(context).copyWith().iconTheme.color,
                 child: const Icon(
                   IconData(0xe571,
                       fontFamily: 'MaterialIcons', matchTextDirection: true),
@@ -827,10 +839,13 @@ class _ChatDetailPageState extends State<ChatDetailPage>
           color: Colors.lightBlue,
           borderRadius: BorderRadius.circular(30),
         ),
-        child: const Icon(
-          Icons.add,
-          color: Colors.white,
-          size: 20,
+        child: IconTheme(
+          data: Theme.of(context).copyWith().iconTheme,
+          child: const Icon(
+            Icons.add,
+            color: Colors.white,
+            size: 20,
+          ),
         ),
       ),
     );
@@ -1082,11 +1097,14 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                     onPressed: () {
                       Navigator.of(context).pop(false);
                     },
-                    color: Colors.blue,
-                    textColor: Colors.white,
-                    child: const Icon(
-                      IconData(0xe16a, fontFamily: 'MaterialIcons'),
-                      size: 8,
+                    color: Theme.of(context).buttonColor,
+                    textColor: Theme.of(context).copyWith().iconTheme.color,
+                    child: IconTheme(
+                      data: Theme.of(context).copyWith().iconTheme,
+                      child: Icon(
+                        IconData(0xe16a, fontFamily: 'MaterialIcons'),
+                        size: 8,
+                      ),
                     ),
                     padding: const EdgeInsets.all(8),
                     shape: const CircleBorder(),
@@ -1100,13 +1118,16 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                     onPressed: () {
                       setState(() {});
                     },
-                    color: Colors.blue,
-                    textColor: Colors.white,
-                    child: const Icon(
-                      IconData(0xe571,
-                          fontFamily: 'MaterialIcons',
-                          matchTextDirection: true),
-                      size: 8,
+                    color: Theme.of(context).buttonColor,
+                    textColor: Theme.of(context).copyWith().iconTheme.color,
+                    child: IconTheme(
+                      data: Theme.of(context).copyWith().iconTheme,
+                      child: Icon(
+                        IconData(0xe571,
+                            fontFamily: 'MaterialIcons',
+                            matchTextDirection: true),
+                        size: 8,
+                      ),
                     ),
                     padding: const EdgeInsets.all(8),
                     shape: const CircleBorder(),

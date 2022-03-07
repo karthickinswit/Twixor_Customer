@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:twixor_customer/chatDetailPage.dart';
 
@@ -19,29 +20,34 @@ import 'models/SocketResponseModel.dart';
 import 'models/chatMessageModel.dart';
 
 //29900
-ThemeData themeData1 = ThemeData(
+ThemeData MyTheme = ThemeData(
   colorScheme: ColorScheme.fromSwatch(
     primarySwatch: Colors.blue,
   ).copyWith(
     secondary: Colors.green,
   ),
-  appBarTheme: AppBarTheme(
+  backgroundColor: Colors.amber[50],
+  appBarTheme: const AppBarTheme(
     color: Colors.blue,
-    brightness: Brightness.dark,
     elevation: 0,
+    // backgroundColor: Colors.blue[300],
+    //  systemOverlayStyle: SystemUiOverlayStyle.light,
     //I want the defaults, which is why I'm copying an 'empty' ThemeData
     //perhaps there's a better way to do this?
-    // textTheme: ThemeData().textTheme,
-    iconTheme: ThemeData().iconTheme,
+    //  textTheme: ThemeData().textTheme,
   ),
-  textTheme: const TextTheme(bodyText2: TextStyle(color: Colors.purple)),
+  //textTheme: const TextTheme(bodyText2: TextStyle(color: Colors.cyan)),
+  buttonTheme: const ButtonThemeData(
+    textTheme: ButtonTextTheme.normal,
+  ),
+  iconTheme: const IconThemeData(size: 30.0, color: Colors.white70),
 );
 void main() {
   runApp(CustomerApp(
     customerId: '8190083902',
     eId: '374',
-    mainPageTitle: "Twixor CustomerStart",
-    mytheme: themeData1,
+    mainPageTitle: "Twixor CustomerChat",
+    theme: MyTheme,
   ));
 }
 
@@ -84,14 +90,14 @@ class CustomerApp extends StatelessWidget {
   String customerId;
   String eId;
   String mainPageTitle;
-  ThemeData mytheme;
+  ThemeData theme;
   //CustomerApp(this.eId, this.customerId);
   CustomerApp(
       {Key? key,
       required this.customerId,
       required this.eId,
       required this.mainPageTitle,
-      required this.mytheme})
+      required this.theme})
       : super(key: key);
 
   late SharedPreferences prefs;
@@ -116,7 +122,7 @@ class CustomerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // print("ManPageTitile ${ThemeClass().MainPageTitile}");
-    customTheme = mytheme;
+    customTheme = theme;
     return MaterialApp(
       title: 'Twixor',
       theme: customTheme,
@@ -562,7 +568,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                           customerId: customerId,
                                           eId: eId,
                                           mainPageTitle: MainPageTitle,
-                                          mytheme: customTheme,
+                                          theme: customTheme,
                                         ));
                                 setState(() {});
                                 // setState(() {});
