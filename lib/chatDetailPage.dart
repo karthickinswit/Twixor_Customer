@@ -180,7 +180,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         messageIds.add(messages![index].actionId.toString());
         print("messageIds ${messageIds.runtimeType}");
         if (messages![index].status != "2" &&
-            messages![index].actionType == "1") {
+                messages![index].actionType == "1" ||
+            messages![index].actionType == "0") {
           print("messageIds1");
           SendMessage temp = SendMessage();
 
@@ -203,6 +204,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                 ? ChatUtilMessage(messages![index], chatAgents!)
                 : Container(),
             (messages![index].actionType == "1" ||
+                    messages![index].actionType == "0" ||
                     messages![index].actionType == "3")
                 ? Container(
                     padding: const EdgeInsets.only(
@@ -215,7 +217,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                         //width: MediaQuery.of(context).size.width,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
-                          color: (messages![index].actionType == "1"
+                          color: (messages![index].actionType == "1" ||
+                                  messages![index].actionType == "0"
                               ? Colors.grey.shade200
                               : Colors.blue[50]),
                         ),
@@ -1420,22 +1423,26 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       } else if (message1["action"] == "customerStartChat") {
         print("Customer Start Chat");
         var json = SocketResponse.fromJson(message1);
-        if (json.content!.elementAt(0).response!.users!.elementAt(1).name ==
+        List<ChatMessage> k = json.content![0].response!.chat!.messages!;
+        print(message1.toString());
+        if (json.content!.elementAt(0).response!.users!.elementAt(0).name ==
             userdata!.name) {
           setState(() {
+            messages!.addAll(k);
             _scrollToEnd();
           });
         }
       } else if (message1["action"] == "agentPickupChat") {
         var json = SocketResponse.fromJson(message1);
         var chatId = json.content![0].response!.chat!.chatId;
+        List<ChatMessage>? k = json.content![0].response!.chat!.messages!;
+
         if (chatId == userdata!.chatId) {
-          ChatUsers? k = await getChatUserInfo(context, chatId!);
           List<ChatAgent> m = json.content![0].response!.users!;
           actionBy =
               json.content![0].response!.chat!.messages![0].actionBy.toString();
           setState(() {
-            messages!.addAll(k!.messages!);
+            messages!.addAll(k);
             chatAgents = m.cast<ChatAgent>();
             setState(() {});
             _scrollToEnd();

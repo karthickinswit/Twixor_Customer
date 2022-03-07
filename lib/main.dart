@@ -30,13 +30,8 @@ ThemeData MyTheme = ThemeData(
   appBarTheme: const AppBarTheme(
     color: Colors.blue,
     elevation: 0,
-    // backgroundColor: Colors.blue[300],
-    //  systemOverlayStyle: SystemUiOverlayStyle.light,
-    //I want the defaults, which is why I'm copying an 'empty' ThemeData
-    //perhaps there's a better way to do this?
-    //  textTheme: ThemeData().textTheme,
   ),
-  //textTheme: const TextTheme(bodyText2: TextStyle(color: Colors.cyan)),
+  textTheme: const TextTheme(bodyText2: TextStyle(color: Colors.black87)),
   buttonTheme: const ButtonThemeData(
     textTheme: ButtonTextTheme.normal,
   ),
