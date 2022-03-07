@@ -17,17 +17,37 @@ import 'helper_files/Websocket.dart';
 import 'helper_files/utilities_files.dart';
 import 'models/SocketResponseModel.dart';
 import 'models/chatMessageModel.dart';
-//29900
 
+//29900
+ThemeData themeData1 = ThemeData(
+  colorScheme: ColorScheme.fromSwatch(
+    primarySwatch: Colors.blue,
+  ).copyWith(
+    secondary: Colors.green,
+  ),
+  appBarTheme: AppBarTheme(
+    color: Colors.blue,
+    brightness: Brightness.dark,
+    elevation: 0,
+    //I want the defaults, which is why I'm copying an 'empty' ThemeData
+    //perhaps there's a better way to do this?
+    // textTheme: ThemeData().textTheme,
+    iconTheme: ThemeData().iconTheme,
+  ),
+  textTheme: const TextTheme(bodyText2: TextStyle(color: Colors.purple)),
+);
 void main() {
   runApp(CustomerApp(
     customerId: '8190083902',
     eId: '374',
+    mainPageTitle: "Twixor CustomerStart",
+    mytheme: themeData1,
   ));
 }
 
 Future<bool> _checkPrefs() async {
   var tempCustId, tempEid;
+
   prefs = await SharedPreferences.getInstance();
   tempCustId = prefs.getString('customerId') ?? "";
   tempEid = prefs.getString('eId') ?? "";
@@ -63,15 +83,31 @@ Future<bool> _checkPrefs() async {
 class CustomerApp extends StatelessWidget {
   String customerId;
   String eId;
-
+  String mainPageTitle;
+  ThemeData mytheme;
   //CustomerApp(this.eId, this.customerId);
-  CustomerApp({Key? key, required this.customerId, required this.eId})
+  CustomerApp(
+      {Key? key,
+      required this.customerId,
+      required this.eId,
+      required this.mainPageTitle,
+      required this.mytheme})
       : super(key: key);
 
   late SharedPreferences prefs;
 
   initState() {
+    print("CustomeTheme ${customTheme.appBarTheme.toString()}");
+    // MainPageTitle = mainPageTitle;
+
     //clearToken();
+    //  ThemeClass().MainPageTitile = "TwixorCustomerStart";
+    //MainPageTitile = "TwixorCustomerStart";
+    // ThemeData tempThemeData = new ThemeData();
+    // var j = {};
+    // j["mainPageTitle"] = mainpageTtile;
+    // j["themeData"] = tempThemeData;
+    // ThemeClass(tempThemeData, mainpageTtile);
   }
 
   // This widget is the root of your application.
@@ -79,9 +115,11 @@ class CustomerApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // print("ManPageTitile ${ThemeClass().MainPageTitile}");
+    customTheme = mytheme;
     return MaterialApp(
       title: 'Twixor',
-      theme: ThemeData.light(),
+      theme: customTheme,
       home: FutureBuilder<bool>(
           future: _checkPrefs(),
           builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
@@ -94,12 +132,12 @@ class CustomerApp extends StatelessWidget {
               print(
                   "snapshot Data checkPrefs ${snapshot.data} --> $customerId --> ${eId} --> ${authToken}");
               return MyHomePage(
-                title: 'Twixor Customer Chat',
+                title: mainPageTitle,
                 customerId1: customerId,
                 eId1: eId,
               );
             } else {
-              return (Center(child: CircularProgressIndicator()));
+              return (const Center(child: CircularProgressIndicator()));
             }
           }),
     );
@@ -127,8 +165,8 @@ class MyHomePage extends StatefulWidget {
   final String title;
 
   @override
-  State<MyHomePage> createState() =>
-      _MyHomePageState(customerId1: customerId1, eId1: eId1);
+  State<MyHomePage> createState() => _MyHomePageState(
+      mainPageTitle: title, customerId1: customerId1, eId1: eId1);
 }
 
 void configLoading() {
@@ -150,6 +188,7 @@ void configLoading() {
 class _MyHomePageState extends State<MyHomePage> {
   String customerId1;
   String eId1;
+  String mainPageTitle;
   bool isLoading = false;
   bool isVisible = true;
   late String userDetails;
@@ -163,12 +202,16 @@ class _MyHomePageState extends State<MyHomePage> {
 
   final List<TextEditingController> _notifyControllers = [];
 
-  _MyHomePageState({required this.customerId1, required this.eId1});
+  _MyHomePageState(
+      {required this.mainPageTitle,
+      required this.customerId1,
+      required this.eId1});
 
   @override
   initState() {
     customerId = customerId1;
     eId = eId1;
+    MainPageTitle = mainPageTitle;
 
     getPref();
 
@@ -518,6 +561,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                     builder: (context) => CustomerApp(
                                           customerId: customerId,
                                           eId: eId,
+                                          mainPageTitle: MainPageTitle,
+                                          mytheme: customTheme,
                                         ));
                                 setState(() {});
                                 // setState(() {});

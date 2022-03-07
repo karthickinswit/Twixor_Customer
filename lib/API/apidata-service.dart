@@ -15,29 +15,6 @@ String url = APP_URL + '/c/enterprises/';
 late String eId;
 late String customerId;
 
-class ThemeClass {
-  ThemeData? MyTheme;
-  var customObject = {};
-}
-
-ThemeData themeData = ThemeData(
-  colorScheme: ColorScheme.fromSwatch(
-    primarySwatch: Colors.blue,
-  ).copyWith(
-    secondary: Colors.green,
-  ),
-  appBarTheme: AppBarTheme(
-    color: Colors.transparent,
-    brightness: Brightness.dark,
-    elevation: 0,
-    //I want the defaults, which is why I'm copying an 'empty' ThemeData
-    //perhaps there's a better way to do this?
-    // textTheme: ThemeData().textTheme,
-    iconTheme: ThemeData().iconTheme,
-  ),
-  textTheme: const TextTheme(bodyText2: TextStyle(color: Colors.purple)),
-);
-
 bool isValidToken = false;
 
 late SharedPreferences prefs;

@@ -9,6 +9,15 @@ import 'package:flutter/material.dart';
 
 var httpClient = HttpClient();
 
+String MainPageTitle = "";
+late ThemeData customTheme; //= ThemeData();
+
+class ThemeClass {
+  late String MainPageTitile;
+  var customObject = {};
+  //ThemeClass();
+}
+
 ContentReturnType(String s) {
   List k = [
     {
