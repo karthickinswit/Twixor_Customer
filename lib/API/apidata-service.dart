@@ -49,6 +49,7 @@ Future<ChatUsers?> getChatUserInfo(BuildContext context, String ChatId) async {
       chatUserData = ChatUsers.fromJson(chatUser);
       return chatUserData;
     } catch (Exp) {
+      clearToken();
       ErrorAlert(context, "Session TimeOut");
       await customerRegisterInfo();
     }

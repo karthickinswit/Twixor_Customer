@@ -35,7 +35,7 @@ ThemeData MyTheme = ThemeData(
   buttonTheme: const ButtonThemeData(
     textTheme: ButtonTextTheme.normal,
   ),
-  iconTheme: const IconThemeData(size: 30.0, color: Colors.white70),
+  iconTheme: const IconThemeData(size: 30.0, color: Colors.black),
 );
 void main() {
   runApp(CustomerApp(
@@ -335,7 +335,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     if (snapshot.hasData) {
                       chatUsers = snapshot.data as List<ChatUsers>;
                       List<ChatUsers> chatUsers1 = [];
-                      List<ChatUsers> inActivechatUsers = [];
 
                       //print('receiver data -> $chatUsers');
 
@@ -360,11 +359,11 @@ class _MyHomePageState extends State<MyHomePage> {
                               child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
-                                  Text(
+                                  const Text(
                                     "Currently no Active Chats, ",
                                     textScaleFactor: 1.2,
                                   ),
-                                  SizedBox(height: 10),
+                                  const SizedBox(height: 10),
                                   Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
@@ -547,7 +546,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               },
                             );
                     } else if (snapshot.hasError) {
-                      ErrorAlert(context, snapshot.error.toString());
+                      // ErrorAlert(context, snapshot.error.toString());
 
                       return Center(
                         child: Column(children: <Widget>[
@@ -644,6 +643,11 @@ class _MyHomePageState extends State<MyHomePage> {
         setState(() {});
       }
       print("mainPageMessage ${data.toString()}");
+    }, onError: (error) {
+      print("Socket Error${error.toString}");
+    }, onDone: () {
+      print("Communications is Closed");
+      // communication has been closed
     });
   }
 

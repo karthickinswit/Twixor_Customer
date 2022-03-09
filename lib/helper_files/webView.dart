@@ -59,7 +59,7 @@ class WebViewExampleState extends State<WebViewEx> {
 
           // Add your onPressed code here!
         },
-        child: Icon(const IconData(0xe201, fontFamily: 'MaterialIcons')),
+        child: const Icon(IconData(0xe201, fontFamily: 'MaterialIcons')),
         backgroundColor: Colors.blue,
       ),
     );
@@ -140,7 +140,7 @@ class WebViewExampleState extends State<WebViewEx> {
   }
 
   Future<String> downloadFile(String url, String fileName, String dir) async {
-    HttpClient httpClient = new HttpClient();
+    HttpClient httpClient = HttpClient();
     File file;
     String filePath = '';
     String myUrl = '';
@@ -154,8 +154,9 @@ class WebViewExampleState extends State<WebViewEx> {
         filePath = '$dir/$fileName';
         file = File(filePath);
         await file.writeAsBytes(bytes);
-      } else
+      } else {
         filePath = 'Error code: ' + response.statusCode.toString();
+      }
     } catch (ex) {
       filePath = 'Can not fetch url';
     }

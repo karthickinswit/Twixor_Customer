@@ -1452,6 +1452,11 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       } else if (message1 == "waitingTransferAccept") {
         print("waitingTransferAccept");
       }
+    }, onError: (error) {
+      print("Socket Error${error.toString}");
+    }, onDone: () {
+      print("Communications is Closed");
+      // communication has been closed
     });
   }
 
