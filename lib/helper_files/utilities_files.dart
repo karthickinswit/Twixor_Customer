@@ -91,12 +91,12 @@ String ConvertTime(String time) {
   ];
   var now;
   try {
-    now = DateTime.parse(time);
+    now = DateTime.parse(time).toLocal();
   } catch (Exception) {
-    now = DateTime.fromMillisecondsSinceEpoch(int.parse(time));
+    now = DateTime.fromMillisecondsSinceEpoch(int.parse(time)).toLocal();
   }
 
-  now = now.add(const Duration(hours: 5, minutes: 30));
+  // now = now.add(const Duration(hours: 5, minutes: 30));
 
   var day = now.day.toString().padLeft(2, '0');
   String formattedTime = DateFormat('h:mm a').format(now);
