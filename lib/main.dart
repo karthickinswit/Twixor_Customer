@@ -28,9 +28,7 @@ ThemeData MyTheme = ThemeData(
   ),
   backgroundColor: Colors.amber[50],
   appBarTheme: const AppBarTheme(
-    color: Colors.blue,
-    elevation: 0,
-  ),
+      color: Colors.blue, elevation: 0, foregroundColor: Colors.amber),
   textTheme: const TextTheme(bodyText2: TextStyle(color: Colors.black87)),
   buttonTheme: const ButtonThemeData(
     textTheme: ButtonTextTheme.normal,
@@ -311,6 +309,7 @@ class _MyHomePageState extends State<MyHomePage> {
             // Here we take the value from the MyHomePage object that was created by
             // the App.build method, and use it to set our appbar title.
             title: Text(widget.title),
+
             actions: const [],
           ),
           body:
