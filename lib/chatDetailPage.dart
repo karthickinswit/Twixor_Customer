@@ -3,8 +3,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
-import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
@@ -234,7 +232,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         );
       },
     );
-    /////////////////////////////////////////////////
+
     return MaterialApp(
       title: 'Twixor',
       theme: customTheme,
@@ -281,8 +279,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                 ),
               ),
               title: Container(
-                padding: EdgeInsets.only(right: 90),
-                child: Text(
+                padding: const EdgeInsets.only(right: 90),
+                child: const Text(
                   //'${chatAgents![0].name}',
                   'Chat With Agent',
                   style: TextStyle(
@@ -298,9 +296,9 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 
                 listView,
                 //  alignList("text", false, "")
-                // (attachment!.url != null && attachment!.url != "")
-                //? alignList(attachment!)
-                alignList(Attachment(type: "MSG")),
+                (attachment!.url != null && attachment!.url != "")
+                    ? alignList(attachment!)
+                    : alignList(Attachment(type: "MSG")),
               ],
             ),
             resizeToAvoidBottomInset: true,
@@ -465,6 +463,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         ),
       );
     } else if (localAttachment.type == "IMAGE") {
+      // return ImageDialog(true, localAttachment.url);
       return Align(
         alignment: Alignment.bottomLeft,
         child: FractionallySizedBox(
@@ -867,6 +866,13 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     );
   }
 
+  // isFromAttachment(isFileUri, content) {
+  //   showModalBottomSheet(
+  //       backgroundColor: Colors.transparent,
+  //       context: context,
+  //       builder: (builder) => ImageDialog(true, content));
+  // }
+
   Widget iconCreation(context1, IconData icons, Color color, String text,
       String type, int mediaType) {
     return InkWell(
@@ -905,7 +911,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
             backgroundColor: Colors.transparent,
             context: context,
             builder: (builder) =>
-                ImageDialog(true, chooseFileUsingFilePicker()!),
+                ImageDialog(true, chooseFileUsingFilePicker()),
           );
         }
         // } else {}
@@ -937,53 +943,32 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   }
 
   chooseFileUsingFilePicker() async {
-    var fileTemp = {};
-    FilePickerResult? result;
-    File objFile;
-    try {
-      result = await FilePicker.platform.pickFiles(
-        withReadStream: true,
-        type: FileType.custom,
-        allowedExtensions: ['jpg', 'pdf', 'doc', 'mp4', 'jpeg'],
-      );
-    } on PlatformException catch (e) {
-      print("Unsupported operation" + e.toString());
-    }
+    var result = await FilePicker.platform.pickFiles(
+      withReadStream: true,
+      type: FileType.custom,
+      allowedExtensions: ['jpg', 'pdf', 'doc', 'mp4', 'jpeg'],
+    );
     if (result != null) {
-      print("ObjFile ${result.files.single.runtimeType}");
-      objFile = File((result.files.single.path) ?? "");
-      print("objfile type --> ${objFile.runtimeType}");
-      print("ObjFile ${result.files.single.runtimeType}");
-      //sendFileType = result.files.single.extension;
-      print("SendFileType ${sendFileType}");
-      fileTemp['contentType'] = ContentReturnType(
-          lookupMimeType(result.files.single.path ?? "") ?? "");
-      fileTemp['url'] = result.files.single.path;
-      fileTemp['name'] = result.files.single.name;
-
-      // fileTemp.type = pickedFile.mimeType;
-      return fileTemp;
-      // ignore: void_checks
-      return objFile.path; //?? uploadSelectedFile(objFile);
-
+      setState(() {
+        print("ObjFile ${result.files.single.runtimeType}");
+        var objFile = result.files.single;
+        print("objfile type --> ${objFile.runtimeType}");
+        print("ObjFile ${result.files.single.runtimeType}");
+        //sendFileType = result.files.single.extension;
+        print("SendFileType ${sendFileType}");
+        // ignore: void_checks
+        return uploadSelectedFile(objFile);
+      });
     }
   }
 
   _getFromGallery() async {
-    var fileTemp = {};
     var pickedFile = await picker.pickImage(
       source: ImageSource.gallery,
     );
     if (pickedFile != null) {
       print("pickedFile-->${pickedFile.path}");
-
-      fileTemp['contentType'] =
-          ContentReturnType(pickedFile.mimeType ?? "image/jpeg") ?? "";
-      fileTemp['url'] = pickedFile.path;
-      fileTemp['type'] = pickedFile.mimeType;
-      fileTemp['name'] = pickedFile.path.split('/').last;
-      return fileTemp;
-      uploadSelectedFilefromGallery(pickedFile);
+      return uploadSelectedFilefromGallery(pickedFile);
       // return File(pickedFile.path);
       // setState(() {
       //   imageFile = File(pickedFile.path);
@@ -992,7 +977,6 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   }
 
   _getFromCamera() async {
-    var fileTemp = {};
     //  picker.pickImage(source: source)
     var pickedFile = (await picker.pickImage(
       source: ImageSource.camera,
@@ -1002,14 +986,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     var imageFile;
     if (pickedFile != null) {
       print(" pickedFile type--> ${pickedFile.runtimeType}");
-      pickedFile.path;
-      fileTemp['contentType'] =
-          ContentReturnType(pickedFile.mimeType ?? "image/jpeg") ?? "";
-      fileTemp['url'] = pickedFile.path;
-      fileTemp['type'] = pickedFile.mimeType;
-      fileTemp['name'] = pickedFile.path.split('/').last;
-      return fileTemp;
-      uploadSelectedFilefromGallery(pickedFile);
+      return uploadSelectedFilefromGallery(pickedFile);
       //fileImg=pickedFile as File;
       // imageFile = pickedFile.path;
       //print("pickedFile");
@@ -1024,16 +1001,11 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   Widget ImageDialog(isFileUrl, temp) {
     return FutureBuilder<dynamic>(
         future: temp,
-        builder: (context, AsyncSnapshot<dynamic> snapshot) {
-          print("Gallery--> ${snapshot.data}");
+        builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return AlertDialog(
-              //contentPadding:,
-              scrollable: true,
-              shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(60.0))),
-              actions:
-
+            return FractionallySizedBox(
+                child: Row(
+              children:
                   //contentPadding:,
                   // scrollable: true,
                   // shape: const RoundedRectangleBorder(
@@ -1049,7 +1021,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                     textColor: Theme.of(context).copyWith().iconTheme.color,
                     child: IconTheme(
                       data: Theme.of(context).copyWith().iconTheme,
-                      child: Icon(
+                      child: const Icon(
                         IconData(0xe16a, fontFamily: 'MaterialIcons'),
                         size: 8,
                       ),
@@ -1057,109 +1029,12 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                     padding: const EdgeInsets.all(8),
                     shape: const CircleBorder(),
                   ),
-                  snapshot.data['contentType'] == "IMAGE"
-                      ? SizedBox(
-                          width: 120,
-                          height: 100,
-                          child: Image.file((File(snapshot.data['url'])),
-                              fit: BoxFit.contain, width: 50, height: 50))
-                      : snapshot.data['contentType'] == "VIDEO"
-                          ? FutureBuilder<dynamic>(
-                              future: getThumbnail(snapshot.data['url']),
-                              builder: (context, snapshot) {
-                                //try {} catch(Exception){}
-
-                                // print(snapshot);
-                                if (snapshot.connectionState !=
-                                    ConnectionState.waiting) {
-                                  print(snapshot.data.toString());
-                                  if (snapshot.hasData) {
-                                    return Container(
-                                      padding: const EdgeInsets.all(1.0),
-                                      width: 120.0,
-                                      height: 100.0,
-                                      child: const Positioned(
-                                          child: Icon(
-                                        IconData(0xf2b1,
-                                            fontFamily: 'MaterialIcons'),
-                                        size: 40,
-                                        color: Colors.white,
-                                      )),
-                                      decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          image: DecorationImage(
-                                              image: MemoryImage(snapshot.data),
-                                              fit: BoxFit.cover)),
-                                    );
-                                  } else if (snapshot.hasError) {
-                                    return Container(
-                                      padding: const EdgeInsets.all(
-                                          8), // Border width
-                                      decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          backgroundBlendMode:
-                                              BlendMode.softLight,
-                                          borderRadius:
-                                              BorderRadius.circular(20)),
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(20),
-                                        child: SizedBox.fromSize(
-                                          size: const Size.fromRadius(
-                                              48), // Image radius
-                                          child: Image.network(
-                                              APP_URL +
-                                                  '/drive/docs/61eba0785d9c400b3c6a8dcf',
-                                              fit: BoxFit.cover),
-                                        ),
-                                      ),
-                                    );
-                                  } else {
-                                    return Container();
-                                  }
-                                } else {
-                                  return const CircularProgressIndicator();
-                                }
-                              })
-                          : snapshot.data['contentType'] == "DOC"
-                              ? SizedBox(
-                                  width: 100,
-                                  child: Text(
-                                    snapshot.data["name"],
-                                    softWrap: true,
-                                    overflow: TextOverflow.visible,
-                                    maxLines: 3,
-                                    style: const TextStyle(
-                                        fontSize: 14, color: Colors.amber),
-                                  ),
-                                )
-                              : Container(),
+                  SizedBox(
+                      child: Image.network((snapshot.data),
+                          fit: BoxFit.contain, width: 50, height: 50)),
                   MaterialButton(
-                    onPressed: () async {
-                      Attachment? tempAttachment =
-                          await uploadSelectedFile(snapshot.data);
-                      if (tempAttachment!.url != "" &&
-                          tempAttachment.url != null) {
-                        sendmessage(SendMessage(
-                            action: actionBy != ""
-                                ? "customerReplyChat"
-                                : "customerStartChat",
-                            actionBy: actionBy != "" ? int.parse(actionBy!) : 0,
-                            actionType: 1,
-                            attachment: tempAttachment,
-                            chatId: chatId!,
-                            contentType: tempAttachment.type,
-                            eId: int.parse(eId!),
-                            message: ""));
-
-                        setState(() {
-                          attachment = Attachment();
-                          attachmentData = "";
-                          _scrollToEnd();
-                          setState(() {});
-                        });
-                      }
-
-                      print("After uploading file ${attachment!.contentType}");
+                    onPressed: () {
+                      setState(() {});
                     },
                     color: Theme.of(context).buttonColor,
                     textColor: Theme.of(context).copyWith().iconTheme.color,
@@ -1177,7 +1052,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                   ),
                 ]),
               ],
-            );
+            ));
           } else {
             return const FractionallySizedBox(
                 heightFactor: 10,
@@ -1500,16 +1375,15 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     });
   }
 
-  Future<Attachment?> uploadSelectedFile(dynamic objFile) async {
+  void uploadSelectedFile(objFile) async {
     //---Create http package multipart request object
-    Attachment? tempAttachment;
 
     var headers = {'authentication-token': authToken!};
-    var mimeType = lookupMimeType(objFile['url']);
+    var mimeType = lookupMimeType(objFile.path);
     var t1 = mimeType.toString().split("/");
 
     var formData = {
-      // 'message': objFile.name.toString(),
+      'message': objFile.name.toString(),
       'multipart': mimeType.toString(),
       //'file':objFile
     };
@@ -1524,12 +1398,9 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     // request.fields["id"] = "abc";
     //-----add selected file with request
     // ignore: unnecessary_new
-    request.files.add(http.MultipartFile.fromBytes(
-        'file', await File.fromUri(Uri.parse(objFile['url'])).readAsBytes(),
-        filename: objFile['name'], contentType: new MediaType(t1[0], t1[1])));
-    // request.files.add(new http.MultipartFile(
-    //     "file", objFile.readStream, objFile.size,
-    //     filename: objFile.name, contentType: MediaType(t1[0], t1[1])));
+    request.files.add(new http.MultipartFile(
+        "file", objFile.readStream, objFile.size,
+        filename: objFile.name, contentType: MediaType(t1[0], t1[1])));
 
     //-------Send request
     // print(request.headers.toString());
@@ -1543,29 +1414,26 @@ class _ChatDetailPageState extends State<ChatDetailPage>
               //print('response.body ' + response.body);
               var temp = json.decode(response.body);
               print(temp["secureUrl"]);
-              tempAttachment?.url = temp["secureUrl"];
-              tempAttachment?.name = temp["name"];
-              tempAttachment?.type =
+              attachment?.url = temp["secureUrl"];
+              attachment?.name = temp["name"];
+              attachment?.type =
                   ContentReturnType(temp["contentType"]).toString();
-              tempAttachment?.contentType = temp["contentType"];
-              tempAttachment?.isDocument = false;
-              tempAttachment?.desc = "";
-              tempAttachment?.id = temp["id"];
+              attachment?.contentType = temp["contentType"];
+              attachment?.isDocument = false;
+              attachment?.desc = "";
+              attachment?.id = temp["id"];
 
               setState(() {
                 Navigator.pop(context);
               });
             }
 
-            return tempAttachment;
+            return response.body;
           });
         })
         // ignore: invalid_return_type_for_catch_error
         .catchError((err) => print('error : ' + err.toString()))
         .whenComplete(() {});
-    if (attachment!.url != "") {
-      return attachment;
-    }
   }
 
   uploadSelectedFilefromGallery(XFile objFile) async {
