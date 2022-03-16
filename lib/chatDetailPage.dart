@@ -518,7 +518,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                 textColor: Theme.of(context).copyWith().iconTheme.color,
                 child: IconTheme(
                   data: Theme.of(context).copyWith().iconTheme,
-                  child: Icon(
+                  child: const Icon(
                     IconData(0xe571,
                         fontFamily: 'MaterialIcons', matchTextDirection: true),
                     size: 14,
@@ -566,7 +566,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                 textColor: Theme.of(context).copyWith().iconTheme.color,
                 child: IconTheme(
                   data: Theme.of(context).copyWith().iconTheme,
-                  child: Icon(
+                  child: const Icon(
                     IconData(0xe16a, fontFamily: 'MaterialIcons'),
                     size: 14,
                   ),
@@ -816,7 +816,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     }
   }
 
-  Widget bottomSheet(context1) {
+  Widget bottomSheet(BuildContext context1) {
     return Container(
       height: 140,
       width: MediaQuery.of(context).size.width,
