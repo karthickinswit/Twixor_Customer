@@ -148,18 +148,17 @@ getChatList(BuildContext context) async {
       ErrorAlert(context, "getting Chat List Failed");
       isValidToken = false;
       //throw ("getting Chat List Failed");
-      return [].cast<ChatUsers>();
+      return getChatList(context);
     }
   } else {
+    isValidToken = false;
     clearToken();
-    throw ("SessionTimeOut");
+    return getChatList(context);
   }
 }
 
 checktoken() async {
-  List<ChatUsers> chatUsers = [];
-  var tempUrl = APP_URL +
-      'c/enterprises/chat/summary?fromDate=2019-02-16T06:34:16.859Z'; //url + eId + '/chats
+//url + eId + '/chats
   final response = await http.get(Uri.parse(url + eId + '/chats'), headers: {
     'authentication-token': await getTokenApi(),
     'Content-Type': 'application/x-www-form-urlencoded'

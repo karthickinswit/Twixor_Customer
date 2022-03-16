@@ -1147,7 +1147,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                             actionType: 1,
                             attachment: tempAttachment,
                             chatId: chatId!,
-                            contentType: tempAttachment!.type,
+                            contentType: tempAttachment.type,
                             eId: int.parse(eId!),
                             message: ""));
 
