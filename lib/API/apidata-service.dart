@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:twixor_customer/helper_files/utilities_files.dart';
 import 'package:twixor_customer/models/chatMessageModel.dart';
 import 'package:twixor_customer/models/chatUsersModel.dart';
+import 'package:twixor_customer/main.dart';
 
 const APP_URL = String.fromEnvironment('APP_URL',
     defaultValue: 'https://qa.twixor.digital/moc');
@@ -153,6 +154,8 @@ getChatList(BuildContext context) async {
   } else {
     isValidToken = false;
     clearToken();
+    await getTokenApi();
+
     return getChatList(context);
   }
 }

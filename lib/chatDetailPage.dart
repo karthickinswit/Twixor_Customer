@@ -90,14 +90,10 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   bool isLoading = false;
   bool isDisable = false;
 
-  _onUrlChanged(String updatedUrl) {
-    setState(() {
-      //fetchPost();
-    });
-  }
+  _onUrlChanged(String updatedUrl) {}
 
-  _scrollToEnd() async {
-    _controller.animateTo(_controller.position.maxScrollExtent + 1000,
+  _scrollToEnd(int o) async {
+    _controller.animateTo(_controller.position.maxScrollExtent + 1000 + o,
         duration: const Duration(microseconds: 600),
         curve: Curves.fastOutSlowIn);
   }
@@ -153,7 +149,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     });
     WidgetsBinding.instance?.addObserver(this);
     //socketMsgReceive();
-    super.setState(() {});
+    //super.setState(() {});
     // if (attachments.isAttachment == true) {
     //   if (attachments.type == "MSG") msgController.text = attachments.desc!;
     // }
@@ -211,6 +207,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                 ? ChatUtilMessage(messages![index], chatAgents!)
                 : Container(),
             (messages![index].actionType == "1" ||
+                    messages![index].actionType == "0" ||
                     messages![index].actionType == "3")
                 ? Container(
                     padding: const EdgeInsets.only(
@@ -316,28 +313,30 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   ChatUtilMessage(ChatMessage message, List chatAgent) {
     print("ChatUtilMessage ${message.toString()}");
     var utilMsg = "", relativeMsg = "";
-    if (message.actionType == "0") {
-      relativeMsg = "You started the chat";
-    } else if (message.actionType == "2") {
-      relativeMsg = " picked up the chat";
-    } else if (message.actionType == "4") {
-      relativeMsg = " transferred chat To You";
-    } else if (message.actionType == "5") {
-      relativeMsg = " invited ";
-    } else if (message.actionType == "6") {
-      relativeMsg = " accepted chat invitation";
-    } else if (message.actionType == "8") {
-      relativeMsg = " Closed this chat";
-    } else if (message.actionType == "9") {
-      relativeMsg = " left this chat";
-    }
-    if (message.actionType == "0") {
-      utilMsg = relativeMsg;
-    } else {
-      if (chatAgent[0].name.toString() == "Medplus") {
-        utilMsg = chatAgent[0].name.toString() + relativeMsg;
+    if (message.actionType != "1" && message.actionType == "1") {
+      if (message.actionType == "0") {
+        relativeMsg = "You started the chat";
+      } else if (message.actionType == "2") {
+        relativeMsg = " picked up the chat";
+      } else if (message.actionType == "4") {
+        relativeMsg = " transferred chat To You";
+      } else if (message.actionType == "5") {
+        relativeMsg = " invited ";
+      } else if (message.actionType == "6") {
+        relativeMsg = " accepted chat invitation";
+      } else if (message.actionType == "8") {
+        relativeMsg = " Closed this chat";
+      } else if (message.actionType == "9") {
+        relativeMsg = " left this chat";
+      }
+      if (message.actionType == "0") {
+        utilMsg = relativeMsg;
       } else {
-        utilMsg = "Medplus" + relativeMsg;
+        if (chatAgent[0].name.toString() == "Medplus") {
+          utilMsg = chatAgent[0].name.toString() + relativeMsg;
+        } else {
+          utilMsg = "Medplus" + relativeMsg;
+        }
       }
     }
     return utilMsg != ""
@@ -395,7 +394,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
               setState(() {
                 attachment = Attachment(type: "MSG");
                 attachmentData = "";
-                _scrollToEnd();
+                _scrollToEnd(0);
                 setState(() {});
               });
             }
@@ -447,8 +446,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
             setState(() {
               attachment = Attachment(type: "MSG");
               attachmentData = "";
-              _scrollToEnd();
-              setState(() {});
+              _scrollToEnd(0);
             });
           }
           msgController.clear();
@@ -528,7 +526,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                   setState(() {
                     attachment = Attachment(type: "MSG");
                     attachmentData = "";
-                    _scrollToEnd();
+                    _scrollToEnd(100);
                   });
                 },
                 color: Theme.of(context).buttonColor,
@@ -576,7 +574,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
               MaterialButton(
                 onPressed: () {
                   setState(() {
-                    attachment = new Attachment();
+                    attachment = new Attachment(type: "MSG");
                   });
                 },
                 color: Theme.of(context).buttonColor,
@@ -657,7 +655,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                   setState(() {
                     attachment = Attachment(type: "MSG");
                     attachmentData = "";
-                    _scrollToEnd();
+                    _scrollToEnd(100);
                   });
                 },
                 color: Theme.of(context).buttonColor,
@@ -688,7 +686,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
               MaterialButton(
                 onPressed: () {
                   setState(() {
-                    attachment = new Attachment();
+                    attachment = Attachment(type: "MSG");
                   });
                 },
                 color: Theme.of(context).buttonColor,
@@ -726,7 +724,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                   setState(() {
                     attachment = Attachment(type: "MSG");
                     attachmentData = "";
-                    _scrollToEnd();
+                    _scrollToEnd(0);
                   });
                 },
                 color: Theme.of(context).buttonColor,
@@ -766,7 +764,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         showModalBottomSheet(
             isDismissible: true,
             backgroundColor: Colors.transparent,
-            context: context,
+            context: context1,
             builder: (builder) => bottomSheet(context1));
       },
       child: Container(
@@ -892,12 +890,12 @@ class _ChatDetailPageState extends State<ChatDetailPage>
           //await _getFromGallery();
           //await imageFile;
           //print("img1--> ${img1}");
-          Navigator.pop(context);
+          Navigator.pop(context1);
 
           showModalBottomSheet(
               backgroundColor: Colors.transparent,
               isDismissible: true,
-              context: context,
+              context: context1,
               builder: (builder) => ImageDialog(true, _getFromGallery()));
         } else if (type == "camera") {
           // await _getFromCamera();
@@ -1201,7 +1199,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                                           attachment = Attachment(type: "MSG");
                                           Navigator.of(context).pop(false);
                                           attachmentData = "";
-                                          _scrollToEnd();
+                                          _scrollToEnd(200);
                                           isLoading = false;
                                         });
                                       }
@@ -1473,7 +1471,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     final keyboardTopPoints = keyboardTopPixels / window.devicePixelRatio;
     final overlap = widgetRect.bottom - keyboardTopPoints;
     if (overlap >= 0) {
-      setState(() {});
+      // setState(() {});
     }
   }
 
@@ -1497,7 +1495,10 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         List<ChatMessage> k = json.content![0].response!.chat!.messages!;
         setState(() {
           messages!.addAll(k);
-          _scrollToEnd();
+          if (k[0].contentType != "MSG")
+            _scrollToEnd(100);
+          else
+            _scrollToEnd(0);
         });
       } else if (message1["action"] == "agentReplyChat") {
         print("Message sent Socket");
@@ -1507,7 +1508,10 @@ class _ChatDetailPageState extends State<ChatDetailPage>
           setState(() {
             messages!.addAll(k);
             //setState(() {});
-            _scrollToEnd();
+            if (k[0].contentType != "MSG")
+              _scrollToEnd(100);
+            else
+              _scrollToEnd(0);
           });
           print("haai");
         }
@@ -1520,7 +1524,10 @@ class _ChatDetailPageState extends State<ChatDetailPage>
             userdata!.name) {
           setState(() {
             messages!.addAll(k);
-            _scrollToEnd();
+            if (k[0].contentType != "MSG")
+              _scrollToEnd(100);
+            else
+              _scrollToEnd(0);
           });
         }
       } else if (message1["action"] == "agentPickupChat") {
@@ -1532,7 +1539,10 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         //     userdata!.name) {
         setState(() {
           messages!.addAll(k);
-          _scrollToEnd();
+          if (k[0].contentType != "MSG")
+            _scrollToEnd(100);
+          else
+            _scrollToEnd(0);
         });
         // }
         print("agentPickupChat");
@@ -1549,7 +1559,10 @@ class _ChatDetailPageState extends State<ChatDetailPage>
             messages!.addAll(k);
             chatAgents = m.cast<ChatAgent>();
             setState(() {});
-            _scrollToEnd();
+            if (k[0].contentType != "MSG")
+              _scrollToEnd(100);
+            else
+              _scrollToEnd(0);
           });
         }
         print("agentEndCht");
