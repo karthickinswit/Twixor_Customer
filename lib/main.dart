@@ -399,6 +399,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   //   nonReadMessages.add(message1);
                                   // }
                                 }
+                                // isVisible = false;
                                 // print("${_notifyControllers}");
 
                                 _notifyControllers[index].text =

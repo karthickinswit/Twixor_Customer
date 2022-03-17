@@ -3,6 +3,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
@@ -83,6 +85,10 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       ScrollController(initialScrollOffset: 10);
 
   final TextEditingController msgController = TextEditingController();
+
+  final shouldEnable = false;
+  bool isLoading = false;
+  bool isDisable = false;
 
   _onUrlChanged(String updatedUrl) {
     setState(() {
@@ -200,11 +206,11 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 
         return Column(
           children: <Widget>[
-            messages![index].actionType != "3"
+            (messages![index].actionType != "1" ||
+                    messages![index].actionType != "3")
                 ? ChatUtilMessage(messages![index], chatAgents!)
                 : Container(),
             (messages![index].actionType == "1" ||
-                    messages![index].actionType == "0" ||
                     messages![index].actionType == "3")
                 ? Container(
                     padding: const EdgeInsets.only(
@@ -232,7 +238,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         );
       },
     );
-
+    /////////////////////////////////////////////////
     return MaterialApp(
       title: 'Twixor',
       theme: customTheme,
@@ -279,7 +285,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                 ),
               ),
               title: Container(
-                padding: const EdgeInsets.only(right: 90),
+                padding: EdgeInsets.only(right: 90),
                 child: const Text(
                   //'${chatAgents![0].name}',
                   'Chat With Agent',
@@ -296,9 +302,9 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 
                 listView,
                 //  alignList("text", false, "")
-                (attachment!.url != null && attachment!.url != "")
-                    ? alignList(attachment!)
-                    : alignList(Attachment(type: "MSG")),
+                // (attachment!.url != null && attachment!.url != "")
+                //? alignList(attachment!)
+                alignList(Attachment(type: "MSG")),
               ],
             ),
             resizeToAvoidBottomInset: true,
@@ -308,19 +314,31 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 
   // ignore: non_constant_identifier_names
   ChatUtilMessage(ChatMessage message, List chatAgent) {
-    var utilMsg = "";
-    if (message.actionType == "2") {
-      utilMsg = chatAgent[0].name.toString() + " picked up the chat";
+    print("ChatUtilMessage ${message.toString()}");
+    var utilMsg = "", relativeMsg = "";
+    if (message.actionType == "0") {
+      relativeMsg = "You started the chat";
+    } else if (message.actionType == "2") {
+      relativeMsg = " picked up the chat";
     } else if (message.actionType == "4") {
-      utilMsg = "transferred chat To You";
+      relativeMsg = " transferred chat To You";
     } else if (message.actionType == "5") {
-      utilMsg = "invited";
+      relativeMsg = " invited ";
     } else if (message.actionType == "6") {
-      utilMsg = "accepted chat invitation";
+      relativeMsg = " accepted chat invitation";
     } else if (message.actionType == "8") {
-      utilMsg = "closed this chat";
+      relativeMsg = " Closed this chat";
     } else if (message.actionType == "9") {
-      utilMsg = "left this chat";
+      relativeMsg = " left this chat";
+    }
+    if (message.actionType == "0") {
+      utilMsg = relativeMsg;
+    } else {
+      if (chatAgent[0].name.toString() == "Medplus") {
+        utilMsg = chatAgent[0].name.toString() + relativeMsg;
+      } else {
+        utilMsg = "Medplus" + relativeMsg;
+      }
     }
     return utilMsg != ""
         ? Container(
@@ -330,7 +348,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
               color: (Colors.blue[200]),
             ),
             padding:
-                const EdgeInsets.only(left: 16, right: 16, top: 5, bottom: 5),
+                const EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 5),
             child: Text(utilMsg),
           )
         : Container();
@@ -463,7 +481,6 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         ),
       );
     } else if (localAttachment.type == "IMAGE") {
-      // return ImageDialog(true, localAttachment.url);
       return Align(
         alignment: Alignment.bottomLeft,
         child: FractionallySizedBox(
@@ -816,7 +833,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     }
   }
 
-  Widget bottomSheet(BuildContext context1) {
+  Widget bottomSheet(context1) {
     return Container(
       height: 140,
       width: MediaQuery.of(context).size.width,
@@ -866,13 +883,6 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     );
   }
 
-  // isFromAttachment(isFileUri, content) {
-  //   showModalBottomSheet(
-  //       backgroundColor: Colors.transparent,
-  //       context: context,
-  //       builder: (builder) => ImageDialog(true, content));
-  // }
-
   Widget iconCreation(context1, IconData icons, Color color, String text,
       String type, int mediaType) {
     return InkWell(
@@ -884,7 +894,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
           //print("img1--> ${img1}");
           Navigator.pop(context);
 
-          await showModalBottomSheet(
+          showModalBottomSheet(
               backgroundColor: Colors.transparent,
               isDismissible: true,
               context: context,
@@ -911,7 +921,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
             backgroundColor: Colors.transparent,
             context: context,
             builder: (builder) =>
-                ImageDialog(true, chooseFileUsingFilePicker()),
+                ImageDialog(true, chooseFileUsingFilePicker()!),
           );
         }
         // } else {}
@@ -943,32 +953,53 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   }
 
   chooseFileUsingFilePicker() async {
-    var result = await FilePicker.platform.pickFiles(
-      withReadStream: true,
-      type: FileType.custom,
-      allowedExtensions: ['jpg', 'pdf', 'doc', 'mp4', 'jpeg'],
-    );
+    var fileTemp = {};
+    FilePickerResult? result;
+    File objFile;
+    try {
+      result = await FilePicker.platform.pickFiles(
+        withReadStream: true,
+        type: FileType.custom,
+        allowedExtensions: ['jpg', 'pdf', 'doc', 'mp4', 'jpeg'],
+      );
+    } on PlatformException catch (e) {
+      print("Unsupported operation" + e.toString());
+    }
     if (result != null) {
-      setState(() {
-        print("ObjFile ${result.files.single.runtimeType}");
-        var objFile = result.files.single;
-        print("objfile type --> ${objFile.runtimeType}");
-        print("ObjFile ${result.files.single.runtimeType}");
-        //sendFileType = result.files.single.extension;
-        print("SendFileType ${sendFileType}");
-        // ignore: void_checks
-        return uploadSelectedFile(objFile);
-      });
+      print("ObjFile ${result.files.single.runtimeType}");
+      objFile = File((result.files.single.path) ?? "");
+      print("objfile type --> ${objFile.runtimeType}");
+      print("ObjFile ${result.files.single.runtimeType}");
+      //sendFileType = result.files.single.extension;
+      print("SendFileType ${sendFileType}");
+      fileTemp['contentType'] = ContentReturnType(
+          lookupMimeType(result.files.single.path ?? "") ?? "");
+      fileTemp['url'] = result.files.single.path;
+      fileTemp['name'] = result.files.single.name;
+
+      // fileTemp.type = pickedFile.mimeType;
+      return fileTemp;
+      // ignore: void_checks
+      return objFile.path; //?? uploadSelectedFile(objFile);
+
     }
   }
 
   _getFromGallery() async {
+    var fileTemp = {};
     var pickedFile = await picker.pickImage(
       source: ImageSource.gallery,
     );
     if (pickedFile != null) {
       print("pickedFile-->${pickedFile.path}");
-      return uploadSelectedFilefromGallery(pickedFile);
+
+      fileTemp['contentType'] =
+          ContentReturnType(pickedFile.mimeType ?? "image/jpeg") ?? "";
+      fileTemp['url'] = pickedFile.path;
+      fileTemp['type'] = pickedFile.mimeType;
+      fileTemp['name'] = pickedFile.path.split('/').last;
+      return fileTemp;
+      // uploadSelectedFilefromGallery(pickedFile);
       // return File(pickedFile.path);
       // setState(() {
       //   imageFile = File(pickedFile.path);
@@ -977,6 +1008,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   }
 
   _getFromCamera() async {
+    var fileTemp = {};
     //  picker.pickImage(source: source)
     var pickedFile = (await picker.pickImage(
       source: ImageSource.camera,
@@ -986,7 +1018,14 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     var imageFile;
     if (pickedFile != null) {
       print(" pickedFile type--> ${pickedFile.runtimeType}");
-      return uploadSelectedFilefromGallery(pickedFile);
+      pickedFile.path;
+      fileTemp['contentType'] =
+          ContentReturnType(pickedFile.mimeType ?? "image/jpeg") ?? "";
+      fileTemp['url'] = pickedFile.path;
+      fileTemp['type'] = pickedFile.mimeType;
+      fileTemp['name'] = pickedFile.path.split('/').last;
+      return fileTemp;
+      // uploadSelectedFilefromGallery(pickedFile);
       //fileImg=pickedFile as File;
       // imageFile = pickedFile.path;
       //print("pickedFile");
@@ -999,73 +1038,210 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 // ignore: unused_element
 
   Widget ImageDialog(isFileUrl, temp) {
-    return FutureBuilder<dynamic>(
-        future: temp,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return FractionallySizedBox(
-                child: Row(
-              children:
-                  //contentPadding:,
-                  // scrollable: true,
-                  // shape: const RoundedRectangleBorder(
-                  //     borderRadius: BorderRadius.all(Radius.circular(50.0))),
-                  // actions:
-                  <Widget>[
-                Row(children: [
-                  MaterialButton(
-                    onPressed: () {
-                      Navigator.of(context).pop(false);
-                    },
-                    color: Theme.of(context).buttonColor,
-                    textColor: Theme.of(context).copyWith().iconTheme.color,
-                    child: IconTheme(
-                      data: Theme.of(context).copyWith().iconTheme,
-                      child: const Icon(
-                        IconData(0xe16a, fontFamily: 'MaterialIcons'),
-                        size: 8,
-                      ),
-                    ),
+    return AlertDialog(
+      content: FutureBuilder<dynamic>(
+          future: temp,
+          builder: (context, AsyncSnapshot<dynamic> snapshot) {
+            print("Gallery--> ${snapshot.data}");
+            if (snapshot.hasData) {
+              //contentPadding:,
+              // scrollable: true,
+              // shape: const RoundedRectangleBorder(
+              //     borderRadius: BorderRadius.all(Radius.circular(50.0))),
+              // actions:
+              return Scaffold(
+                body: Column(children: <Widget>[
+                  snapshot.data['contentType'] == "IMAGE"
+                      ? SizedBox(
+                          width: 200,
+                          height: 300,
+                          child: Image.file((File(snapshot.data['url'])),
+                              fit: BoxFit.contain, width: 50, height: 50))
+                      : snapshot.data['contentType'] == "VIDEO"
+                          ? FutureBuilder<dynamic>(
+                              future: getThumbnail(snapshot.data['url']),
+                              builder: (context, snapshot) {
+                                //try {} catch(Exception){}
+
+                                // print(snapshot);
+                                if (snapshot.connectionState !=
+                                    ConnectionState.waiting) {
+                                  print(snapshot.data.toString());
+                                  if (snapshot.hasData) {
+                                    return Container(
+                                      padding: const EdgeInsets.all(1.0),
+                                      width: 120.0,
+                                      height: 100.0,
+                                      child: const Positioned(
+                                          child: Icon(
+                                        IconData(0xf2b1,
+                                            fontFamily: 'MaterialIcons'),
+                                        size: 40,
+                                        color: Colors.white,
+                                      )),
+                                      decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          image: DecorationImage(
+                                              image: MemoryImage(snapshot.data),
+                                              fit: BoxFit.cover)),
+                                    );
+                                  } else if (snapshot.hasError) {
+                                    return Container(
+                                      padding: const EdgeInsets.all(
+                                          8), // Border width
+                                      decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          backgroundBlendMode:
+                                              BlendMode.softLight,
+                                          borderRadius:
+                                              BorderRadius.circular(20)),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(20),
+                                        child: SizedBox.fromSize(
+                                          size: const Size.fromRadius(
+                                              48), // Image radius
+                                          child: Image.network(
+                                              APP_URL +
+                                                  '/drive/docs/61eba0785d9c400b3c6a8dcf',
+                                              fit: BoxFit.cover),
+                                        ),
+                                      ),
+                                    );
+                                  } else {
+                                    return Container();
+                                  }
+                                } else {
+                                  return const CircularProgressIndicator();
+                                }
+                              })
+                          : snapshot.data['contentType'] == "DOC"
+                              ? SizedBox(
+                                  width: 100,
+                                  child: Text(
+                                    snapshot.data["name"],
+                                    softWrap: true,
+                                    overflow: TextOverflow.visible,
+                                    maxLines: 3,
+                                    style: const TextStyle(
+                                        fontSize: 14, color: Colors.amber),
+                                  ),
+                                )
+                              : Container(),
+                  Container(
                     padding: const EdgeInsets.all(8),
-                    shape: const CircleBorder(),
-                  ),
-                  SizedBox(
-                      child: Image.network((snapshot.data),
-                          fit: BoxFit.contain, width: 50, height: 50)),
-                  MaterialButton(
-                    onPressed: () {
-                      setState(() {});
-                    },
-                    color: Theme.of(context).buttonColor,
-                    textColor: Theme.of(context).copyWith().iconTheme.color,
-                    child: IconTheme(
-                      data: Theme.of(context).copyWith().iconTheme,
-                      child: const Icon(
-                        IconData(0xe571,
-                            fontFamily: 'MaterialIcons',
-                            matchTextDirection: true),
-                        size: 8,
-                      ),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: <Widget>[
+                        Align(
+                          alignment: Alignment.bottomLeft,
+                          child: FloatingActionButton(
+                              onPressed: () {},
+                              child: MaterialButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop(false);
+                                },
+                                color: Theme.of(context).buttonColor,
+                                textColor: Theme.of(context)
+                                    .copyWith()
+                                    .iconTheme
+                                    .color,
+                                child: IconTheme(
+                                  data: Theme.of(context).copyWith().iconTheme,
+                                  child: const Icon(
+                                    IconData(0xe16a,
+                                        fontFamily: 'MaterialIcons'),
+                                    size: 8,
+                                  ),
+                                ),
+                                padding: const EdgeInsets.all(8),
+                                shape: const CircleBorder(),
+                              )),
+                        ),
+                        Align(
+                          alignment: Alignment.bottomRight,
+                          child: FloatingActionButton(
+                            onPressed: () {},
+                            child: isLoading == true
+                                ? MaterialButton(
+                                    onPressed: null,
+                                    color: Colors.red,
+                                    textColor: Theme.of(context)
+                                        .copyWith()
+                                        .iconTheme
+                                        .color,
+                                    child: const Icon(
+                                      IconData(0xe571,
+                                          fontFamily: 'MaterialIcons',
+                                          matchTextDirection: true),
+                                      size: 14,
+                                    ),
+                                    padding: const EdgeInsets.all(8),
+                                    shape: const CircleBorder(),
+                                  )
+                                : MaterialButton(
+                                    onPressed: () async {
+                                      Attachment attachment =
+                                          await uploadSelectedFile(
+                                              snapshot.data);
+                                      if (attachment != null) {
+                                        sendmessage(SendMessage(
+                                          action: actionBy != ""
+                                              ? "customerReplyChat"
+                                              : "customerStartChat",
+                                          actionBy: actionBy != ""
+                                              ? int.parse(actionBy!)
+                                              : 0,
+                                          actionType: 1,
+                                          attachment: attachment,
+                                          chatId: chatId!,
+                                          contentType: attachment.type,
+                                          eId: int.parse(eId!),
+                                        ));
+                                        setState(() {
+                                          attachment = Attachment(type: "MSG");
+                                          Navigator.of(context).pop(false);
+                                          attachmentData = "";
+                                          _scrollToEnd();
+                                          isLoading = false;
+                                        });
+                                      }
+                                    },
+                                    color: Theme.of(context).buttonColor,
+                                    textColor: Theme.of(context)
+                                        .copyWith()
+                                        .iconTheme
+                                        .color,
+                                    child: const Icon(
+                                      IconData(0xe571,
+                                          fontFamily: 'MaterialIcons',
+                                          matchTextDirection: true),
+                                      size: 14,
+                                    ),
+                                    padding: const EdgeInsets.all(8),
+                                    shape: const CircleBorder(),
+                                  ),
+                          ),
+                        )
+                      ],
                     ),
-                    padding: const EdgeInsets.all(8),
-                    shape: const CircleBorder(),
                   ),
                 ]),
-              ],
-            ));
-          } else {
-            return const FractionallySizedBox(
-                heightFactor: 10,
-                child: AlertDialog(
-                    //contentPadding:,
-                    scrollable: true,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(50.0))),
-                    actions: <Widget>[
-                      Center(child: CircularProgressIndicator())
-                    ]));
-          }
-        });
+              );
+            } else {
+              return const FractionallySizedBox(
+                  heightFactor: 10,
+                  child: AlertDialog(
+                      //contentPadding:,
+                      scrollable: true,
+                      shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.all(Radius.circular(50.0))),
+                      actions: <Widget>[
+                        Center(child: CircularProgressIndicator())
+                      ]));
+            }
+          }),
+    );
   }
 
   Widget UrlPreview(index) {
@@ -1350,6 +1526,19 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       } else if (message1["action"] == "agentPickupChat") {
         var json = SocketResponse.fromJson(message1);
         var chatId = json.content![0].response!.chat!.chatId;
+        List<ChatMessage> k = json.content![0].response!.chat!.messages!;
+        print(message1.toString());
+        // if (json.content!.elementAt(0).response!.users!.elementAt(1).name ==
+        //     userdata!.name) {
+        setState(() {
+          messages!.addAll(k);
+          _scrollToEnd();
+        });
+        // }
+        print("agentPickupChat");
+      } else if (message1["action"] == "agentEndChat") {
+        var json = SocketResponse.fromJson(message1);
+        var chatId = json.content![0].response!.chat!.chatId;
         List<ChatMessage>? k = json.content![0].response!.chat!.messages!;
 
         if (chatId == userdata!.chatId) {
@@ -1363,7 +1552,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
             _scrollToEnd();
           });
         }
-        print("agentPickupChat");
+        print("agentEndCht");
       } else if (message1 == "waitingTransferAccept") {
         print("waitingTransferAccept");
       }
@@ -1375,15 +1564,21 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     });
   }
 
-  void uploadSelectedFile(objFile) async {
+  uploadSelectedFile(dynamic objFile) async {
     //---Create http package multipart request object
+    Attachment tempAttachment = new Attachment();
+
+    print("IsLoading start");
+    setState(() {
+      isLoading = true;
+    });
 
     var headers = {'authentication-token': authToken!};
-    var mimeType = lookupMimeType(objFile.path);
+    var mimeType = lookupMimeType(objFile['url']);
     var t1 = mimeType.toString().split("/");
 
     var formData = {
-      'message': objFile.name.toString(),
+      // 'message': objFile.name.toString(),
       'multipart': mimeType.toString(),
       //'file':objFile
     };
@@ -1398,42 +1593,34 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     // request.fields["id"] = "abc";
     //-----add selected file with request
     // ignore: unnecessary_new
-    request.files.add(new http.MultipartFile(
-        "file", objFile.readStream, objFile.size,
-        filename: objFile.name, contentType: MediaType(t1[0], t1[1])));
+    request.files.add(http.MultipartFile.fromBytes(
+        'file', await File.fromUri(Uri.parse(objFile['url'])).readAsBytes(),
+        filename: objFile['name'], contentType: new MediaType(t1[0], t1[1])));
+    final response = await request.send();
+    final respStr = await response.stream.bytesToString();
+    print(respStr.toString());
 
-    //-------Send request
-    // print(request.headers.toString());
-    //print(request.fields.toString());
-    request
-        .send()
-        .then((result) async {
-          http.Response.fromStream(result).then((response) {
-            if (response.statusCode == 200) {
-              print("Uploaded! ");
-              //print('response.body ' + response.body);
-              var temp = json.decode(response.body);
-              print(temp["secureUrl"]);
-              attachment?.url = temp["secureUrl"];
-              attachment?.name = temp["name"];
-              attachment?.type =
-                  ContentReturnType(temp["contentType"]).toString();
-              attachment?.contentType = temp["contentType"];
-              attachment?.isDocument = false;
-              attachment?.desc = "";
-              attachment?.id = temp["id"];
+    if (response.statusCode == 200) {
+      print("Uploaded! ");
+      //print('response.body ' + response.body);
+      var temp = json.decode(respStr);
+      print(temp["secureUrl"]);
+      tempAttachment.url = temp["secureUrl"];
+      tempAttachment.name = temp["name"];
+      tempAttachment.type = ContentReturnType(temp["contentType"]).toString();
+      tempAttachment.contentType = temp["contentType"];
+      tempAttachment.isDocument = false;
+      tempAttachment.desc = "";
+      tempAttachment.id = temp["id"];
 
-              setState(() {
-                Navigator.pop(context);
-              });
-            }
+      setState(() {
+        isLoading = false;
+      });
+      print("IsLoading stop");
+      return tempAttachment;
+    }
 
-            return response.body;
-          });
-        })
-        // ignore: invalid_return_type_for_catch_error
-        .catchError((err) => print('error : ' + err.toString()))
-        .whenComplete(() {});
+    // ignore: invalid_return_type_for_catch_error
   }
 
   uploadSelectedFilefromGallery(XFile objFile) async {
