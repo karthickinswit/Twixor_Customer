@@ -21,6 +21,7 @@ bool isValidToken = false;
 late SharedPreferences prefs;
 
 String? authToken;
+bool isVisible = true;
 
 getTokenApi() async {
   prefs = await SharedPreferences.getInstance();

@@ -18,6 +18,8 @@ class ThemeClass {
   //ThemeClass();
 }
 
+bool attachmentProgress = true;
+
 ContentReturnType(String s) {
   List k = [
     {
@@ -141,6 +143,11 @@ StoredtoFile(String url, String filename) async {
 }
 
 ErrorAlert(BuildContext context, String msg) async {
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    content: Text(msg),
+    backgroundColor: Color.fromARGB(255, 137, 164, 186),
+    duration: const Duration(seconds: 6),
+  ));
+  // ScaffoldMessenger.of(context).widget
   return false;
 }
