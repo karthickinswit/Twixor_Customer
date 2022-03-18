@@ -30,7 +30,6 @@ SocketConnect() async {
 
 getCloseSocket() async {
   print(channel);
-
   channel!.sink.close(status.goingAway);
   print("Socket closed");
   isSocketConnection = false;
