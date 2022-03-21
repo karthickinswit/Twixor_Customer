@@ -15,6 +15,7 @@ String url = APP_URL + '/c/enterprises/';
 //const eId = String.fromEnvironment('eid', defaultValue: '374');
 late String eId;
 late String customerId;
+late String userChatId;
 
 bool isValidToken = false;
 

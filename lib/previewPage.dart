@@ -1,166 +1,201 @@
-import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:mime/mime.dart';
+import 'package:twixor_customer/API/apidata-service.dart';
+import 'package:twixor_customer/helper_files/Websocket.dart';
+import 'package:twixor_customer/helper_files/utilities_files.dart';
 import 'package:twixor_customer/models/Attachmentmodel.dart';
-import 'package:webview_flutter/webview_flutter.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:twixor_customer/models/SendMessageModel.dart';
 
-class WebViewEx extends StatefulWidget {
-  Attachment? attachment;
+import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'package:twixor_customer/helper_files/utilities_files.dart';
 
-  WebViewEx(this.attachment, {Key? key}) : super(key: key);
+class FileReaderPage extends StatefulWidget {
+  final localFileData;
+
+  FileReaderPage({Key? key, Key = Key, required this.localFileData})
+      : super(key: key);
+
   @override
-  WebViewExampleState createState() => WebViewExampleState(attachment!);
+  _FileReaderPageState createState() => _FileReaderPageState();
 }
 
-class WebViewExampleState extends State<WebViewEx> {
-  static var httpClient = HttpClient();
-  late String url;
-  late String name;
-  Attachment attachment;
-  WebViewExampleState(this.attachment);
-  final Completer<WebViewController> _controller =
-      Completer<WebViewController>();
+class _FileReaderPageState extends State<FileReaderPage> {
   @override
   void initState() {
     super.initState();
-    // Enable virtual display.
-    if (Platform.isAndroid) WebView.platform = AndroidWebView();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Media'),
-        toolbarOpacity: 1.0,
-        leading: IconButton(
-          icon: const Icon(
-            IconData(0xe094, fontFamily: 'MaterialIcons'),
-          ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.blue,
-      ),
-      body: webviewwidget(attachment.url.toString()),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _downloadFile(attachment.url.toString(), attachment.name.toString());
-          // Note You must create respective pages for navigation
-          // Navigator.pushNamed(context, route);
+      body: Column(
+        children: <Widget>[
+          widget.localFileData['contentType'] == "IMAGE"
+              ? SizedBox(
+                  width: 200,
+                  height: 300,
+                  child: Image.file((File(widget.localFileData['url'])),
+                      fit: BoxFit.contain, width: 50, height: 50))
+              : widget.localFileData['contentType'] == "VIDEO"
+                  ? Container()
+                  : Container(),
+          widget.localFileData['contentType'] == "DOC"
+              ? SizedBox(
+                  width: 100,
+                  child: Text(
+                    widget.localFileData["name"],
+                    softWrap: true,
+                    overflow: TextOverflow.visible,
+                    maxLines: 3,
+                    style: const TextStyle(fontSize: 14, color: Colors.amber),
+                  ),
+                )
+              : Container(
+                  padding: const EdgeInsets.all(8),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: <Widget>[
+                      Align(
+                        alignment: Alignment.bottomLeft,
+                        child: FloatingActionButton(
+                            onPressed: () {},
+                            child: MaterialButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(false);
+                              },
+                              color: Theme.of(context).buttonColor,
+                              textColor:
+                                  Theme.of(context).copyWith().iconTheme.color,
+                              child: IconTheme(
+                                data: Theme.of(context).copyWith().iconTheme,
+                                child: const Icon(
+                                  IconData(0xe16a, fontFamily: 'MaterialIcons'),
+                                  size: 8,
+                                ),
+                              ),
+                              padding: const EdgeInsets.all(8),
+                              shape: const CircleBorder(),
+                            )),
+                      ),
+                      Align(
+                        alignment: Alignment.bottomRight,
+                        child: FloatingActionButton(
+                          onPressed: () {},
+                          child: MaterialButton(
+                            onPressed: () async {
+                              print("Attachemnt first Clisk");
+                              if (attachmentProgress) {
+                                print("Attachemnt second Clisk");
+                                Attachment attachment =
+                                    await uploadSelectedFile(
+                                        widget.localFileData);
 
-          // Add your onPressed code here!
-        },
-        child: const Icon(IconData(0xe201, fontFamily: 'MaterialIcons')),
-        backgroundColor: Colors.blue,
+                                if (attachment != null) {
+                                  sendmessage(SendMessage(
+                                      action: "customerReplyChat",
+                                      actionBy: 3,
+                                      actionType: 1,
+                                      attachment: attachment,
+                                      chatId: userChatId,
+                                      contentType: attachment.type,
+                                      eId: int.parse(
+                                        eId,
+                                      )));
+                                  setState(() {
+                                    attachment = Attachment();
+                                    Navigator.of(context).pop(false);
+
+                                    // _scrollToEnd(200);
+                                    // WidgetsBinding.instance?.removeObserver(this);
+                                  });
+                                }
+                              } else {
+                                ErrorAlert(context, "File is uploading");
+                              }
+                            },
+                            color: Theme.of(context).buttonColor,
+                            textColor:
+                                Theme.of(context).copyWith().iconTheme.color,
+                            child: const Icon(
+                              IconData(0xe571,
+                                  fontFamily: 'MaterialIcons',
+                                  matchTextDirection: true),
+                              size: 14,
+                            ),
+                            padding: const EdgeInsets.all(8),
+                            shape: const CircleBorder(),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                )
+        ],
       ),
     );
   }
 
-  Widget webviewwidget(url) {
-    return WebView(
-      initialUrl:
-          url, //'https://aim.twixor.com/drive/docs/61c2d1345d9c40085df9a86c',//https://aim.twixor.com/drive/docs/61c2d1345d9c40085df9a86c
-      onWebViewCreated: (WebViewController webViewController) {
-        _controller.complete(webViewController);
-      },
-      allowsInlineMediaPlayback: true,
-      onPageFinished: (String url) {
-        print("Page load Finished");
-      },
-      onProgress: (int p) {
-        print("Page load Finished");
-        print(p);
-      },
-    );
-  }
+  uploadSelectedFile(dynamic objFile) async {
+    //---Create http package multipart request object
+    Attachment tempAttachment = new Attachment();
+    ErrorAlert(context, "File is uploading");
 
-  getPermission(String url, String filename) async {
-    if (await Permission.storage.request().isGranted) {
-      // Either the permission was already granted before or the user just granted it.
-      var request = await httpClient.getUrl(Uri.parse(url));
-      var response = await request.close();
-      final folderName = "twixor_customer";
-      var bytes = await consolidateHttpClientResponseBytes(response);
-      String dir = (await getApplicationDocumentsDirectory()).path;
-      final path = Directory('$dir/$folderName');
-      print(path.toString());
-      File file = File(path.path + '/$filename');
-      //print(file);
-      //await file.writeAsBytes(bytes);
-      if ((await path.exists())) {
-        // TODO:
-        print("exist");
-        print(file.toString());
-        await file.writeAsBytes(bytes);
-      } else {
-        // TODO:
-        print("not exist");
-        path.create();
-        print("exist");
-        print(file.toString());
-        await file.writeAsBytes(bytes);
-      }
-    } else {
-// You can request multiple permissions at once.
-      Map<Permission, PermissionStatus> statuses = await [
-        Permission.storage,
-      ].request();
-      print(statuses[Permission.location]);
+    print("IsLoading start");
+    setState(() {
+      attachmentProgress = false;
+    });
+
+    var headers = {'authentication-token': authToken!};
+    var mimeType = lookupMimeType(objFile['url']);
+    var t1 = mimeType.toString().split("/");
+
+    var formData = {
+      // 'message': objFile.name.toString(),
+      'multipart': mimeType.toString(),
+      //'file':objFile
+    };
+
+    final request = http.MultipartRequest(
+      "POST",
+      Uri.parse(APP_URL + "/c/drive/upload"),
+    );
+    request.headers.addAll(headers);
+    //-----add other fields if needed
+    request.fields.addAll(formData);
+    // request.fields["id"] = "abc";
+    //-----add selected file with request
+    // ignore: unnecessary_new
+    request.files.add(http.MultipartFile.fromBytes(
+        'file', await File.fromUri(Uri.parse(objFile['url'])).readAsBytes(),
+        filename: objFile['name'], contentType: new MediaType(t1[0], t1[1])));
+    final response = await request.send();
+    final respStr = await response.stream.bytesToString();
+    print(respStr.toString());
+
+    if (response.statusCode == 200) {
+      print("Uploaded! ");
+      //print('response.body ' + response.body);
+      var temp = json.decode(respStr);
+      print(temp["secureUrl"]);
+      tempAttachment.url = temp["secureUrl"];
+      tempAttachment.name = temp["name"];
+      tempAttachment.type = ContentReturnType(temp["contentType"]).toString();
+      tempAttachment.contentType = temp["contentType"];
+      tempAttachment.isDocument = false;
+      tempAttachment.desc = "";
+      tempAttachment.id = temp["id"];
+
+      setState(() {
+        attachmentProgress = true;
+      });
+      print("IsLoading stop");
+      return tempAttachment;
     }
-  }
 
-  void _downloadFile(String url, String filename) async {
-    getPermission(url, filename);
-
-    // print(dir);
-    // File file = new File('$dir/$filename');
-    // print(file);
-    // await file.writeAsBytes(bytes);
-    // return file;
-  }
-
-  void _showToast(BuildContext context) {
-    final scaffold = ScaffoldMessenger.of(context);
-    scaffold.showSnackBar(
-      SnackBar(
-        content: const Text('Added to favorite'),
-        action: SnackBarAction(
-            label: 'UNDO', onPressed: scaffold.hideCurrentSnackBar),
-      ),
-    );
-  }
-
-  Future<String> downloadFile(String url, String fileName, String dir) async {
-    HttpClient httpClient = HttpClient();
-    File file;
-    String filePath = '';
-    String myUrl = '';
-
-    try {
-      myUrl = url + '/' + fileName;
-      var request = await httpClient.getUrl(Uri.parse(myUrl));
-      var response = await request.close();
-      if (response.statusCode == 200) {
-        var bytes = await consolidateHttpClientResponseBytes(response);
-        filePath = '$dir/$fileName';
-        file = File(filePath);
-        await file.writeAsBytes(bytes);
-      } else {
-        filePath = 'Error code: ' + response.statusCode.toString();
-      }
-    } catch (ex) {
-      filePath = 'Can not fetch url';
-    }
-
-    return filePath;
+    // ignore: invalid_return_type_for_catch_error
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:twixor_customer/API/apidata-service.dart';
@@ -14,11 +15,10 @@ var channelStream;
 var bSubject = new BehaviorSubject();
 var chatPageSocket = new BehaviorSubject();
 var mainSocket = new BehaviorSubject();
-
 StreamController strmControl = new StreamController();
 StreamSubscription? subscription;
 StreamSubscription? mainSubscription;
-// var aSubject = new BehaviorSubject();
+var aSubject = new BehaviorSubject();
 // StreamSubscription? streamSubscription;
 
 SocketConnect() async {
@@ -35,8 +35,9 @@ SocketConnect() async {
     channel!.stream.listen((event) {
       //strmControl.add(event);
       {
-        if (!bSubject.isClosed) bSubject.sink.add(event);
-        if (!chatPageSocket.isClosed) chatPageSocket.sink.add(event);
+        // aSubject.add(event);
+        // if (!bSubject.isClosed) bSubject.sink.add(event);
+        // if (!chatPageSocket.isClosed) chatPageSocket.sink.add(event);
         if (!mainSocket.isClosed) mainSocket.sink.add(event);
       }
     });

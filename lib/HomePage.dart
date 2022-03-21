@@ -66,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isLoading = false;
 
   late String userDetails;
-  String? userChatId;
+
   String? ChatId;
   late SharedPreferences prefs;
   bool allowStorage = false;
@@ -90,6 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     super.initState();
     configLoading();
+    //getSubscribe();
 
     socketMsgReceiveMain();
 
@@ -144,7 +145,7 @@ class _MyHomePageState extends State<MyHomePage> {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => ChatDetailPage(userChatId!, "")));
+                builder: (context) => ChatDetailPage(userChatId, "")));
       } else {
         ErrorAlert(context, "UserDetails Not Present");
         ChatId = await newChatCreate(context);

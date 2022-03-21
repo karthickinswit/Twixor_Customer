@@ -51,6 +51,7 @@ dependencies:
   mime: ^1.0.1
   angular_router: ^3.0.1
   rxdart: ^0.27.3
+  
 
 
 dev_dependencies:

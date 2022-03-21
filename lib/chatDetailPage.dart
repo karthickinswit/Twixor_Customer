@@ -19,6 +19,7 @@ import 'package:twixor_customer/models/SendMessageModel.dart';
 import 'package:twixor_customer/models/SocketResponseModel.dart';
 import 'package:twixor_customer/models/chatMessageModel.dart';
 import 'package:twixor_customer/models/chatUsersModel.dart';
+import 'package:twixor_customer/previewPage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 
@@ -72,7 +73,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   List<ChatMessage> nonReadMessages = [];
   StreamController chatSocketStream = StreamController();
   StreamSubscription? chatSubscription;
-
+  BuildContext? dialogContext;
+  BuildContext? tempContext;
   var isKeyboardOpen = false;
 
   static const APP_URL = String.fromEnvironment('APP_URL',
@@ -167,6 +169,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       });
     });
     WidgetsBinding.instance?.addObserver(this);
+    _scrollToEnd(0);
 
     //socketMsgReceive();
     //super.setState(() {});
@@ -193,6 +196,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 
   @override
   Widget build(BuildContext context) {
+    dialogContext = context;
     // print("rcvd fdata ${rcvdData['name']}");
 
     var listView = ListView.builder(
@@ -326,7 +330,131 @@ class _ChatDetailPageState extends State<ChatDetailPage>
               //  alignList("text", false, "")
               // (attachment!.url != null && attachment!.url != "")
               //? alignList(attachment!)
-              alignList(Attachment(type: "MSG")),
+              // alignList(Attachment(type: "MSG")),
+              Align(
+                alignment: Alignment.bottomLeft,
+                child: Container(
+                  padding: const EdgeInsets.only(left: 10, bottom: 10, top: 10),
+                  height: 60,
+                  width: double.infinity,
+                  color: Colors.white,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      modelSheet(context),
+                      const SizedBox(
+                        width: 15,
+                      ),
+                      Expanded(
+                        child: TextField(
+                          textInputAction: TextInputAction.go,
+                          onSubmitted: (value) {
+                            FocusScopeNode currentFocus =
+                                FocusScope.of(context);
+
+                            if (!currentFocus.hasPrimaryFocus) {
+                              currentFocus.unfocus();
+                            }
+                            if (value.isNotEmpty) {
+                              sendmessage(SendMessage(
+                                  action: actionBy != ""
+                                      ? "customerReplyChat"
+                                      : "customerStartChat",
+                                  actionBy:
+                                      actionBy != "" ? int.parse(actionBy!) : 0,
+                                  actionType: 1,
+                                  attachment: Attachment(),
+                                  chatId: chatId!,
+                                  contentType: "TEXT",
+                                  eId: int.parse(eId!),
+                                  message: value));
+
+                              setState(() {
+                                attachment = Attachment();
+                                attachmentData = "";
+                                // WidgetsBinding.instance?.removeObserver(this);
+
+                                _scrollToEnd(0);
+                                setState(() {});
+                              });
+                            }
+                            msgController.clear();
+                          },
+                          //onChanged: (newValue) => _onUrlChanged(newValue),
+                          controller: msgController,
+                          decoration: const InputDecoration(
+                            hintText: "Write message...",
+                            hintStyle: TextStyle(color: Colors.black54),
+                            border: InputBorder.none,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 15,
+                      ),
+                      FloatingActionButton(
+                        onPressed: () {
+                          FocusScopeNode currentFocus = FocusScope.of(context);
+
+                          if (!currentFocus.hasPrimaryFocus) {
+                            currentFocus.unfocus();
+                          }
+                          // print(msgController.text);
+                          //Attachment attachment;
+
+                          if (msgController.text.isNotEmpty) {
+                            // var temp = ChatMessage(
+                            //     messageContent: msgController.text,
+                            //     messageType: "sender",
+                            //     isUrl: Uri.parse(msgController.text).isAbsolute,
+                            //     contentType: "TEXT",
+                            //     url: '',
+                            //     attachment: Attachment(),
+                            //     eId: eId,
+                            //     actionType: "1",
+                            //     actionBy: actionBy!,
+                            //     actedOn: DateTime.now().toUtc().toString());
+                            // messages!.add(temp);
+                            // print(actionBy);
+
+                            sendmessage(SendMessage(
+                                action: actionBy != ""
+                                    ? "customerReplyChat"
+                                    : "customerStartChat",
+                                actionBy:
+                                    actionBy != "" ? int.parse(actionBy!) : 0,
+                                actionType: 1,
+                                attachment: Attachment(),
+                                chatId: chatId!,
+                                contentType: "TEXT",
+                                eId: int.parse(eId!),
+                                message: msgController.text));
+
+                            setState(() {
+                              attachment = Attachment();
+                              attachmentData = "";
+                              //WidgetsBinding.instance?.removeObserver(this);
+                              _scrollToEnd(0);
+                            });
+                          }
+                          msgController.clear();
+                        },
+                        child: IconTheme(
+                          data: Theme.of(context).copyWith().iconTheme,
+                          child: const Icon(
+                            Icons.send,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                        ),
+                        backgroundColor: Colors.blue,
+                        elevation: 0,
+                      ),
+                    ],
+                  ),
+                ),
+              )
             ],
           ),
           resizeToAvoidBottomInset: true,
@@ -376,413 +504,6 @@ class _ChatDetailPageState extends State<ChatDetailPage>
             child: Text(utilMsg),
           )
         : Container();
-  }
-
-  Widget alignList(Attachment localAttachment) {
-    // ignore: non_constant_identifier_names
-    var TextNode = [
-      modelSheet(context),
-      const SizedBox(
-        width: 15,
-      ),
-      Expanded(
-        child: TextField(
-          textInputAction: TextInputAction.go,
-          onSubmitted: (value) {
-            FocusScopeNode currentFocus = FocusScope.of(context);
-
-            if (!currentFocus.hasPrimaryFocus) {
-              currentFocus.unfocus();
-            }
-            if (value.isNotEmpty) {
-              sendmessage(SendMessage(
-                  action: actionBy != ""
-                      ? "customerReplyChat"
-                      : "customerStartChat",
-                  actionBy: actionBy != "" ? int.parse(actionBy!) : 0,
-                  actionType: 1,
-                  attachment: Attachment(),
-                  chatId: chatId!,
-                  contentType: "TEXT",
-                  eId: int.parse(eId!),
-                  message: value));
-
-              setState(() {
-                attachment = Attachment();
-                attachmentData = "";
-                // WidgetsBinding.instance?.removeObserver(this);
-
-                _scrollToEnd(0);
-                setState(() {});
-              });
-            }
-            msgController.clear();
-          },
-          //onChanged: (newValue) => _onUrlChanged(newValue),
-          controller: msgController,
-          decoration: const InputDecoration(
-            hintText: "Write message...",
-            hintStyle: TextStyle(color: Colors.black54),
-            border: InputBorder.none,
-          ),
-        ),
-      ),
-      const SizedBox(
-        width: 15,
-      ),
-      FloatingActionButton(
-        onPressed: () {
-          FocusScopeNode currentFocus = FocusScope.of(context);
-
-          if (!currentFocus.hasPrimaryFocus) {
-            currentFocus.unfocus();
-          }
-          // print(msgController.text);
-          //Attachment attachment;
-
-          if (msgController.text.isNotEmpty) {
-            // var temp = ChatMessage(
-            //     messageContent: msgController.text,
-            //     messageType: "sender",
-            //     isUrl: Uri.parse(msgController.text).isAbsolute,
-            //     contentType: "TEXT",
-            //     url: '',
-            //     attachment: Attachment(),
-            //     eId: eId,
-            //     actionType: "1",
-            //     actionBy: actionBy!,
-            //     actedOn: DateTime.now().toUtc().toString());
-            // messages!.add(temp);
-            // print(actionBy);
-
-            sendmessage(SendMessage(
-                action:
-                    actionBy != "" ? "customerReplyChat" : "customerStartChat",
-                actionBy: actionBy != "" ? int.parse(actionBy!) : 0,
-                actionType: 1,
-                attachment: Attachment(),
-                chatId: chatId!,
-                contentType: "TEXT",
-                eId: int.parse(eId!),
-                message: msgController.text));
-
-            setState(() {
-              attachment = Attachment();
-              attachmentData = "";
-              //WidgetsBinding.instance?.removeObserver(this);
-              _scrollToEnd(0);
-            });
-          }
-          msgController.clear();
-        },
-        child: IconTheme(
-          data: Theme.of(context).copyWith().iconTheme,
-          child: const Icon(
-            Icons.send,
-            color: Colors.white,
-            size: 18,
-          ),
-        ),
-        backgroundColor: Colors.blue,
-        elevation: 0,
-      ),
-    ];
-
-    if (localAttachment.type == "MSG") {
-      return Align(
-        alignment: Alignment.bottomLeft,
-        child: Container(
-          padding: const EdgeInsets.only(left: 10, bottom: 10, top: 10),
-          height: (localAttachment.type == "MSG") ? 60 : 200,
-          width: double.infinity,
-          color: Colors.white,
-          child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: TextNode),
-        ),
-      );
-    } else if (localAttachment.type == "IMAGE") {
-      return Align(
-        alignment: Alignment.bottomLeft,
-        child: FractionallySizedBox(
-            child: AlertDialog(
-          //contentPadding:,
-          scrollable: true,
-          shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(60.0))),
-          actions: <Widget>[
-            Row(children: [
-              MaterialButton(
-                onPressed: () {
-                  setState(() {
-                    attachment = new Attachment();
-                  });
-                },
-                // ignore: deprecated_member_use
-                color: Theme.of(context).buttonColor,
-                textColor: Theme.of(context).copyWith().iconTheme.color,
-                child: const Icon(
-                  IconData(0xe16a, fontFamily: 'MaterialIcons'),
-                  size: 14,
-                ),
-                padding: const EdgeInsets.all(8),
-                shape: const CircleBorder(),
-              ),
-              SizedBox(
-                  width: 120,
-                  height: 100,
-                  child: Image.network((localAttachment.url!),
-                      fit: BoxFit.contain, width: 50, height: 50)),
-              MaterialButton(
-                onPressed: () {
-                  sendmessage(SendMessage(
-                    action: actionBy != ""
-                        ? "customerReplyChat"
-                        : "customerStartChat",
-                    actionBy: actionBy != "" ? int.parse(actionBy!) : 0,
-                    actionType: 1,
-                    attachment: attachment,
-                    chatId: chatId!,
-                    contentType: attachment!.type,
-                    eId: int.parse(eId!),
-                  ));
-                  setState(() {
-                    attachment = Attachment();
-                    attachmentData = "";
-                    // WidgetsBinding.instance?.removeObserver(this);
-                    _scrollToEnd(100);
-                  });
-                },
-                color: Theme.of(context).buttonColor,
-                textColor: Theme.of(context).copyWith().iconTheme.color,
-                child: IconTheme(
-                  data: Theme.of(context).copyWith().iconTheme,
-                  child: const Icon(
-                    IconData(0xe571,
-                        fontFamily: 'MaterialIcons', matchTextDirection: true),
-                    size: 14,
-                  ),
-                ),
-                padding: const EdgeInsets.all(8),
-                shape: const CircleBorder(),
-              ),
-            ]),
-          ],
-        )),
-      );
-
-      // return Align(
-      //   alignment: Alignment.bottomLeft,
-      //   child: Container(
-      //     padding: const EdgeInsets.only(left: 10, bottom: 10, top: 20),
-      //     height: (localAttachment.type == "MSG") ? 60 : 200,
-      //     width: double.infinity,
-      //     color: Colors.white,
-      //     child: Row(
-      //         crossAxisAlignment: CrossAxisAlignment.center,
-      //         mainAxisAlignment: MainAxisAlignment.center,
-      //         children: localAttachment.type == "MSG" ? (TextNode) : ImageNode),
-      //   ),
-      // );
-    } else if (localAttachment.type == "VIDEO") {
-      return Align(
-        alignment: Alignment.bottomLeft,
-        child: FractionallySizedBox(
-            child: AlertDialog(
-          //contentPadding:,
-          scrollable: true,
-          shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(60.0))),
-          actions: <Widget>[
-            Row(children: [
-              MaterialButton(
-                onPressed: () {
-                  setState(() {
-                    attachment = new Attachment();
-                  });
-                },
-                color: Theme.of(context).buttonColor,
-                textColor: Theme.of(context).copyWith().iconTheme.color,
-                child: IconTheme(
-                  data: Theme.of(context).copyWith().iconTheme,
-                  child: const Icon(
-                    IconData(0xe16a, fontFamily: 'MaterialIcons'),
-                    size: 14,
-                  ),
-                ),
-                padding: const EdgeInsets.all(8),
-                shape: const CircleBorder(),
-              ),
-              FutureBuilder<dynamic>(
-                  future: getThumbnail(localAttachment.url.toString()),
-                  builder: (context, snapshot) {
-                    //try {} catch(Exception){}
-
-                    // print(snapshot);
-                    if (snapshot.connectionState != ConnectionState.waiting) {
-                      print(snapshot.data.toString());
-                      if (snapshot.hasData) {
-                        return Container(
-                          padding: const EdgeInsets.all(1.0),
-                          width: 120.0,
-                          height: 100.0,
-                          child: const Positioned(
-                              child: Icon(
-                            IconData(0xf2b1, fontFamily: 'MaterialIcons'),
-                            size: 40,
-                            color: Colors.white,
-                          )),
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              image: DecorationImage(
-                                  image: MemoryImage(snapshot.data),
-                                  fit: BoxFit.cover)),
-                        );
-                      } else if (snapshot.hasError) {
-                        return Container(
-                          padding: const EdgeInsets.all(8), // Border width
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              backgroundBlendMode: BlendMode.softLight,
-                              borderRadius: BorderRadius.circular(20)),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: SizedBox.fromSize(
-                              size: const Size.fromRadius(48), // Image radius
-                              child: Image.network(
-                                  APP_URL +
-                                      '/drive/docs/61eba0785d9c400b3c6a8dcf',
-                                  fit: BoxFit.cover),
-                            ),
-                          ),
-                        );
-                      } else {
-                        return Container();
-                      }
-                    } else {
-                      return const CircularProgressIndicator();
-                    }
-                  }),
-              MaterialButton(
-                onPressed: () {
-                  sendmessage(SendMessage(
-                    action: actionBy != ""
-                        ? "customerReplyChat"
-                        : "customerStartChat",
-                    actionBy: actionBy != "" ? int.parse(actionBy!) : 0,
-                    actionType: 1,
-                    attachment: attachment,
-                    chatId: chatId!,
-                    contentType: attachment!.type,
-                    eId: int.parse(eId!),
-                  ));
-                  setState(() {
-                    attachment = Attachment();
-                    attachmentData = "";
-                    // WidgetsBinding.instance?.removeObserver(this);
-                    _scrollToEnd(100);
-                  });
-                },
-                color: Theme.of(context).buttonColor,
-                textColor: Theme.of(context).copyWith().iconTheme.color,
-                child: const Icon(
-                  IconData(0xe571,
-                      fontFamily: 'MaterialIcons', matchTextDirection: true),
-                  size: 14,
-                ),
-                padding: const EdgeInsets.all(8),
-                shape: const CircleBorder(),
-              ),
-            ]),
-          ],
-        )),
-      );
-    } else if (localAttachment.type == "DOC") {
-      return Align(
-        alignment: Alignment.bottomLeft,
-        child: FractionallySizedBox(
-            child: AlertDialog(
-          //contentPadding:,
-          scrollable: true,
-          shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(60.0))),
-          actions: <Widget>[
-            Row(children: [
-              MaterialButton(
-                onPressed: () {
-                  setState(() {
-                    attachment = Attachment();
-                  });
-                },
-                color: Theme.of(context).buttonColor,
-                textColor: Theme.of(context).copyWith().iconTheme.color,
-                child: const Icon(
-                  IconData(0xe16a, fontFamily: 'MaterialIcons'),
-                  size: 14,
-                ),
-                padding: const EdgeInsets.all(8),
-                shape: const CircleBorder(),
-              ),
-              SizedBox(
-                width: 100,
-                child: Text(
-                  localAttachment.name.toString(),
-                  softWrap: true,
-                  overflow: TextOverflow.visible,
-                  maxLines: 3,
-                  style: const TextStyle(fontSize: 14, color: Colors.amber),
-                ),
-              ),
-              MaterialButton(
-                onPressed: () {
-                  sendmessage(SendMessage(
-                    action: actionBy != ""
-                        ? "customerReplyChat"
-                        : "customerStartChat",
-                    actionBy: actionBy != "" ? int.parse(actionBy!) : 0,
-                    actionType: 1,
-                    attachment: attachment,
-                    chatId: chatId!,
-                    contentType: attachment!.type,
-                    eId: int.parse(eId!),
-                  ));
-                  setState(() {
-                    attachment = Attachment();
-                    attachmentData = "";
-                    // WidgetsBinding.instance?.removeObserver(this);
-                    _scrollToEnd(0);
-                  });
-                },
-                color: Theme.of(context).buttonColor,
-                textColor: Theme.of(context).copyWith().iconTheme.color,
-                child: const Icon(
-                  IconData(0xe571,
-                      fontFamily: 'MaterialIcons', matchTextDirection: true),
-                  size: 14,
-                ),
-                padding: const EdgeInsets.all(8),
-                shape: const CircleBorder(),
-              ),
-            ]),
-          ],
-        )),
-      );
-    } else {
-      return Align(
-        alignment: Alignment.bottomLeft,
-        child: Container(
-          padding: const EdgeInsets.only(left: 10, bottom: 10, top: 10),
-          height: 60,
-          width: 200,
-          color: Colors.white,
-          child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: TextNode),
-        ),
-      );
-    }
   }
 
   Widget modelSheet(context1) {
@@ -925,23 +646,31 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                 backgroundColor: Colors.transparent,
                 isDismissible: true,
                 context: context1,
-                builder: (builder) => ImageDialog(true, localFileData));
+                builder: (builder) =>
+                    ImageDialog(true, localFileData, context1));
+            // Navigator.push(
+            //     context,
+            //     MaterialPageRoute(
+            //         builder: (_) => FileReaderPage(
+            //               localFileData: localFileData,
+            //             )));
           }
         } else if (type == "camera") {
           // await _getFromCamera();
           // var img1 = await _getFromCamera();
-          Navigator.pop(context);
+          Navigator.pop(context1);
           // imageFile?.path == ""
           //  ? const CircularProgressIndicator()
-          var localFileData = await _getFromCamera()();
+          var localFileData = await _getFromCamera();
           if (localFileData != null) {
             showModalBottomSheet(
                 backgroundColor: Colors.transparent,
                 context: context,
-                builder: (builder) => ImageDialog(true, localFileData));
+                builder: (builder) =>
+                    ImageDialog(true, localFileData, context1));
           }
         } else if (type == "document") {
-          Navigator.pop(context);
+          Navigator.pop(context1);
           //objFile = await chooseFileUsingFilePicker();
           print("Upload");
           //if (sendFileType == "jpg") {
@@ -952,9 +681,15 @@ class _ChatDetailPageState extends State<ChatDetailPage>
           if (localFileData != null) {
             showModalBottomSheet(
               backgroundColor: Colors.transparent,
-              context: context,
-              builder: (builder) => ImageDialog(true, localFileData),
+              context: context1,
+              builder: (builder) => ImageDialog(true, localFileData, context1),
             );
+            // Navigator.push(
+            //     context,
+            //     MaterialPageRoute(
+            //         builder: (_) => FileReaderPage(
+            //               localFileData: localFileData,
+            //             )));
           }
         }
         // } else {}
@@ -1073,7 +808,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 
 // ignore: unused_element
 
-  Widget ImageDialog(isFileUrl, localFileData) {
+  Widget ImageDialog(isFileUrl, localFileData, context1) {
     return AlertDialog(
       content: Scaffold(
         body: Column(children: <Widget>[
@@ -1111,6 +846,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                                       fit: BoxFit.cover)),
                             );
                           } else if (snapshot.hasError) {
+                            ErrorAlert(context, snapshot.hasError.toString());
                             return Container(
                               padding: const EdgeInsets.all(8), // Border width
                               decoration: BoxDecoration(
@@ -1199,6 +935,32 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                               print("Attachemnt first Clisk");
                               if (attachmentProgress) {
                                 print("Attachemnt second Clisk");
+
+                                showDialog(
+                                  context: context1,
+                                  barrierDismissible: false,
+                                  builder: (BuildContext context) {
+                                    return Dialog(
+                                      child: Container(
+                                        height: 50,
+                                        width: 120,
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: const [
+                                            CircularProgressIndicator(),
+                                            SizedBox(
+                                              width: 10,
+                                            ),
+                                            Text(
+                                              "Uploading a File...",
+                                              textScaleFactor: 1.0,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
                                 Attachment attachment =
                                     await uploadSelectedFile(localFileData);
 
@@ -1217,8 +979,9 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                                     eId: int.parse(eId!),
                                   ));
                                   setState(() {
+                                    Navigator.pop(context);
                                     attachment = Attachment();
-                                    Navigator.of(context).pop(false);
+                                    //Navigator.of(context).pop(false);
                                     attachmentData = "";
                                     _scrollToEnd(200);
                                     // WidgetsBinding.instance?.removeObserver(this);
@@ -1427,7 +1190,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         video: videoUrl,
         imageFormat: ImageFormat.JPEG,
         maxHeight:
-            100, // specify the height of the thumbnail, let the width auto-scaled to keep the source aspect ratio
+            80, // specify the height of the thumbnail, let the width auto-scaled to keep the source aspect ratio
         quality: 60,
         maxWidth: 80,
         timeMs: 2000);
@@ -1602,10 +1365,13 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     });
   }
 
+  Widget toast() {
+    return Container(child: CircularProgressIndicator());
+  }
+
   uploadSelectedFile(dynamic objFile) async {
     //---Create http package multipart request object
     Attachment tempAttachment = new Attachment();
-    ErrorAlert(context, "File is uploading");
 
     print("IsLoading start");
     setState(() {
@@ -1658,6 +1424,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         attachmentProgress = true;
       });
       print("IsLoading stop");
+      Navigator.pop(context);
       return tempAttachment;
     }
 
