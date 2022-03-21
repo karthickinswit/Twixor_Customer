@@ -903,13 +903,17 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                   : localFileData['contentType'] == "DOC"
                       ? SizedBox(
                           width: 100,
-                          child: Text(
-                            localFileData["name"],
-                            softWrap: true,
-                            overflow: TextOverflow.visible,
-                            maxLines: 3,
-                            style: const TextStyle(
-                                fontSize: 14, color: Colors.amber),
+                          child: Container(
+                            height: 100,
+                            width: 100,
+                            child: Text(
+                              localFileData["name"],
+                              softWrap: true,
+                              overflow: TextOverflow.visible,
+                              maxLines: 10,
+                              style: const TextStyle(
+                                  fontSize: 14, color: Colors.amber),
+                            ),
                           ),
                         )
                       : Container(),
@@ -1032,22 +1036,52 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         : messages![index].attachment!.url;
 
     return GestureDetector(
-      child: Text(urlText!,
-          style: const TextStyle(
-              decoration: TextDecoration.underline, color: Colors.blue)),
+      child: Align(
+        alignment: Alignment.topRight,
+        child: Text(urlText!,
+            style: const TextStyle(
+                decoration: TextDecoration.underline, color: Colors.blue)),
+      ),
       onTap: () async {
         if (messages![index].messageContent != "") {
           if (await canLaunch(urlLink!)) launch(urlLink);
         } else {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (BuildContext context) {
+              return Dialog(
+                child: Container(
+                  height: 50,
+                  width: 120,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      CircularProgressIndicator(),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Text(
+                        "Opening a File...",
+                        textScaleFactor: 1.0,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
           var tempPath = await StoredtoFile(
               messages![index].attachment!.url!.toString(),
-              messages![index].attachment!.name.toString());
+              messages![index].attachment!.name.toString().replaceAll(' ', ''));
 
           String path = tempPath.toString();
 
           Uri path1 = Uri.parse(path);
           print("path--> $path path2--> $path1");
+
           OpenFile.open(path1.path);
+          Navigator.pop(context);
         }
       },
     );
