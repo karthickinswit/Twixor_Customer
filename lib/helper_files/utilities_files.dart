@@ -131,7 +131,7 @@ StoredtoFile(String url, String filename) async {
       print("created");
       print(file.toString());
       await file.writeAsBytes(bytes);
-      return file.uri.path;
+      return file.uri.path.toString();
     }
   } else {
 // You can request multiple permissions at once.
@@ -146,7 +146,7 @@ ErrorAlert(BuildContext context, String msg) async {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
     content: Text(msg),
     backgroundColor: Color.fromARGB(255, 137, 164, 186),
-    duration: const Duration(seconds: 6),
+    duration: const Duration(seconds: 1),
   ));
   // ScaffoldMessenger.of(context).widget
   return false;
