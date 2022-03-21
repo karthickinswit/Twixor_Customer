@@ -10,7 +10,9 @@ import 'package:http_parser/http_parser.dart';
 
 import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
+import 'package:rxdart/subjects.dart';
 import 'package:twixor_customer/API/apidata-service.dart';
+import 'package:twixor_customer/HomePage.dart';
 import 'package:twixor_customer/main.dart';
 
 import 'package:twixor_customer/models/SendMessageModel.dart';
@@ -69,6 +71,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   String userChatId;
   List<ChatMessage> nonReadMessages = [];
   StreamController chatSocketStream = StreamController();
+  StreamSubscription? chatSubscription;
+
   var isKeyboardOpen = false;
 
   static const APP_URL = String.fromEnvironment('APP_URL',
@@ -174,8 +178,10 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   @override
   void dispose() {
     print("Chat Socket Closed");
-    chatSocketStream.close();
+
     WidgetsBinding.instance?.removeObserver(this);
+
+    // mainSocket!.close();
     super.dispose();
   }
 
@@ -253,81 +259,83 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       },
     );
     /////////////////////////////////////////////////
-    return MaterialApp(
-      title: 'Twixor',
-      theme: customTheme,
-      home: WillPopScope(
-          //////////////////////////////////////////////
-          onWillPop: () async {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                content: Text('The System Back Button is Deactivated')));
-            return false;
-          },
-          child: Scaffold(
-            appBar: AppBar(
-              elevation: 10,
-              automaticallyImplyLeading: false,
-              backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
-              foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
-              leading: IconButton(
-                onPressed: () {
-                  // Navigator.of(context).pop(false);
-                  Navigator.pushAndRemoveUntil<dynamic>(
-                      context,
-                      MaterialPageRoute<dynamic>(
-                          builder: (BuildContext context) => CustomerApp(
-                                customerId: customerId,
-                                eId: eId!,
-                                mainPageTitle: MainPageTitle,
-                                theme: customTheme,
-                              )),
-                      (route) =>
-                          false //if you want to disable back feature set to false
-                      );
-                  // Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(
-                  //         builder: (context) => CustomerApp(
-                  //             customerId: customerId, eId: eId!)));
-                },
-                icon: IconTheme(
-                  data: Theme.of(context).copyWith().iconTheme,
-                  child: const Icon(
-                    Icons.arrow_back,
-                  ),
-                ),
-              ),
-              title: Container(
-                padding: EdgeInsets.only(right: 90),
-                child: const Text(
-                  //'${chatAgents![0].name}',
-                  'Chat With Agent',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
-            body: Stack(
-              children: <Widget>[
-                // inspect(messages)
+    return WillPopScope(
+        //////////////////////////////////////////////
+        onWillPop: () async {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text('The System Back Button is Deactivated')));
+          return false;
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            elevation: 10,
+            automaticallyImplyLeading: false,
+            backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+            foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
+            leading: IconButton(
+              onPressed: () {
+                // Navigator.of(context).pop(false);
+                mainSubscription!.pause();
+                // Navigator.of(context).pop(false);
+                // Navigator.pushAndRemoveUntil<dynamic>(
+                //   context,
+                //   MaterialPageRoute<dynamic>(
+                //     builder: (BuildContext context) => MyHomePage(
+                //       customerId1: customerId,
+                //       eId1: eId!,
+                //       title: MainPageTitle,
+                //     ),
+                //   ),
+                //   (route) =>
+                //       false, //if you want to disable back feature set to false
+                // );
 
-                listView,
-                //  alignList("text", false, "")
-                // (attachment!.url != null && attachment!.url != "")
-                //? alignList(attachment!)
-                alignList(Attachment(type: "MSG")),
-              ],
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => MyHomePage(
+                              customerId1: customerId,
+                              eId1: eId!,
+                              title: MainPageTitle,
+                            )));
+              },
+              icon: IconTheme(
+                data: Theme.of(context).copyWith().iconTheme,
+                child: const Icon(
+                  Icons.arrow_back,
+                ),
+              ),
             ),
-            resizeToAvoidBottomInset: true,
-          )),
-    );
+            title: Container(
+              padding: EdgeInsets.only(right: 90),
+              child: const Text(
+                //'${chatAgents![0].name}',
+                'Chat With Agent',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+          body: Stack(
+            children: <Widget>[
+              // inspect(messages)
+
+              listView,
+              //  alignList("text", false, "")
+              // (attachment!.url != null && attachment!.url != "")
+              //? alignList(attachment!)
+              alignList(Attachment(type: "MSG")),
+            ],
+          ),
+          resizeToAvoidBottomInset: true,
+        ));
   }
 
   // ignore: non_constant_identifier_names
   ChatUtilMessage(ChatMessage message, List chatAgent) {
-    print("ChatUtilMessage ${message.toString()}");
+    // print("ChatUtilMessage ${message.toString()}");
     var utilMsg = "", relativeMsg = "";
     if (message.actionType != "1" && message.actionType != "3") {
       if (message.actionType == "0") {
@@ -1466,14 +1474,22 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     }
   }
 
-  socketMsgReceive() async {
+  socketMsgReceive() {
     print("socketMsgReceive isSocketConnection $isSocketConnection");
     var message1;
-    actionBy != "" ? getCloseSocket() : "";
-    //getSocketResponse().
-    SocketConnect();
-    Stream chatPageSocket = await getSocketResponse();
-    chatPageSocket.listen((data) async {
+
+    // if (!chatPageSocket.hasListener) {
+    //   print("chatPageSocket socket is not listener");
+    //   chatPageSocket = bSubject;
+    // }
+    // if (chatPageSocket.isClosed) {
+    //   mainSocket.close();
+    //   chatPageSocket = bSubject;
+    // }
+
+    getSubscribe();
+
+    mainSubscription!.onData((data) {
       message1 = json.decode(data);
       print("ChatPageMessage ${data.toString()}");
       if (message1["action"] == "onOpen") {
@@ -1501,6 +1517,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         });
       } else if (message1["action"] == "agentReplyChat") {
         print("Message sent Socket");
+        print(message1.toString());
+        print(userdata!.name);
         var json = SocketResponse.fromJson(message1);
         if (json.content![0].response!.users![1].name == userdata!.name) {
           List<ChatMessage> k = json.content![0].response!.chat!.messages!;
@@ -1581,11 +1599,6 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       } else if (message1 == "waitingTransferAccept") {
         print("waitingTransferAccept");
       }
-    }, onError: (error) {
-      print("Socket Error${error.toString}");
-    }, onDone: () {
-      print("Communications is Closed");
-      // communication has been closed
     });
   }
 

@@ -1,14 +1,25 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:twixor_customer/API/apidata-service.dart';
 import 'package:twixor_customer/models/SendMessageModel.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/status.dart' as status;
+import 'package:rxdart/rxdart.dart';
 
 IOWebSocketChannel? channel;
 bool isSocketConnection = false;
 var channelStream;
+var bSubject = new BehaviorSubject();
+var chatPageSocket = new BehaviorSubject();
+var mainSocket = new BehaviorSubject();
+
+StreamController strmControl = new StreamController();
+StreamSubscription? subscription;
+StreamSubscription? mainSubscription;
+// var aSubject = new BehaviorSubject();
+// StreamSubscription? streamSubscription;
 
 SocketConnect() async {
   Map<String, String> mainheader = {
@@ -21,11 +32,24 @@ SocketConnect() async {
         headers: mainheader);
     //print("Channel sink ${await channel!.sink.done}");
 
+    channel!.stream.listen((event) {
+      //strmControl.add(event);
+      {
+        if (!bSubject.isClosed) bSubject.sink.add(event);
+        if (!chatPageSocket.isClosed) chatPageSocket.sink.add(event);
+        if (!mainSocket.isClosed) mainSocket.sink.add(event);
+      }
+    });
+
     isSocketConnection = true;
   } catch (Exp) {
     //ErrorAlert(context, msg)
     isSocketConnection = false;
   }
+}
+
+getSubscribe() {
+  mainSubscription = mainSocket.stream.listen((event) {});
 }
 
 getCloseSocket() async {
@@ -35,11 +59,20 @@ getCloseSocket() async {
   isSocketConnection = false;
 }
 
-Stream getSocketResponse() {
-  channel!.stream.asBroadcastStream();
-
-  return channel!.stream;
+SocketObservable() {
+  channel!.stream.listen((event) {
+    //strmControl.add(event);
+    {}
+  });
 }
+
+// bSubject.sink.add(channel!.stream.asBroadcastStream());
+
+// channel!.stream.asBroadcastStream().listen((event) {
+//   if (!bSubject.isClosed) {
+//     bSubject.add(event);
+//   }
+// });
 
 Future<void> sendmessage(SendMessage sendMessage) async {
   // IOWebSocketChannel? channel;
