@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:twixor_customer/API/apidata-service.dart';
 import 'package:twixor_customer/models/SendMessageModel.dart';
+import 'package:twixor_customer/models/SocketResponseModel.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/status.dart' as status;
 import 'package:rxdart/rxdart.dart';
@@ -105,4 +106,28 @@ Future<void> updateMessageStatus(SendMessage sendMessage) async {
 
   print(json.encode(data));
   channel!.sink.add(json.encode(data));
+}
+
+class WebsocketsProvider extends ChangeNotifier {
+  SocketResponse? srMessage;
+  int _wsEventTrack = 0;
+  int get wsEventTrack => _wsEventTrack;
+  set wsEventTrack(value) => _wsEventTrack = value;
+
+  void getMessage(SocketResponse srMessage) {
+    srMessage = srMessage;
+    notifyListeners(); // IMPORTANT
+  }
+
+  void StreamSubscribe() {
+    StreamSubscription subscription = channel!.stream.listen((payload) {
+      var tempResponse = jsonDecode(payload.toString());
+      if (tempResponse['action'] == 'onOpen') {}
+      //ws connected and right data received
+      print('triggered');
+      print(payload.toString());
+
+      getMessage(SocketResponse.fromJson(tempResponse));
+    });
+  }
 }

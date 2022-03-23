@@ -171,7 +171,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       });
     });
     WidgetsBinding.instance?.addObserver(this);
-    _scrollToEnd(0);
+    //
 
     //socketMsgReceive();
     //super.setState(() {});
@@ -193,7 +193,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   @override
   didPopRoute() {
     WidgetsBinding.instance?.removeObserver(this);
-    return Future<bool>.value(true);
+    return Future<bool>.value(false);
   }
 
   @override
@@ -231,6 +231,9 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 
         return Column(
           children: <Widget>[
+            const SizedBox(
+              height: 10,
+            ),
             (messages![index].actionType != "1" ||
                     messages![index].actionType != "3")
                 ? ChatUtilMessage(messages![index], chatAgents!)
@@ -274,56 +277,66 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         },
         child: Scaffold(
           appBar: AppBar(
-            elevation: 10,
-            automaticallyImplyLeading: false,
-            backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
-            foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
-            leading: IconButton(
-              onPressed: () {
-                // Navigator.of(context).pop(false);
-                mainSubscription!.pause();
-                // Navigator.of(context).pop(false);
-                // Navigator.pushAndRemoveUntil<dynamic>(
-                //   context,
-                //   MaterialPageRoute<dynamic>(
-                //     builder: (BuildContext context) => MyHomePage(
-                //       customerId1: customerId,
-                //       eId1: eId!,
-                //       title: MainPageTitle,
-                //     ),
-                //   ),
-                //   (route) =>
-                //       false, //if you want to disable back feature set to false
-                // );
-
-                Navigator.push(
+              elevation: 10,
+              automaticallyImplyLeading: false,
+              backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+              foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
+              leading: IconButton(
+                onPressed: () {
+                  // Navigator.of(context).pop(false);
+                  // mainSubscription!.pause();
+                  // Navigator.of(context).pop(true);
+                  Navigator.pushAndRemoveUntil<dynamic>(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) => MyHomePage(
-                              customerId1: customerId,
-                              eId1: eId!,
-                              title: MainPageTitle,
-                            )));
-              },
-              icon: IconTheme(
-                data: Theme.of(context).copyWith().iconTheme,
-                child: const Icon(
-                  Icons.arrow_back,
+                    MaterialPageRoute<dynamic>(
+                      builder: (BuildContext context) => const MyHomePage(),
+                    ),
+                    (route) =>
+                        true, //if you want to disable back feature set to false
+                  );
+                  // Navigator.pushAndRemoveUntil<dynamic>(
+                  //   context,
+                  //   MaterialPageRoute<dynamic>(
+                  //     builder: (BuildContext context) => MyHomePage(
+                  //       customerId1: customerId,
+                  //       eId1: eId!,
+                  //       title: MainPageTitle,
+                  //     ),
+                  //   ),
+                  //   (route) =>
+                  //       false, //if you want to disable back feature set to false
+                  // );
+
+                  // Navigator.push(
+                  //     context,
+                  //     MaterialPageRoute(
+                  //         builder: (context) => MyHomePage(
+                  //               customerId1: customerId,
+                  //               eId1: eId!,
+                  //               title: MainPageTitle,
+                  //             )));
+                },
+                icon: IconTheme(
+                  data: Theme.of(context).copyWith().iconTheme,
+                  child: const Icon(
+                    Icons.arrow_back,
+                  ),
                 ),
               ),
-            ),
-            title: Container(
-              padding: EdgeInsets.only(right: 90),
-              child: const Text(
-                //'${chatAgents![0].name}',
-                'Chat With Agent',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
+              title: Row(children: <Widget>[
+                SizedBox(width: 60),
+                Container(
+                  padding: EdgeInsets.only(right: 90),
+                  child: const Text(
+                    //'${chatAgents![0].name}',
+                    'Chat With Agent',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ),
+              ])),
           body: Stack(
             children: <Widget>[
               // inspect(messages)
@@ -461,6 +474,37 @@ class _ChatDetailPageState extends State<ChatDetailPage>
           ),
           resizeToAvoidBottomInset: true,
         ));
+  }
+
+  FiledALert() {
+    //BuildContext
+    showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return Dialog(
+            child: Container(
+              height: 50,
+              width: 120,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  // Icon(
+                  //     IconData(0xe8ac,
+                  //         fontFamily: 'MaterialIcons'),
+                  //     color: Colors.red),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Text(
+                    "Failed to Upload File",
+                    textScaleFactor: 1.0,
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
   }
 
   // ignore: non_constant_identifier_names
@@ -680,6 +724,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
           //objFile?.path == ""
           // ? const CircularProgressIndicator()
           var localFileData = await chooseFileUsingFilePicker();
+
           if (localFileData != null) {
             showModalBottomSheet(
               backgroundColor: Colors.transparent,
@@ -730,13 +775,49 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       result = await FilePicker.platform.pickFiles(
         withReadStream: true,
         type: FileType.custom,
-        allowedExtensions: ['jpg', 'pdf', 'doc', 'mp4', 'jpeg'],
+        allowedExtensions: [
+          'jpg',
+          'pdf',
+          'doc',
+          'mp4',
+          'jpeg',
+          'docx',
+          'doc',
+          'ppt',
+          'pptx',
+          'png'
+        ],
       );
     } on PlatformException catch (e) {
       print("Unsupported operation" + e.toString());
     }
     if (result != null) {
       print("ObjFile ${result.files.single.runtimeType}");
+      if (result.files.single.extension == "webp") {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return Dialog(
+                child: Container(
+                  height: 50,
+                  width: 120,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      SizedBox(
+                        width: 20,
+                      ),
+                      Text(
+                        "Failed to Read a File",
+                        textScaleFactor: 1.0,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            });
+        return;
+      }
       objFile = File((result.files.single.path) ?? "");
       print("objfile type --> ${objFile.runtimeType}");
       print("ObjFile ${result.files.single.runtimeType}");
@@ -748,6 +829,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       fileTemp['name'] = result.files.single.name;
 
       // fileTemp.type = pickedFile.mimeType;
+
       return fileTemp;
       // ignore: void_checks
       return objFile.path; //?? uploadSelectedFile(objFile);
@@ -769,7 +851,33 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       fileTemp['url'] = pickedFile.path;
       fileTemp['type'] = pickedFile.mimeType;
       fileTemp['name'] = pickedFile.path.split('/').last;
-      return fileTemp;
+      print("Gallery Mime type ${pickedFile.path.split('.').last}");
+      if (pickedFile.path.split('.').last == "webp") {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return Dialog(
+                child: Container(
+                  height: 50,
+                  width: 120,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      SizedBox(
+                        width: 20,
+                      ),
+                      Text(
+                        "Failed to Read a File",
+                        textScaleFactor: 1.0,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            });
+        return;
+      } else
+        return fileTemp;
       // uploadSelectedFilefromGallery(pickedFile);
       // return File(pickedFile.path);
       // setState(() {
@@ -784,8 +892,6 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     //  picker.pickImage(source: source)
     var pickedFile = (await picker.pickImage(
       source: ImageSource.camera,
-      maxWidth: 200,
-      maxHeight: 200,
     ));
     var imageFile;
     if (pickedFile != null) {
@@ -952,28 +1058,33 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                         print("Attachemnt first Clisk");
 
                         showDialog(
-                          context: context1,
+                          context: context,
                           barrierDismissible: false,
                           builder: (BuildContext context) {
-                            return Dialog(
-                              child: Container(
-                                height: 50,
-                                width: 120,
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: const [
-                                    CircularProgressIndicator(),
-                                    SizedBox(
-                                      width: 10,
+                            return WillPopScope(
+                                onWillPop: () => Future.value(false),
+                                child: Dialog(
+                                  child: Container(
+                                    height: 50,
+                                    width: 120,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: const [
+                                        SizedBox(
+                                          width: 20,
+                                        ),
+                                        CircularProgressIndicator(),
+                                        SizedBox(
+                                          width: 10,
+                                        ),
+                                        Text(
+                                          "Uploading File...",
+                                          textScaleFactor: 1.0,
+                                        ),
+                                      ],
                                     ),
-                                    Text(
-                                      "Uploading File...",
-                                      textScaleFactor: 1.0,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
+                                  ),
+                                ));
                           },
                         );
                         Attachment attachment =
@@ -993,6 +1104,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                             eId: int.parse(eId!),
                           ));
                           setState(() {
+                            Navigator.pop(context1);
                             Navigator.pop(context);
                             attachment = Attachment();
                             //Navigator.of(context).pop(false);
@@ -1002,8 +1114,46 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                             isLoading = false;
                           });
                         } else {
-                          Navigator.pop(context);
-                          ErrorAlert(context, "File Uploading Failed");
+                          // showDialog(
+                          //     context: context,
+                          //     builder: (BuildContext context) {
+                          //       return Dialog(
+                          //         child: Container(
+                          //           height: 50,
+                          //           width: 120,
+                          //           child: Row(
+                          //             mainAxisSize: MainAxisSize.min,
+                          //             children: const [
+                          //               Icon(
+                          //                   IconData(0xe8ac,
+                          //                       fontFamily: 'MaterialIcons'),
+                          //                   color: Colors.red),
+                          //               SizedBox(
+                          //                 width: 10,
+                          //               ),
+                          //               Text(
+                          //                 "Failed to Read a File",
+                          //                 textScaleFactor: 1.0,
+                          //               ),
+                          //             ],
+                          //           ),
+                          //         ),
+                          //       );
+
+                          //       //ErrorAlert(context, "File Uploading Failed");
+                          //     });
+                          // Future.delayed(Duration(milliseconds: 500));
+                          // Navigator.pop(context1);
+
+                          BuildContext? errorContext;
+                          Navigator.pop(context1);
+                          setState(() {
+                            FiledALert();
+                          });
+
+                          print("Failed upload");
+                          //Navigator.pop(context1);
+                          // Navigator.pop(context);
                         }
                       },
                       color: Theme.of(context).buttonColor,
@@ -1293,8 +1443,9 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     //   mainSocket.close();
     //   chatPageSocket = bSubject;
     // }
-
-    getSubscribe();
+    if (mainSubscription!.isPaused) {
+      getSubscribe();
+    }
 
     mainSubscription!.onData((data) {
       message1 = json.decode(data);
@@ -1447,9 +1598,14 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       request.files.add(http.MultipartFile.fromBytes(
           'file', await File.fromUri(Uri.parse(objFile['url'])).readAsBytes(),
           filename: objFile['name'], contentType: new MediaType(t1[0], t1[1])));
+      print("Reqeust before sent");
+      print("${request.url} --> ${request.fields.values} --> ${request.files}");
       final response = await request.send();
       final respStr = await response.stream.bytesToString();
       print(respStr.toString());
+
+      print("Reqeust afetr sent");
+      print("${request.url} --> ${request.fields.values} --> ${request.files}");
 
       if (response.statusCode == 200) {
         print("Uploaded! ");
@@ -1470,8 +1626,11 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         });
 
         print("IsLoading stop");
-        Navigator.pop(context);
+
         return tempAttachment;
+      } else {
+        // Navigator.pop(context);
+        return null;
       }
     } catch (e) {
       return null;

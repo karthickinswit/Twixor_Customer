@@ -103,7 +103,7 @@ class _FileReaderPageState extends State<FileReaderPage> {
                                       chatId: userChatId,
                                       contentType: attachment.type,
                                       eId: int.parse(
-                                        eId,
+                                        userEid,
                                       )));
                                   setState(() {
                                     attachment = Attachment();

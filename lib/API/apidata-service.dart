@@ -12,9 +12,9 @@ import 'package:twixor_customer/main.dart';
 const APP_URL = String.fromEnvironment('APP_URL',
     defaultValue: 'https://qa.twixor.digital/moc');
 String url = APP_URL + '/c/enterprises/';
-//const eId = String.fromEnvironment('eid', defaultValue: '374');
-late String eId;
-late String customerId;
+//const userEid = String.fromEnvironment('userEid', defaultValue: '374');
+late String userEid;
+late String userCustomerId;
 late String userChatId;
 
 bool isValidToken = false;
@@ -36,7 +36,7 @@ getTokenApi() async {
 }
 
 Future<ChatUsers?> getChatUserInfo(BuildContext context, String ChatId) async {
-  var response = await http.get(Uri.parse(url + eId + '/chat/' + ChatId),
+  var response = await http.get(Uri.parse(url + userEid + '/chat/' + ChatId),
       headers: {"authentication-token": await getTokenApi()});
   ChatUsers? chatUserData;
   print(response.headers.toString());
@@ -67,7 +67,7 @@ newChatCreate(BuildContext context) async {
   var map = Map<String, dynamic>();
   map['stickySession'] = 'false';
 
-  var response = await http.post(Uri.parse(url + eId + '/chat/create'),
+  var response = await http.post(Uri.parse(url + userEid + '/chat/create'),
       headers: {
         'authentication-token': await getTokenApi(),
         'Content-Type': 'application/x-www-form-urlencoded'
@@ -97,15 +97,15 @@ newChatCreate(BuildContext context) async {
 customerRegisterInfo() async {
   var map = <String, dynamic>{};
 
-  map['name'] = customerId;
-  map['phoneNumber'] = customerId;
+  map['name'] = userCustomerId;
+  map['phoneNumber'] = userCustomerId;
   map['countryCode'] = '+91';
   map['countryAlpha2Code'] = 'IN';
   map['needVerification'] = 'false';
 
   map['byInvitation'] = 'false';
   map['subscribeToAll'] = 'true';
-  map['enterprisesToSubscribe'] = '{"eIds":[${int.parse(eId)}]}';
+  map['enterprisesToSubscribe'] = '{"eIds":[${int.parse(userEid)}]}';
   map['clearMsgs'] = 'true';
 
   final response = await http
@@ -127,8 +127,9 @@ getChatList(BuildContext context) async {
   // https://aim.twixor.com/c/enterprises/103/chats
   List<ChatUsers> chatUsers = [];
   var tempUrl = APP_URL +
-      'c/enterprises/chat/summary?fromDate=2019-02-16T06:34:16.859Z'; //url + eId + '/chats
-  final response = await http.get(Uri.parse(url + eId + '/chats'), headers: {
+      'c/enterprises/chat/summary?fromDate=2019-02-16T06:34:16.859Z'; //url + userEid + '/chats
+  final response =
+      await http.get(Uri.parse(url + userEid + '/chats'), headers: {
     'authentication-token': await getTokenApi(),
     'Content-Type': 'application/x-www-form-urlencoded'
   });
@@ -163,8 +164,9 @@ getChatList(BuildContext context) async {
 }
 
 checktoken() async {
-//url + eId + '/chats
-  final response = await http.get(Uri.parse(url + eId + '/chats'), headers: {
+//url + user + '/chats
+  final response =
+      await http.get(Uri.parse(url + userEid + '/chats'), headers: {
     'authentication-token': await getTokenApi(),
     'Content-Type': 'application/x-www-form-urlencoded'
   });

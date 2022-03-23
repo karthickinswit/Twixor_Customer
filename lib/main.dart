@@ -55,15 +55,17 @@ Future<bool> _checkPrefs() async {
   tempCustId = prefs.getString('customerId') ?? "";
   tempEid = prefs.getString('eId') ?? "";
   authToken = prefs.getString('authToken') ?? "";
+  //prefs.setString('title', MainPageTitle);
   if (tempCustId == "" && tempEid == "") {
     await clearToken();
-    prefs.setString('customerId', customerId);
-    prefs.setString('eId', eId);
+    prefs.setString('customerId', userCustomerId);
+    prefs.setString('eId', userEid);
+    prefs.setString('title', MainPageTitle);
     authToken = await getTokenApi() ?? "";
     prefs.setString('authToken', authToken!);
 
     return await checktoken() ? true : await _checkPrefs();
-  } else if (tempCustId == customerId && tempEid == eId) {
+  } else if (tempCustId == userCustomerId && tempEid == userEid) {
     if (authToken == "") {
       authToken = await getTokenApi() ?? "";
       prefs.setString('authToken', authToken!);
@@ -71,10 +73,10 @@ Future<bool> _checkPrefs() async {
     } else {
       return await checktoken() ? true : await _checkPrefs();
     }
-  } else if (tempCustId != customerId || tempEid != eId) {
+  } else if (tempCustId != userCustomerId || tempEid != userEid) {
     await clearToken();
-    prefs.setString('customerId', customerId);
-    prefs.setString('eId', eId);
+    prefs.setString('customerId', userCustomerId);
+    prefs.setString('eId', userEid);
     authToken = await getTokenApi() ?? "";
     prefs.setString('authToken', authToken!);
     return await checktoken() ? true : await _checkPrefs();
@@ -103,6 +105,9 @@ class CustomerApp extends StatelessWidget {
   Widget build(BuildContext context) {
     // print("ManPageTitile ${ThemeClass().MainPageTitile}");
     customTheme = theme;
+    userCustomerId = customerId;
+    userEid = eId;
+    MainPageTitle = mainPageTitle;
     getSubscribe();
     getPref();
 
@@ -114,10 +119,7 @@ class CustomerApp extends StatelessWidget {
           return false;
         },
         child: MaterialApp(
-            theme: customTheme,
-            title: "Twixor",
-            home: MyHomePage(
-                title: mainPageTitle, customerId1: customerId, eId1: eId)));
+            theme: customTheme, title: "Twixor", home: MyHomePage()));
   }
 
   getPref() async {
@@ -130,6 +132,8 @@ class CustomerApp extends StatelessWidget {
     //   print(authToken);
     //   // getChatList(context);
     // }
+    prefs = await SharedPreferences.getInstance();
+    prefs.setString('title', mainPageTitle);
     await SocketConnect();
   }
 }

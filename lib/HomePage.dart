@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 
 import 'package:twixor_customer/chatDetailPage.dart';
 
@@ -19,12 +20,7 @@ import 'models/SocketResponseModel.dart';
 import 'models/chatMessageModel.dart';
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage(
-      {Key? key,
-      required this.title,
-      required this.customerId1,
-      required this.eId1})
-      : super(key: key);
+  const MyHomePage({Key? key}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -34,13 +30,12 @@ class MyHomePage extends StatefulWidget {
   // case the title) provided by the parent (in this case the App widget) and
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
-  final String customerId1;
-  final String eId1;
-  final String title;
+  // final String customerId1;
+  // final String eId1;
+  // final String title;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState(
-      mainPageTitle: title, customerId1: customerId1, eId1: eId1);
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
 void configLoading() {
@@ -60,9 +55,9 @@ void configLoading() {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String customerId1;
-  String eId1;
-  String mainPageTitle;
+  String? customerId1;
+  String? eId1;
+  String? mainPageTitle;
   bool isLoading = false;
 
   late String userDetails;
@@ -74,27 +69,34 @@ class _MyHomePageState extends State<MyHomePage> {
   List<ChatUsers> chatUsers = [];
 
   bool allowClick = false;
+  // WebsocketsProvider wsProvider = new WebsocketsProvider();
 
   final List<TextEditingController> _notifyControllers = [];
 
-  _MyHomePageState(
-      {required this.mainPageTitle,
-      required this.customerId1,
-      required this.eId1});
+  _MyHomePageState();
 
   @override
   initState() {
-    customerId = customerId1;
-    eId = eId1;
-    MainPageTitle = mainPageTitle;
-
+    socketMsgReceiveMain();
+    pref();
     super.initState();
     configLoading();
     //getSubscribe();
-
-    socketMsgReceiveMain();
+    // if (wsProvider.srMessage != null) {
+    //   print(wsProvider.srMessage!.toJson().toString());
+    // }
 
     //
+  }
+
+  pref() async {
+    prefs = await SharedPreferences.getInstance();
+    //prefs.setString('title', mainPageTitle);
+    MainPageTitle = prefs.getString('title')!;
+    if (mainSocket.hasListener) {
+      getSubscribe();
+      print("Resume Socket Main Page");
+    } else {}
   }
 
   checkClick() {
@@ -132,7 +134,7 @@ class _MyHomePageState extends State<MyHomePage> {
             : ErrorAlert(context, "Chat Id is not present here");
 
         isLoading = false;
-        mainSubscription!.pause();
+        // mainSubscription!.pause();
 
         // Navigator.pushAndRemoveUntil<dynamic>(
         //   context,
@@ -159,6 +161,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // final wsProvider = context.watch<WebsocketsProvider>();
+    // print("WsProVider");
+
+    // if (wsProvider.srMessage != null) {
+    //   print(wsProvider.srMessage!.toJson().toString());
+    // }
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
@@ -175,7 +183,7 @@ class _MyHomePageState extends State<MyHomePage> {
             appBar: AppBar(
               // Here we take the value from the MyHomePage object that was created by
               // the App.build method, and use it to set our appbar title.
-              title: Text(widget.title),
+              title: Text(MainPageTitle),
               automaticallyImplyLeading: false,
 
               actions: const [],
@@ -294,7 +302,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                         isLoading = false;
                                         // isVisible = true;
                                         //subscriber!.cancel();
-                                        mainSubscription!.pause();
+                                        // mainSubscription!.pause();
 
                                         // Navigator.pushAndRemoveUntil<dynamic>(
                                         //   context,
@@ -308,8 +316,16 @@ class _MyHomePageState extends State<MyHomePage> {
                                             context,
                                             MaterialPageRoute(
                                                 builder: (context) =>
-                                                    ChatDetailPage(userChatId,
-                                                        ""))); //if you want to disable back feature set to false
+                                                    ChatDetailPage(
+                                                        userChatId, "")));
+                                        //.then(
+                                        //   (value) => setState(() {
+                                        //     print("ISBack");
+                                        //     if (mainSubscription!.isPaused) {
+                                        //       getSubscribe();
+                                        //     }
+                                        //   }),
+                                        // ); //if you want to disable back feature set to false
                                         // ).then((x) {
                                         //   setState(() {});
                                         //   // Navigator.push(
@@ -556,7 +572,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void dispose() {
     print("isSocketConnection $isSocketConnection");
     //_notifyControllers
-    mainSubscription!.pause();
+    // mainSubscription!.pause();
     print("MainSocketisClosed");
     super.dispose();
     // mainSocket!.sink.close();
