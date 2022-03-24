@@ -1105,7 +1105,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                           ));
                           setState(() {
                             Navigator.pop(context1);
-                            Navigator.pop(context);
+                            // Navigator.pop(context);
                             attachment = Attachment();
                             //Navigator.of(context).pop(false);
                             attachmentData = "";
