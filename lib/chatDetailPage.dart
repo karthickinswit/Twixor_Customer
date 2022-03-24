@@ -263,6 +263,11 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                     ),
                   )
                 : Container(),
+            messages![index].actionType == "8"
+                ? SizedBox(
+                    height: 10,
+                  )
+                : Container()
           ],
         );
       },
@@ -1553,6 +1558,30 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         print("agentEndCht");
       } else if (message1 == "waitingTransferAccept") {
         print("waitingTransferAccept");
+      } else if (message1["action"] == "chatError") {
+        print("waitingTransferAccept");
+        ChatMessage k = ChatMessage(
+            messageContent: "Please wait until the Agent has Pickup a Chat",
+            messageType: "receiver",
+            isUrl: false,
+            contentType: "MSG",
+            url: url,
+            actionBy: actionBy,
+            attachment: attachment,
+            actionType: "3",
+            actedOn: DateTime.now().toUtc().toString(),
+            eId: eId);
+
+        messages!.add(k);
+        setState(() {
+          WidgetsBinding.instance?.removeObserver(this);
+
+          setState(() {
+            _scrollToEnd(0);
+            // _onKeyboardChanged(false);
+            WidgetsBinding.instance?.removeObserver(this);
+          });
+        });
       }
     });
   }
