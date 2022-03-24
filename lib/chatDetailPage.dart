@@ -325,6 +325,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                   data: Theme.of(context).copyWith().iconTheme,
                   child: const Icon(
                     Icons.arrow_back,
+                    color: Colors.white,
                   ),
                 ),
               ),
@@ -681,6 +682,15 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     );
   }
 
+  showgeneral(temp) {
+    return showGeneralDialog(
+        barrierColor: Colors.white60,
+        context: context,
+        pageBuilder: (_, __, ___) {
+          return temp;
+        });
+  }
+
   Widget iconCreation(context1, IconData icons, Color color, String text,
       String type, int mediaType) {
     return InkWell(
@@ -690,21 +700,24 @@ class _ChatDetailPageState extends State<ChatDetailPage>
           //await _getFromGallery();
           //await imageFile;
           //print("img1--> ${img1}");
+          //showGeneralDialog(context: context, pageBuilder: pageBuilder);
           Navigator.pop(context1);
           var localFileData = await _getFromGallery();
           if (localFileData != null) {
-            showModalBottomSheet(
-                backgroundColor: Colors.transparent,
-                isDismissible: true,
-                context: context1,
-                builder: (builder) =>
-                    ImageDialog(true, localFileData, context1));
-            // Navigator.push(
+            showgeneral(ImageDialog(true, localFileData, context));
+            // showModalBottomSheet(
+            //     backgroundColor: Colors.transparent,
+            //     isDismissible: true,
+            //     context: context1,
+            //     builder: (builder) =>
+            //         ImageDialog(true, localFileData, context));
+
             //     context,
             //     MaterialPageRoute(
-            //         builder: (_) => FileReaderPage(
+            //         builder: (_) => previewPage(
             //               localFileData: localFileData,
             //             )));
+
           }
         } else if (type == "camera") {
           // await _getFromCamera();
@@ -714,11 +727,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
           //  ? const CircularProgressIndicator()
           var localFileData = await _getFromCamera();
           if (localFileData != null) {
-            showModalBottomSheet(
-                backgroundColor: Colors.transparent,
-                context: context,
-                builder: (builder) =>
-                    ImageDialog(true, localFileData, context1));
+            showgeneral(ImageDialog(true, localFileData, context));
           }
         } else if (type == "document") {
           Navigator.pop(context1);
@@ -731,11 +740,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
           var localFileData = await chooseFileUsingFilePicker();
 
           if (localFileData != null) {
-            showModalBottomSheet(
-              backgroundColor: Colors.transparent,
-              context: context1,
-              builder: (builder) => ImageDialog(true, localFileData, context1),
-            );
+            showgeneral(ImageDialog(true, localFileData, context));
             // Navigator.push(
             //     context,
             //     MaterialPageRoute(
@@ -921,13 +926,15 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 
 // ignore: unused_element
 
-  Widget ImageDialog(isFileUrl, localFileData, context1) {
-    return AlertDialog(
-      content: Column(children: <Widget>[
+  ImageDialog(isFileUrl, localFileData, context) {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: <
+          Widget>[
         localFileData['contentType'] == "IMAGE"
             ? SizedBox(
                 width: 200,
-                height: 300,
+                height: 200,
                 child: Image.file((File(localFileData['url'])),
                     fit: BoxFit.contain, width: 50, height: 50))
             : localFileData['contentType'] == "VIDEO"
@@ -946,7 +953,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                           return Container(
                             padding: const EdgeInsets.all(1.0),
                             width: 200.0,
-                            height: 300.0,
+                            height: 200.0,
                             child: const Icon(
                               IconData(0xf2b1, fontFamily: 'MaterialIcons'),
                               size: 40,
@@ -1023,7 +1030,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                       )
                     : Container(),
         Container(
-          padding: const EdgeInsets.all(8),
+          margin: EdgeInsets.all(0),
+          padding: const EdgeInsets.all(20),
           child: Stack(
             alignment: Alignment.center,
             children: <Widget>[
