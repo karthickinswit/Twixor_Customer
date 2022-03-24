@@ -1191,10 +1191,12 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         if (messages![index].messageContent != "") {
           if (await canLaunch(urlLink!)) launch(urlLink);
         } else {
+          BuildContext? dialogContex1;
           showDialog(
             context: context,
             barrierDismissible: false,
             builder: (BuildContext context) {
+              dialogContex1 = context;
               return Dialog(
                 child: Container(
                   height: 50,
@@ -1226,7 +1228,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
           print("path--> $path path2--> $path1");
 
           OpenFile.open(path1.path);
-          Navigator.pop(context);
+          Navigator.pop(dialogContex1!);
         }
       },
     );
