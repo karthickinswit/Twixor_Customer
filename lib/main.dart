@@ -42,7 +42,7 @@ ThemeData MyTheme = ThemeData(
 void main() {
   runApp(CustomerApp(
     customerId: '8190083902',
-    eId: '375',
+    eId: '374',
     mainPageTitle: "Twixor CustomerChat",
     theme: MyTheme,
   ));

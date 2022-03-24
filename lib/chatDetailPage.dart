@@ -702,6 +702,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
           //print("img1--> ${img1}");
           //showGeneralDialog(context: context, pageBuilder: pageBuilder);
           Navigator.pop(context1);
+          //previews context -->
+          // Navigator.of(previewcontext).pop(chatDetailpage)
           var localFileData = await _getFromGallery();
           if (localFileData != null) {
             showgeneral(ImageDialog(true, localFileData, context));
@@ -1114,7 +1116,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                         ));
                         setState(() {
                           Navigator.pop(dialogContext1!);
-                          Navigator.pop(context);
+                          Navigator.of(context, rootNavigator: true).pop();
                           attachment = Attachment();
                           //Navigator.of(context).pop(false);
                           attachmentData = "";
