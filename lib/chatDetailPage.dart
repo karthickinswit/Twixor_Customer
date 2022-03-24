@@ -1050,11 +1050,13 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                   child: MaterialButton(
                     onPressed: () async {
                       print("Attachemnt first Clisk");
+                      BuildContext? dialogContext1;
 
                       showDialog(
                         context: context,
                         barrierDismissible: false,
                         builder: (BuildContext context) {
+                          dialogContext1 = context;
                           return WillPopScope(
                               onWillPop: () => Future.value(false),
                               child: Dialog(
@@ -1098,7 +1100,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                           eId: int.parse(eId!),
                         ));
                         setState(() {
-                          Navigator.pop(context1);
+                          Navigator.pop(dialogContext1!);
                           Navigator.pop(context);
                           attachment = Attachment();
                           //Navigator.of(context).pop(false);
@@ -1140,7 +1142,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                         // Navigator.pop(context1);
 
                         BuildContext? errorContext;
-                        Navigator.pop(context1);
+                        Navigator.pop(dialogContext1!);
                         setState(() {
                           FiledALert();
                         });
