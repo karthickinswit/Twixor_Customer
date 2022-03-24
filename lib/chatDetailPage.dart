@@ -264,7 +264,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                   )
                 : Container(),
             messages![index].actionType == "8"
-                ? SizedBox(
+                ? const SizedBox(
                     height: 10,
                   )
                 : Container()
@@ -551,7 +551,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
               color: (Colors.blue[200]),
             ),
             padding:
-                const EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 5),
+                const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 5),
             child: Text(utilMsg),
           )
         : Container();
