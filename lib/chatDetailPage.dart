@@ -918,262 +918,255 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 
   Widget ImageDialog(isFileUrl, localFileData, context1) {
     return AlertDialog(
-      content: Scaffold(
-        body: Column(children: <Widget>[
-          localFileData['contentType'] == "IMAGE"
-              ? SizedBox(
-                  width: 200,
-                  height: 300,
-                  child: Image.file((File(localFileData['url'])),
-                      fit: BoxFit.contain, width: 50, height: 50))
-              : localFileData['contentType'] == "VIDEO"
-                  ? FutureBuilder<dynamic>(
-                      future: getThumbnail(localFileData['url']),
-                      builder: (context, snapshot) {
-                        //try {} catch(Exception){}
+      content: Column(children: <Widget>[
+        localFileData['contentType'] == "IMAGE"
+            ? SizedBox(
+                width: 200,
+                height: 300,
+                child: Image.file((File(localFileData['url'])),
+                    fit: BoxFit.contain, width: 50, height: 50))
+            : localFileData['contentType'] == "VIDEO"
+                ? FutureBuilder<dynamic>(
+                    future: getThumbnail(localFileData['url']),
+                    builder: (context, snapshot) {
+                      //try {} catch(Exception){}
 
-                        // print(snapshot);
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                              child: CircularProgressIndicator());
-                        }
-                        if (snapshot.connectionState !=
-                            ConnectionState.waiting) {
-                          print(snapshot.data.toString());
-                          if (snapshot.hasData) {
-                            return Container(
-                              padding: const EdgeInsets.all(1.0),
-                              width: 200.0,
-                              height: 300.0,
-                              child: const Icon(
-                                IconData(0xf2b1, fontFamily: 'MaterialIcons'),
-                                size: 40,
+                      // print(snapshot);
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (snapshot.connectionState != ConnectionState.waiting) {
+                        print(snapshot.data.toString());
+                        if (snapshot.hasData) {
+                          return Container(
+                            padding: const EdgeInsets.all(1.0),
+                            width: 200.0,
+                            height: 300.0,
+                            child: const Icon(
+                              IconData(0xf2b1, fontFamily: 'MaterialIcons'),
+                              size: 40,
+                              color: Colors.white,
+                            ),
+                            decoration: BoxDecoration(
                                 color: Colors.white,
-                              ),
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  image: DecorationImage(
-                                      image: MemoryImage(snapshot.data),
-                                      fit: BoxFit.cover)),
-                            );
-                            Container(
-                              padding: const EdgeInsets.all(1.0),
-                              width: 100.0,
-                              height: 100.0,
-                              child: const Positioned(
-                                  child: Icon(
-                                IconData(0xf2b1, fontFamily: 'MaterialIcons'),
-                                size: 40,
+                                image: DecorationImage(
+                                    image: MemoryImage(snapshot.data),
+                                    fit: BoxFit.cover)),
+                          );
+                          Container(
+                            padding: const EdgeInsets.all(1.0),
+                            width: 100.0,
+                            height: 100.0,
+                            child: const Positioned(
+                                child: Icon(
+                              IconData(0xf2b1, fontFamily: 'MaterialIcons'),
+                              size: 40,
+                              color: Colors.white,
+                            )),
+                            decoration: BoxDecoration(
                                 color: Colors.white,
-                              )),
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  image: DecorationImage(
-                                      image: MemoryImage(Uint8List.fromList(
-                                          snapshot.data.cast<int>())),
-                                      fit: BoxFit.cover)),
-                            );
-                          } else if (snapshot.hasError) {
-                            ErrorAlert(context, snapshot.hasError.toString());
+                                image: DecorationImage(
+                                    image: MemoryImage(Uint8List.fromList(
+                                        snapshot.data.cast<int>())),
+                                    fit: BoxFit.cover)),
+                          );
+                        } else if (snapshot.hasError) {
+                          ErrorAlert(context, snapshot.hasError.toString());
 
-                            return Container(
-                              width: 100.0,
-                              height: 100.0,
-                              padding: const EdgeInsets.all(8), // Border width
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  backgroundBlendMode: BlendMode.softLight,
-                                  borderRadius: BorderRadius.circular(20)),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(20),
-                                child: SizedBox.fromSize(
-                                  size:
-                                      const Size.fromRadius(48), // Image radius
-                                  child: Image.network(
-                                      APP_URL +
-                                          '/drive/docs/6233fae04fb25f668d4bdcda',
-                                      fit: BoxFit.cover),
-                                ),
+                          return Container(
+                            width: 100.0,
+                            height: 100.0,
+                            padding: const EdgeInsets.all(8), // Border width
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                backgroundBlendMode: BlendMode.softLight,
+                                borderRadius: BorderRadius.circular(20)),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: SizedBox.fromSize(
+                                size: const Size.fromRadius(48), // Image radius
+                                child: Image.network(
+                                    APP_URL +
+                                        '/drive/docs/6233fae04fb25f668d4bdcda',
+                                    fit: BoxFit.cover),
                               ),
-                            );
-                          } else {
-                            return const Center(
-                                child: CircularProgressIndicator());
-                          }
+                            ),
+                          );
                         } else {
                           return const Center(
                               child: CircularProgressIndicator());
                         }
-                      })
-                  : localFileData['contentType'] == "DOC"
-                      ? SizedBox(
+                      } else {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                    })
+                : localFileData['contentType'] == "DOC"
+                    ? SizedBox(
+                        width: 100,
+                        child: Container(
+                          height: 100,
                           width: 100,
-                          child: Container(
-                            height: 100,
-                            width: 100,
-                            child: Text(
-                              localFileData["name"],
-                              softWrap: true,
-                              overflow: TextOverflow.visible,
-                              maxLines: 10,
-                              style: const TextStyle(
-                                  fontSize: 14, color: Colors.amber),
-                            ),
-                          ),
-                        )
-                      : Container(),
-          Container(
-            padding: const EdgeInsets.all(8),
-            child: Stack(
-              alignment: Alignment.center,
-              children: <Widget>[
-                Align(
-                  alignment: Alignment.bottomLeft,
-                  child: FloatingActionButton(
-                      onPressed: () {},
-                      child: MaterialButton(
-                        onPressed: () {
-                          Navigator.of(context).pop(false);
-                        },
-                        color: Theme.of(context).buttonColor,
-                        textColor: Theme.of(context).copyWith().iconTheme.color,
-                        child: IconTheme(
-                          data: Theme.of(context).copyWith().iconTheme,
-                          child: const Icon(
-                            IconData(0xe16a, fontFamily: 'MaterialIcons'),
-                            size: 8,
+                          child: Text(
+                            localFileData["name"],
+                            softWrap: true,
+                            overflow: TextOverflow.visible,
+                            maxLines: 10,
+                            style: const TextStyle(
+                                fontSize: 14, color: Colors.amber),
                           ),
                         ),
-                        padding: const EdgeInsets.all(8),
-                        shape: const CircleBorder(),
-                      )),
-                ),
-                Align(
-                  alignment: Alignment.bottomRight,
-                  child: FloatingActionButton(
+                      )
+                    : Container(),
+        Container(
+          padding: const EdgeInsets.all(8),
+          child: Stack(
+            alignment: Alignment.center,
+            children: <Widget>[
+              Align(
+                alignment: Alignment.bottomLeft,
+                child: FloatingActionButton(
                     onPressed: () {},
                     child: MaterialButton(
-                      onPressed: () async {
-                        print("Attachemnt first Clisk");
-
-                        showDialog(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (BuildContext context) {
-                            return WillPopScope(
-                                onWillPop: () => Future.value(false),
-                                child: Dialog(
-                                  child: Container(
-                                    height: 50,
-                                    width: 120,
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: const [
-                                        SizedBox(
-                                          width: 20,
-                                        ),
-                                        CircularProgressIndicator(),
-                                        SizedBox(
-                                          width: 10,
-                                        ),
-                                        Text(
-                                          "Uploading File...",
-                                          textScaleFactor: 1.0,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ));
-                          },
-                        );
-                        Attachment attachment =
-                            await uploadSelectedFile(localFileData) ??
-                                new Attachment();
-
-                        if (attachment.url != null) {
-                          sendmessage(SendMessage(
-                            action: actionBy != ""
-                                ? "customerReplyChat"
-                                : "customerStartChat",
-                            actionBy: actionBy != "" ? int.parse(actionBy!) : 0,
-                            actionType: 1,
-                            attachment: attachment,
-                            chatId: chatId!,
-                            contentType: attachment.type,
-                            eId: int.parse(eId!),
-                          ));
-                          setState(() {
-                            Navigator.pop(context1);
-                            // Navigator.pop(context);
-                            attachment = Attachment();
-                            //Navigator.of(context).pop(false);
-                            attachmentData = "";
-                            _scrollToEnd(200);
-                            // WidgetsBinding.instance?.removeObserver(this);
-                            isLoading = false;
-                          });
-                        } else {
-                          // showDialog(
-                          //     context: context,
-                          //     builder: (BuildContext context) {
-                          //       return Dialog(
-                          //         child: Container(
-                          //           height: 50,
-                          //           width: 120,
-                          //           child: Row(
-                          //             mainAxisSize: MainAxisSize.min,
-                          //             children: const [
-                          //               Icon(
-                          //                   IconData(0xe8ac,
-                          //                       fontFamily: 'MaterialIcons'),
-                          //                   color: Colors.red),
-                          //               SizedBox(
-                          //                 width: 10,
-                          //               ),
-                          //               Text(
-                          //                 "Failed to Read a File",
-                          //                 textScaleFactor: 1.0,
-                          //               ),
-                          //             ],
-                          //           ),
-                          //         ),
-                          //       );
-
-                          //       //ErrorAlert(context, "File Uploading Failed");
-                          //     });
-                          // Future.delayed(Duration(milliseconds: 500));
-                          // Navigator.pop(context1);
-
-                          BuildContext? errorContext;
-                          Navigator.pop(context1);
-                          setState(() {
-                            FiledALert();
-                          });
-
-                          print("Failed upload");
-                          //Navigator.pop(context1);
-                          // Navigator.pop(context);
-                        }
+                      onPressed: () {
+                        Navigator.of(context).pop(false);
                       },
                       color: Theme.of(context).buttonColor,
                       textColor: Theme.of(context).copyWith().iconTheme.color,
-                      child: const Icon(
-                        IconData(0xe571,
-                            fontFamily: 'MaterialIcons',
-                            matchTextDirection: true),
-                        size: 14,
+                      child: IconTheme(
+                        data: Theme.of(context).copyWith().iconTheme,
+                        child: const Icon(
+                          IconData(0xe16a, fontFamily: 'MaterialIcons'),
+                          size: 8,
+                        ),
                       ),
                       padding: const EdgeInsets.all(8),
                       shape: const CircleBorder(),
+                    )),
+              ),
+              Align(
+                alignment: Alignment.bottomRight,
+                child: FloatingActionButton(
+                  onPressed: () {},
+                  child: MaterialButton(
+                    onPressed: () async {
+                      print("Attachemnt first Clisk");
+
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (BuildContext context) {
+                          return WillPopScope(
+                              onWillPop: () => Future.value(false),
+                              child: Dialog(
+                                child: Container(
+                                  height: 50,
+                                  width: 120,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: const [
+                                      SizedBox(
+                                        width: 20,
+                                      ),
+                                      CircularProgressIndicator(),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      Text(
+                                        "Uploading File...",
+                                        textScaleFactor: 1.0,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ));
+                        },
+                      );
+                      Attachment attachment =
+                          await uploadSelectedFile(localFileData) ??
+                              new Attachment();
+
+                      if (attachment.url != null) {
+                        sendmessage(SendMessage(
+                          action: actionBy != ""
+                              ? "customerReplyChat"
+                              : "customerStartChat",
+                          actionBy: actionBy != "" ? int.parse(actionBy!) : 0,
+                          actionType: 1,
+                          attachment: attachment,
+                          chatId: chatId!,
+                          contentType: attachment.type,
+                          eId: int.parse(eId!),
+                        ));
+                        setState(() {
+                          Navigator.pop(context1);
+                          Navigator.pop(context);
+                          attachment = Attachment();
+                          //Navigator.of(context).pop(false);
+                          attachmentData = "";
+                          _scrollToEnd(200);
+                          // WidgetsBinding.instance?.removeObserver(this);
+                          isLoading = false;
+                        });
+                      } else {
+                        // showDialog(
+                        //     context: context,
+                        //     builder: (BuildContext context) {
+                        //       return Dialog(
+                        //         child: Container(
+                        //           height: 50,
+                        //           width: 120,
+                        //           child: Row(
+                        //             mainAxisSize: MainAxisSize.min,
+                        //             children: const [
+                        //               Icon(
+                        //                   IconData(0xe8ac,
+                        //                       fontFamily: 'MaterialIcons'),
+                        //                   color: Colors.red),
+                        //               SizedBox(
+                        //                 width: 10,
+                        //               ),
+                        //               Text(
+                        //                 "Failed to Read a File",
+                        //                 textScaleFactor: 1.0,
+                        //               ),
+                        //             ],
+                        //           ),
+                        //         ),
+                        //       );
+
+                        //       //ErrorAlert(context, "File Uploading Failed");
+                        //     });
+                        // Future.delayed(Duration(milliseconds: 500));
+                        // Navigator.pop(context1);
+
+                        BuildContext? errorContext;
+                        Navigator.pop(context1);
+                        setState(() {
+                          FiledALert();
+                        });
+
+                        print("Failed upload");
+                        //Navigator.pop(context1);
+                        // Navigator.pop(context);
+                      }
+                    },
+                    color: Theme.of(context).buttonColor,
+                    textColor: Theme.of(context).copyWith().iconTheme.color,
+                    child: const Icon(
+                      IconData(0xe571,
+                          fontFamily: 'MaterialIcons',
+                          matchTextDirection: true),
+                      size: 14,
                     ),
+                    padding: const EdgeInsets.all(8),
+                    shape: const CircleBorder(),
                   ),
-                )
-              ],
-            ),
+                ),
+              )
+            ],
           ),
-        ]),
-      ),
+        ),
+      ]),
     );
   }
 
