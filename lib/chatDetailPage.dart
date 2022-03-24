@@ -1043,7 +1043,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                     onPressed: () {},
                     child: MaterialButton(
                       onPressed: () {
-                        Navigator.of(context).pop(false);
+                        Navigator.of(context, rootNavigator: true).pop();
                       },
                       color: Theme.of(context).buttonColor,
                       textColor: Theme.of(context).copyWith().iconTheme.color,
