@@ -123,27 +123,31 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     // chatListSubscription = getSubscribe();
     //print("chatListSubscription prefs ${chatListSubscription.hashCode}");
     //getSubscribe();
-    socketMsgReceiveMain();
+    //socketMsgReceiveMain();
     print("Resume Socket Main Page");
-
-    // } else {
-    //   await SocketConnect();
-    // }
   }
 
   checkChatID() async {
     prefs = await SharedPreferences.getInstance();
     var storedchatId = prefs.getString('chatId');
+
     print("storedChatID-->${storedchatId}");
     if (storedchatId != null) {
       if (await getChatUserInfo(storedchatId)) {
         if (chatUser!.value.state == "2") {
           print("CheckState--> ${chatUser!.value.toJson()}");
           isAlreadyPicked = true;
+          if (!isSocketConnection) SocketConnect();
           return chatUser;
         } else {
           isAlreadyPicked = false;
-          return null;
+          if ((chatUser!.value.chatId != "" ||
+                  chatUser!.value.chatId != null) &&
+              chatUser!.value.state != "3") {
+            if (!isSocketConnection) SocketConnect();
+            return chatUser;
+          } else
+            return null;
         }
       }
     } else
@@ -163,55 +167,57 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       requestWritePermission();
     }
 
-    if (isSocketConnection) {
-      // SharedPreferences prefs = await SharedPreferences.getInstance();
-      var chatId = await newChatCreate();
-      // chatIds!.add(chatId);
-      // prefs.setStringList('chatIds', chatIds!);
-      // print(prefs?.getStringList("chatIds"));
-      ChatId = chatId;
-      print("new Chat Id ${ChatId}");
+    // if (isSocketConnection) {
+    // SharedPreferences prefs = await SharedPreferences.getInstance();
+    var chatId = await newChatCreate();
+    // chatIds!.add(chatId);
+    // prefs.setStringList('chatIds', chatIds!);
+    // print(prefs?.getStringList("chatIds"));
+    ChatId = chatId;
+    print("new Chat Id ${ChatId}");
 
-      if (ChatId != null) {
-        ChatId != null
-            ? userChatId = ChatId!
-            : ErrorAlert(context, "Chat Id is not present here");
+    if (ChatId != null) {
+      ChatId != null
+          ? userChatId = ChatId!
+          : ErrorAlert(context, "Chat Id is not present here");
 
-        isLoading = false;
-        // mainSubscription!.pause();
+      isLoading = false;
+      // mainSubscription!.pause();
 
-        // Navigator.pushAndRemoveUntil<dynamic>(
-        //   context,
-        //   MaterialPageRoute<dynamic>(
-        //     builder: (BuildContext context) => ChatDetailPage(userDetails, ""),
-        //   ),
-        //   (route) => false, //if you want to disable back feature set to false
-        // );
-        //  if (strmControl.hasListener) {}
-        // chatListSubscription!.cancel();
-        // messages!.value = [];
-        if (await getChatUserInfo(ChatId!)) {
-          messages!.value = chatUser!.value.messages!;
-          prefs.setString('chatId', chatUser!.value.chatId!);
-          print(chatUser!.value.toJson());
+      // Navigator.pushAndRemoveUntil<dynamic>(
+      //   context,
+      //   MaterialPageRoute<dynamic>(
+      //     builder: (BuildContext context) => ChatDetailPage(userDetails, ""),
+      //   ),
+      //   (route) => false, //if you want to disable back feature set to false
+      // );
+      //  if (strmControl.hasListener) {}
+      // chatListSubscription!.cancel();
+      // messages!.value = [];
+      if (await getChatUserInfo(ChatId!)) {
+        // messages!.value = chatUser!.value.messages!;
+        messages!.value = [];
+        prefs.setString('chatId', chatUser!.value.chatId!);
+        print(chatUser!.value.toJson());
+        // await SocketConnect();
 
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => ChatDetailPage(userChatId, "")));
-        }
-      } else {
-        ErrorAlert(context, "UserDetails Not Present");
-        ChatId = await newChatCreate();
-        prefs.setString('chatId', ChatId!);
-        // initiateChat();
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ChatDetailPage(userChatId, "")));
       }
     } else {
-      clearToken();
-      await SocketConnect();
-      initiateChat();
-      // customerRegisterInfo();
+      ErrorAlert(context, "UserDetails Not Present");
+      ChatId = await newChatCreate();
+      prefs.setString('chatId', ChatId!);
+      // initiateChat();
     }
+    // } else {
+    //   //clearToken();
+    //   await SocketConnect();
+    //   initiateChat();
+    //   // customerRegisterInfo();
+    // }
   }
 
   void refresh(dynamic childValue) {
@@ -298,7 +304,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                 (BuildContext context, ChatUsers value, child) {
                               print("chatuser-->Notifier");
                               chatUser!.value = value;
-                              return chatUser!.value.chatId == null ||
+                              return snapshot.data == null ||
                                       chatUser!.value.chatId == ""
                                   ? Center(
                                       child: Column(
@@ -319,10 +325,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                   textScaleFactor: 0.96,
                                                 ),
                                                 const SizedBox(width: 3),
-                                                Image.asset(
-                                                    "images/add_chat_256.png",
-                                                    height: 30,
-                                                    width: 30),
+                                                Image.network(
+                                                  "https://qa.twixor.digital/moc/drive/docs/6221e181524ff067fa675220",
+                                                  height: 36,
+                                                  width: 34,
+                                                  color: Colors.black,
+                                                ),
                                                 const SizedBox(width: 3),
                                                 const Text(
                                                   "below",
@@ -355,9 +363,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                 child: Row(
                                                   children: <Widget>[
                                                     const CircleAvatar(
-                                                      backgroundImage:
-                                                          AssetImage(
-                                                              "images/pp.png"),
+                                                      backgroundImage: NetworkImage(
+                                                          "https://aim.twixor.com/drive/docs/61ef9d425d9c400b3c6c03f9"),
                                                       maxRadius: 30,
                                                     ),
                                                     const SizedBox(
@@ -410,8 +417,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                         ),
                                       ]));
                             });
-                      } else
-                        return Center(child: CircularProgressIndicator());
+                      } else {
+                        return const Center(child: CircularProgressIndicator());
+                      }
                     }),
 
             // ErrorAlert(context, snapshot.error.toString());
@@ -426,7 +434,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                         onPressed: checkClick,
                         tooltip: 'Increment',
                         child: const ImageIcon(
-                          AssetImage("images/add_chat_256.png"),
+                          NetworkImage(
+                              "https://qa.twixor.digital/moc/drive/docs/6221e181524ff067fa675220"),
                           //color: Colors.white,
 
                           size: 30,
@@ -445,149 +454,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     } else {
       Permission.manageExternalStorage.request();
     }
-  }
-
-  socketMsgReceiveMain() {
-    var message1;
-    print("Socket main is Calling");
-
-    // // await SocketConnect();
-    // //SocketObservable();
-    // print("isSocketConnection $isSocketConnection");
-    // mainSocket = bSubject;
-    // if (mainSocket!.isClosed) {
-    //   print("ChatPage Socket Closed");
-    //   SocketObservable();
-    //   mainSocket = bSubject;
-    // }
-    // if (mainSubscription!.isPaused) {
-    //   print("mainSubscription is paused");
-    //   mainSubscription!.resume();
-    // }
-
-    mainSubscription!.onData((data) {
-      print("Main PageMessage ${data.toString()}");
-      message1 = json.decode(data);
-      if (message1["action"] == "onOpen") {
-        print("Connection establised.");
-        isSocketConnection = true;
-      } else if (message1["action"] == "agentReplyChat") {
-        var json = SocketResponse.fromJson(message1);
-        var chatId = json.content![0].response!.chat!.chatId;
-        List<ChatMessage> k = json.content![0].response!.chat!.messages!;
-        if (chatId == chatUser!.value.chatId) {
-          messages!.value = swapMsg(k);
-          messages!.notifyListeners();
-        }
-
-        //       print("Message sent Socket");
-        //       print(message1.toString());
-        //       print(userdata!.name);
-        //       var json = SocketResponse.fromJson(message1);
-      } else if (message1["action"] == "agentPickupChat") {
-        var json = SocketResponse.fromJson(message1);
-        var chatId = json.content![0].response!.chat!.chatId;
-        List<ChatMessage> k = json.content![0].response!.chat!.messages!;
-        List<ChatAgent> m = json.content![0].response!.users!;
-        //       actionBy =
-        //           json.content![0].response!.chat!.messages!.value[0].actionBy.toString();
-        //       print(message1.toString());
-        if (chatId == chatUser!.value.chatId) {
-          messages!.value = swapMsg(k);
-          messages!.notifyListeners();
-          chatUser!.notifyListeners();
-          chatUser!.value.actionBy =
-              json.content![0].response!.users![1].id.toString();
-          chatUser!.notifyListeners();
-          chatAgents = m;
-          isAlreadyPicked = true;
-          //chatUser = m;
-        }
-        //       chatAgents = m.cast<ChatAgent>();
-
-        //       prefs1!.setBool('chatCreated', true); else if (message1["action"] == "agentReplyChat") {
-
-      } else if (message1["action"] == "agentEndChat") {
-        var json = SocketResponse.fromJson(message1);
-        var chatId = json.content![0].response!.chat!.chatId;
-        List<ChatMessage> k = json.content![0].response!.chat!.messages!;
-
-        // print("ChatId $temp");
-        if (chatId == chatUser!.value.chatId) {
-          messages!.value = swapMsg(k);
-          messages!.notifyListeners();
-          var temp;
-          chatUser!.value = ChatUsers(
-              name: "",
-              messageText: "",
-              imageURL: "",
-              time: "",
-              msgindex: 0,
-              messages: [],
-              actionBy: "",
-              chatId: "",
-              eId: "",
-              chatAgents: chatAgents,
-              state: "",
-              newMessageCount: "");
-          chatUser!.notifyListeners();
-          prefs.setString('chatId', "");
-          isAlreadyPicked = false;
-        }
-
-        // print(chatUsers.length);
-        // if (index != null) chatUsers.removeAt(index);
-        //  if (index1 != null) chatUsers1.removeAt(index1);
-
-        setState(() {
-          //chatUser = <ChatUsers>[];
-
-          // print("ChatUsersIndex--> ${index}");
-        });
-      } else if (message1["action"] == "customerStartChat") {
-        print("Customer Start Chat");
-        var json = SocketResponse.fromJson(message1);
-        List<ChatMessage> k = json.content![0].response!.chat!.messages!;
-        var chatId = json.content![0].response!.chat!.chatId;
-        print(message1.toString());
-        if (chatId == chatUser!.value.chatId) {
-          messages!.value = swapMsg(k);
-          messages!.notifyListeners();
-          chatUser!.notifyListeners();
-        }
-        //         messages!.value.addAll(k);
-        // print("mainPageMessage ${data.toString()}");
-      } else if (message1["action"] == "customerReplyChat") {
-        print("Message received Socket");
-        var json = SocketResponse.fromJson(message1);
-        List<ChatMessage> k = json.content![0].response!.chat!.messages!;
-        var chatId = json.content![0].response!.chat!.chatId;
-
-        if (chatId == chatUser!.value.chatId) {
-          messages!.value = swapMsg(k);
-          messages!.notifyListeners();
-          chatUser!.notifyListeners();
-        }
-      } else if (message1["action"] == "chatError") {
-        //       print("waitingTransferAccept");
-        ChatMessage k = ChatMessage(
-            messageContent: "Please wait until the Agent has Pickup a Chat",
-            messageType: "receiver",
-            isUrl: false,
-            contentType: "MSG",
-            url: url,
-            actionBy: chatUser!.value.actionBy,
-            attachment: new Attachment(),
-            actionType: "3",
-            actedOn: DateTime.now().toUtc().toString(),
-            eId: chatUser!.value.eId);
-
-        messages!.value.add(k);
-        messages!.notifyListeners();
-
-        setState(() {});
-      }
-    });
   }
 
   @override

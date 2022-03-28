@@ -106,10 +106,18 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 
   _onUrlChanged(String updatedUrl) {}
 
-  _scrollToEnd(int o) async {
-    _controller.animateTo(_controller.position.maxScrollExtent + 1000 + o,
-        duration: const Duration(microseconds: 60),
-        curve: Curves.fastOutSlowIn);
+  _scrollToEnd() async {
+    print(_controller.hasClients);
+    if (_controller.hasClients) {
+      print(_controller.position.haveDimensions);
+      if (_controller.position.haveDimensions) {
+        // print(_controller.position.maxScrollExtent ?? _controller.position);
+
+        _controller.animateTo(_controller.position.maxScrollExtent + 1000,
+            duration: const Duration(microseconds: 60),
+            curve: Curves.fastOutSlowIn);
+      }
+    }
   }
 
   // ScrollController _controller = ScrollController();
@@ -237,7 +245,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
               foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
               leading: IconButton(
                 onPressed: () {
-                  // Navigator.of(context, rootNavigator: true).(false);
+                  // Navigator.of(context).pop(true);
                   // mainSubscription!.pause();
                   // Navigator.of(context).pop(true);
                   Navigator.pushReplacement(
@@ -301,12 +309,18 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                   builder:
                       (BuildContext context, List<ChatMessage> value, child) {
                     print("notifyValue--> ${value}");
+                    _scrollToEnd();
+
                     return ListView.builder(
                       controller: _controller,
                       itemCount: messages!.value.length,
-                      addSemanticIndexes: true,
+                      physics: AlwaysScrollableScrollPhysics(),
+                      //addSemanticIndexes: true,
                       padding: const EdgeInsets.only(bottom: 60),
+                      shrinkWrap: true,
                       itemBuilder: (context, index) {
+                        // _scrollToEnd();
+
                         List<String> messageIds = [];
                         messageIds
                             .add(messages!.value[index].actionId.toString());
@@ -319,7 +333,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 
                           temp.action = "chatMessageStatus";
 
-                          temp.chatId = chatId;
+                          temp.chatId = chatUser!.value.chatId;
 
                           List<String> m = [];
                           m.add(messages!.value[index].actionId!);
@@ -329,7 +343,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                           messages!.value[index].status = "2";
                           // setState(() {});
                         }
-                        _scrollToEnd(0);
+
+                        /// _scrollToEnd();
 
                         return Column(
                           children: <Widget>[
@@ -415,7 +430,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                             print("keyboard send");
                             if (value.isNotEmpty) {
                               sendmessage(SendMessage(
-                                  action: isAlreadyPicked
+                                  action: messages!.value.length > 0
                                       ? "customerReplyChat"
                                       : "customerStartChat",
                                   actionBy: isAlreadyPicked != ""
@@ -433,7 +448,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                                 attachmentData = "";
                                 // WidgetsBinding.instance?.removeObserver(this);
 
-                                _scrollToEnd(0);
+                                _scrollToEnd();
                                 setState(() {});
                               });
                             }
@@ -478,7 +493,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                             print("app send");
                             print(chatUser!.value.toJson());
                             sendmessage(SendMessage(
-                                action: isAlreadyPicked
+                                action: messages!.value.length > 0
                                     ? "customerReplyChat"
                                     : "customerStartChat",
                                 actionBy: isAlreadyPicked
@@ -495,7 +510,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                               attachment = Attachment();
                               attachmentData = "";
                               //WidgetsBinding.instance?.removeObserver(this);
-                              _scrollToEnd(0);
+                              _scrollToEnd();
                             });
                           }
                           msgController.clear();
@@ -1143,7 +1158,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                       print("attachment");
                       if (attachment.url != null) {
                         sendmessage(SendMessage(
-                          action: isAlreadyPicked
+                          action: messages!.value.length > 0
                               ? "customerReplyChat"
                               : "customerStartChat",
                           actionBy: chatUser!.value.actionBy != ""
@@ -1151,7 +1166,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                               : 0,
                           actionType: 1,
                           attachment: attachment,
-                          message: "Hi",
+                          message: "",
                           chatId: chatUser!.value.chatId!,
                           contentType: attachment.type,
                           eId: int.parse(chatUser!.value.eId!),
@@ -1162,7 +1177,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                           attachment = Attachment();
                           //Navigator.of(context).pop(false);
                           attachmentData = "";
-                          _scrollToEnd(200);
+                          _scrollToEnd();
                           // WidgetsBinding.instance?.removeObserver(this);
                           isLoading = false;
                         });
@@ -1297,7 +1312,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     print("Message Status${messages!.value[index].status}");
     String? temp = messages!.value[index].messageContent;
     return Column(
-        crossAxisAlignment: messages!.value[index].actionType == "1"
+        crossAxisAlignment: messages!.value[index].actionType == "3"
             ? CrossAxisAlignment.start
             : CrossAxisAlignment.end,
         children: [
@@ -1306,8 +1321,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
               temp!,
               //overflow: TextOverflow.clip,
               textAlign: messages!.value[index].actionType == "1"
-                  ? TextAlign.left
-                  : TextAlign.right,
+                  ? TextAlign.right
+                  : TextAlign.left,
               softWrap: true,
               textScaleFactor: 1,
             ),
@@ -1656,7 +1671,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     //   isLoading = true;
     //   attachmentProgress = false;
     // });
-
+    //char
     var headers = {'authentication-token': authToken!};
     var mimeType = lookupMimeType(objFile['url']);
     var t1 = mimeType.toString().split("/");

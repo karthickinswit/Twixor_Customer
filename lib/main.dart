@@ -85,10 +85,8 @@ class CustomerApp extends StatelessWidget {
               content: Text('The System Back Button is Deactivated')));
           return false;
         },
-        child: SocketConnect() != false
-            ? MaterialApp(
-                theme: customTheme, title: "Twixor", home: const MyHomePage())
-            : const CircularProgressIndicator());
+        child: MaterialApp(
+            theme: customTheme, title: "Twixor", home: const MyHomePage()));
   }
 
   getPref() async {
@@ -104,6 +102,39 @@ class CustomerApp extends StatelessWidget {
     prefs = await SharedPreferences.getInstance();
     prefs.setString('title', mainPageTitle);
 
-    getSubscribe();
+    prefs.getString('authToken');
+
+    //getSubscribe();
+    messages!.value = [];
+    chatUser!.value = ChatUsers(
+        name: "",
+        messageText: "",
+        imageURL: "",
+        time: "",
+        msgindex: 0,
+        messages: [],
+        actionBy: "",
+        chatId: "",
+        eId: "",
+        chatAgents: chatAgents,
+        state: "",
+        newMessageCount: "");
+  }
+
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    switch (state) {
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.paused:
+      case AppLifecycleState.detached:
+        // await detachedCallBack();
+        print("App has Idle State");
+        getCloseSocket();
+        break;
+      case AppLifecycleState.resumed:
+        print("App has been resumed");
+        // if (!isSocketConnection) await SocketConnect();
+        break;
+    }
   }
 }

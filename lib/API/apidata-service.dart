@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:twixor_customer/helper_files/Websocket.dart';
 import 'package:twixor_customer/helper_files/utilities_files.dart';
 import 'package:twixor_customer/models/SavedDataModel.dart';
 import 'package:twixor_customer/models/chatMessageModel.dart';
@@ -95,6 +96,7 @@ getChatUserInfo(String ChatId) async {
       print(obj["response"]["chat"].runtimeType);
 
       chatUser!.value = ChatUsers.fromJson(tempUser);
+      // messages!.value = chatUser!.value.messages!;
       print(chatUser!.value.toJson());
       return true;
 
@@ -129,7 +131,9 @@ newChatCreate() async {
       var obj = checkApiResponse(response.body.replaceAll("\$", ""));
       var chatId = obj["response"]["chatId"];
       print("Chat Id generated");
+      chatUser!.value.chatId = chatId;
       //websocket resume
+      if (isSocketConnection == false) SocketConnect();
       return chatId.toString();
     } catch (Exp) {
       // ErrorAlert(context, "Session TimeOutError");
@@ -170,12 +174,13 @@ customerRegisterInfo() async {
     authToken = token;
     prefs = await SharedPreferences.getInstance();
     prefs.setString('authToken', token);
+    //await SocketConnect();
     return token;
   } else {
     throw ("Registration Failed");
   }
 }
-
+//4001
 // getChatList() async {
 //   // https://aim.twixor.com/c/enterprises/103/chats
 //   List<ChatUsers> chatUsers = [];
