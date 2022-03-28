@@ -22,7 +22,63 @@ StreamSubscription? mainSubscription;
 var aSubject = new BehaviorSubject();
 // StreamSubscription? streamSubscription;
 
-SocketConnect() async {
+Future<bool> SocketConnect() async {
+  Map<String, String> mainheader = {
+    "Content-type": "application/json",
+    "authentication-token": await getTokenApi()!
+  };
+
+  try {
+    channel = IOWebSocketChannel.connect(
+        APP_URL.replaceAll("http", "ws") + "/actions",
+        headers: mainheader);
+    //print("Channel sink ${await channel!.sink.done}");
+
+    channel!.stream.listen(
+      (event) {
+        //strmControl.add(event);
+        {
+          var message1 = json.decode(event);
+          //print("Socket ErrMsg ${event.toString()}");
+          if (message1["action"] == "onOpen") {
+            print("Connection establised.");
+            isSocketConnection = true;
+            //return true;
+          }
+
+          // streamBuilding(mainSocket.stream)
+          // aSubject.add(event);
+          // if (!bSubject.isClosed) bSubject.sink.add(event);
+          // if (!chatPageSocket.isClosed) chatPageSocket.sink.add(event);
+          if (!mainSocket.isClosed) mainSocket.sink.add(event);
+        }
+      },
+      onDone: () {
+        debugPrint('ws error ');
+        clearToken();
+        SocketConnect();
+        //clearToken();
+        // SocketConnect();
+      },
+      onError: (error) {
+        clearToken();
+        debugPrint('ws error $error');
+        SocketConnect();
+      },
+    );
+
+    //streamBuilder(mainSocket.stream)
+
+    // isSocketConnection = true;
+  } catch (Exp) {
+    //ErrorAlert(context, msg)
+    isSocketConnection = false;
+    //return false;
+  }
+  return isSocketConnection;
+}
+
+SocketReConnect() async {
   Map<String, String> mainheader = {
     "Content-type": "application/json",
     "authentication-token": await getTokenApi()!
@@ -31,27 +87,18 @@ SocketConnect() async {
     channel = IOWebSocketChannel.connect(
         APP_URL.replaceAll("http", "ws") + "/actions",
         headers: mainheader);
-    //print("Channel sink ${await channel!.sink.done}");
-
-    channel!.stream.listen((event) {
-      //strmControl.add(event);
-      {
-        // aSubject.add(event);
-        // if (!bSubject.isClosed) bSubject.sink.add(event);
-        // if (!chatPageSocket.isClosed) chatPageSocket.sink.add(event);
-        if (!mainSocket.isClosed) mainSocket.sink.add(event);
-      }
-    });
-
-    isSocketConnection = true;
   } catch (Exp) {
     //ErrorAlert(context, msg)
     isSocketConnection = false;
   }
+  getSubscribe();
 }
+
+streamBuilding(stream) {}
 
 getSubscribe() {
   mainSubscription = mainSocket.stream.listen((event) {});
+  return mainSubscription;
 }
 
 getCloseSocket() async {
@@ -80,6 +127,10 @@ Future<void> sendmessage(SendMessage sendMessage) async {
   // IOWebSocketChannel? channel;
   //channel IP : Port\\"ws://192.168.0.109:6060/$myid"
 
+  if (mainSocket.hasListener) {
+  } else {
+    await SocketConnect();
+  }
   var data = {};
   data["action"] = sendMessage.action;
   data["actionBy"] = sendMessage.actionBy;
@@ -97,6 +148,10 @@ Future<void> sendmessage(SendMessage sendMessage) async {
 }
 
 Future<void> updateMessageStatus(SendMessage sendMessage) async {
+  if (mainSocket.hasListener) {
+  } else {
+    await SocketConnect();
+  }
   var data = {};
   data["action"] = sendMessage.action; //"chatMessageStatus";
   data["actionIds"] = sendMessage.actiondIds;

@@ -52,6 +52,7 @@ dependencies:
   angular_router: ^3.0.1
   rxdart: ^0.27.3
   provider: ^6.0.2
+  eventify: ^1.0.0
   
 
 
@@ -78,8 +79,9 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
+  assets:
+    - images/pp.png
+    - images/add_chat_256.png
   #   - images/a_dot_ham.jpeg
   #Profile Pic - https://aim.twixor.com/drive/docs/61ef9d425d9c400b3c6c03f9
   #Add Message Icon - https://qa.twixor.digital/moc/drive/docs/6220a244524ff067fa674dff

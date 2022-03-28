@@ -4,9 +4,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import 'package:permission_handler/permission_handler.dart';
-import 'package:provider/provider.dart';
 
 import 'package:twixor_customer/chatDetailPage.dart';
+import 'package:twixor_customer/models/Attachmentmodel.dart';
+import 'package:twixor_customer/models/SavedDataModel.dart';
 
 import 'package:twixor_customer/models/chatUsersModel.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -54,11 +55,12 @@ void configLoading() {
     ..dismissOnTap = false;
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   String? customerId1;
   String? eId1;
   String? mainPageTitle;
   bool isLoading = false;
+  StreamSubscription? chatListSubscription;
 
   late String userDetails;
 
@@ -66,9 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late SharedPreferences prefs;
   bool allowStorage = false;
   List<String>? chatIds = [];
-  List<ChatUsers> chatUsers = [];
 
-  bool allowClick = false;
   // WebsocketsProvider wsProvider = new WebsocketsProvider();
 
   final List<TextEditingController> _notifyControllers = [];
@@ -77,10 +77,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   initState() {
-    socketMsgReceiveMain();
     pref();
     super.initState();
     configLoading();
+
     //getSubscribe();
     // if (wsProvider.srMessage != null) {
     //   print(wsProvider.srMessage!.toJson().toString());
@@ -89,39 +89,83 @@ class _MyHomePageState extends State<MyHomePage> {
     //
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    // These are the callbacks
+    switch (state) {
+      case AppLifecycleState.resumed:
+        // widget is resumed
+        print("HomePop-->Resumed");
+        break;
+      case AppLifecycleState.inactive:
+        // widget is inactive
+        print("HomePop-->Inactive");
+        break;
+      case AppLifecycleState.paused:
+        // widget is paused
+        print("HomePop-->Paused");
+        break;
+      case AppLifecycleState.detached:
+        print("HomePop-->Detached");
+        // widget is detached
+        break;
+    }
+  }
+
   pref() async {
     prefs = await SharedPreferences.getInstance();
     //prefs.setString('title', mainPageTitle);
     MainPageTitle = prefs.getString('title')!;
-    if (mainSocket.hasListener) {
-      getSubscribe();
-      print("Resume Socket Main Page");
-    } else {}
+
+    // if (mainSocket.hasListener) {
+    // chatListSubscription = getSubscribe();
+    //print("chatListSubscription prefs ${chatListSubscription.hashCode}");
+    //getSubscribe();
+    socketMsgReceiveMain();
+    print("Resume Socket Main Page");
+
+    // } else {
+    //   await SocketConnect();
+    // }
+  }
+
+  checkChatID() async {
+    prefs = await SharedPreferences.getInstance();
+    var storedchatId = prefs.getString('chatId');
+    print("storedChatID-->${storedchatId}");
+    if (storedchatId != null) {
+      if (await getChatUserInfo(storedchatId)) {
+        if (chatUser!.value.state == "2") {
+          print("CheckState--> ${chatUser!.value.toJson()}");
+          isAlreadyPicked = true;
+          return chatUser;
+        } else {
+          isAlreadyPicked = false;
+          return null;
+        }
+      }
+    } else
+      return null;
   }
 
   checkClick() {
-    print("FloatButtonClicked");
-    if (!allowClick && chatUsers.length <= 0) {
-      print(chatUsers.length);
-      allowClick = true;
-      print("Clicked");
-
-      _incrementCounter();
+    if (!isAlreadyPicked) {
+      initiateChat();
     }
-    return;
   }
 
-  void _incrementCounter() async {
+  void initiateChat() async {
     //getChatUserInfo();
-    isLoading = true;
 
     if (!allowStorage) {
       requestWritePermission();
     }
 
-    if (await checktoken()) {
+    if (isSocketConnection) {
       // SharedPreferences prefs = await SharedPreferences.getInstance();
-      var chatId = await newChatCreate(context);
+      var chatId = await newChatCreate();
       // chatIds!.add(chatId);
       // prefs.setStringList('chatIds', chatIds!);
       // print(prefs?.getStringList("chatIds"));
@@ -144,19 +188,36 @@ class _MyHomePageState extends State<MyHomePage> {
         //   (route) => false, //if you want to disable back feature set to false
         // );
         //  if (strmControl.hasListener) {}
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => ChatDetailPage(userChatId, "")));
+        // chatListSubscription!.cancel();
+        // messages!.value = [];
+        if (await getChatUserInfo(ChatId!)) {
+          messages!.value = chatUser!.value.messages!;
+          prefs.setString('chatId', chatUser!.value.chatId!);
+          print(chatUser!.value.toJson());
+
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => ChatDetailPage(userChatId, "")));
+        }
       } else {
         ErrorAlert(context, "UserDetails Not Present");
-        ChatId = await newChatCreate(context);
-        _incrementCounter();
+        ChatId = await newChatCreate();
+        prefs.setString('chatId', ChatId!);
+        // initiateChat();
       }
     } else {
       clearToken();
+      await SocketConnect();
+      initiateChat();
       // customerRegisterInfo();
     }
+  }
+
+  void refresh(dynamic childValue) {
+    setState(() {
+      // _parentVariable = childValue;
+    });
   }
 
   @override
@@ -173,6 +234,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
+
     return WillPopScope(
         onWillPop: () async {
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -204,274 +266,156 @@ class _MyHomePageState extends State<MyHomePage> {
                 // axis because Columns are vertical (the cross axis would be
                 // horizontal).
 
+                // print("snapChat data -> ${snapshot.data.toString()}");
+                // if (snapshot.hasData) {
+                //   chatUser = snapshot.data as List<ChatUser>;
+                //   List<ChatUsers> chatUsers1 = [];
+
+                //   temp.forEach((v) {
+                //     messages!.add(ChatMessage.fromAPItoJson(v));
+                //     print("First Added ${v.toString()}");
+                //     //print(v);
+                //   });
+
+                //print('receiver data -> $chatUsers');
+
+                // for (var element in chatUsers) {
+                //   if (element.state == "2") {
+                //     chatUsers1.add(element);
+                //   }
+                // }
+                // chatUsers = chatUsers1;
+
                 FutureBuilder(
+                    future: checkChatID(),
                     builder: (context, snapshot) {
                       print("snapChat data -> ${snapshot.data.toString()}");
-                      if (snapshot.hasData) {
-                        chatUsers = snapshot.data as List<ChatUsers>;
-                        List<ChatUsers> chatUsers1 = [];
-
-                        //print('receiver data -> $chatUsers');
-
-                        // for (var element in chatUsers) {
-                        //   if (element.state == "2") {
-                        //     chatUsers1.add(element);
-                        //   }
-                        // }
-                        // chatUsers = chatUsers1;
-                        chatUsers.asMap().forEach((key, value) {
-                          if (value.state == "2") {
-                            chatUsers1.add(value);
-                            _notifyControllers.add(TextEditingController());
-                          }
-                        });
-                        chatUsers = chatUsers1;
-
-                        print("${chatUsers.toString()}" " ${chatUsers.length}");
-                        if (chatUsers1.length > 0) {
-                          //  isVisible = false;
-                        }
-
-                        return chatUsers.isEmpty
-                            ? Center(
-                                child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: <Widget>[
-                                    const Text(
-                                      "Currently no Active Chats, ",
-                                      textScaleFactor: 1.2,
-                                    ),
-                                    const SizedBox(height: 10),
-                                    Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: <Widget>[
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        print(chatUser!.value.toJson());
+                        return ValueListenableBuilder(
+                            valueListenable: chatUser!,
+                            builder:
+                                (BuildContext context, ChatUsers value, child) {
+                              print("chatuser-->Notifier");
+                              chatUser!.value = value;
+                              return chatUser!.value.chatId == null ||
+                                      chatUser!.value.chatId == ""
+                                  ? Center(
+                                      child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: <Widget>[
                                           const Text(
-                                            "To start a new Chat, please press",
-                                            textScaleFactor: 0.96,
+                                            "Currently no Active Chats, ",
+                                            textScaleFactor: 1.2,
                                           ),
-                                          const SizedBox(width: 3),
-                                          Image.network(
-                                            "https://qa.twixor.digital/moc/drive/docs/6221e181524ff067fa675220",
-                                            height: 36,
-                                            width: 34,
-                                            color: Colors.black,
-                                          ),
-                                          const SizedBox(width: 3),
-                                          const Text(
-                                            "below",
-                                            textScaleFactor: 0.96,
-                                          ),
-                                        ])
-                                  ]))
-                            : ListView.builder(
-                                itemCount: chatUsers.length,
-                                shrinkWrap: true,
-                                padding: const EdgeInsets.only(top: 10),
-                                itemBuilder: (context1, index) {
-                                  //_notifyControllers[index].text = "0";
-                                  // print(chatUsers[index].chatId);
-                                  List<ChatMessage> nonReadMessages = [];
-                                  for (ChatMessage message1
-                                      in chatUsers[index].messages!) {
-                                    // if (message1.status != "2") {
-                                    //   nonReadMessages.add(message1);
-                                    // }
-                                  }
-                                  // isVisible = false;
-                                  // print("${_notifyControllers}");
+                                          const SizedBox(height: 10),
+                                          Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: <Widget>[
+                                                const Text(
+                                                  "To start a new Chat, please press",
+                                                  textScaleFactor: 0.96,
+                                                ),
+                                                const SizedBox(width: 3),
+                                                Image.asset(
+                                                    "images/add_chat_256.png",
+                                                    height: 30,
+                                                    width: 30),
+                                                const SizedBox(width: 3),
+                                                const Text(
+                                                  "below",
+                                                  textScaleFactor: 0.96,
+                                                ),
+                                              ])
+                                        ]))
+                                  : GestureDetector(
+                                      onTap: () {
+                                        messages!.value =
+                                            chatUser!.value.messages!;
+                                        // prefs.setString('chatId', chatUser!.value.chatId!);
+                                        print(chatUser!.value.toJson());
 
-                                  _notifyControllers[index].text =
-                                      _notifyControllers[index].text;
-
-                                  print(
-                                      "nonReadmessages Length ${nonReadMessages.length}");
-                                  // _notifyControllers[index].text =
-                                  //     nonReadMessages.length.toString();
-
-                                  if (chatUsers.isEmpty) {
-                                    return const Center(
-                                        child:
-                                            Text("There is no Chats Found "));
-                                  } else if (chatUsers[index].state != "0") {
-                                    return GestureDetector(
-                                      onTap: () async {
-                                        var userChatId =
-                                            chatUsers[index].chatId.toString();
-
-                                        isLoading = false;
-                                        // isVisible = true;
-                                        //subscriber!.cancel();
-                                        // mainSubscription!.pause();
-
-                                        // Navigator.pushAndRemoveUntil<dynamic>(
-                                        //   context,
-                                        //   MaterialPageRoute<dynamic>(
-                                        //     builder: (BuildContext context) => ChatDetailPage(userDetails, ""),
-                                        //   ),
-                                        //   (route) => false, //if you want to disable back feature set to false
-                                        // );
-                                        //  if (strmControl.hasListener) {}
                                         Navigator.push(
                                             context,
                                             MaterialPageRoute(
                                                 builder: (context) =>
                                                     ChatDetailPage(
-                                                        userChatId, "")));
-                                        //.then(
-                                        //   (value) => setState(() {
-                                        //     print("ISBack");
-                                        //     if (mainSubscription!.isPaused) {
-                                        //       getSubscribe();
-                                        //     }
-                                        //   }),
-                                        // ); //if you want to disable back feature set to false
-                                        // ).then((x) {
-                                        //   setState(() {});
-                                        //   // Navigator.push(
-                                        //   //         context,
-                                        //   //         MaterialPageRoute(
-                                        //   //             builder: (context) =>
-                                        //   //                 ChatDetailPage(
-                                        //   //                     userDetails, "")))
-                                        //   //     .then((x) {
-                                        //   //   setState(() {});
-                                        //   // });
-                                        // });
+                                                        chatUser!.value.chatId!,
+                                                        "")));
                                       },
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 16, vertical: 10),
-                                        child: Row(
-                                          children: <Widget>[
-                                            Expanded(
-                                              child: Row(
-                                                children: <Widget>[
-                                                  const CircleAvatar(
-                                                    backgroundImage: NetworkImage(
-                                                        "https://aim.twixor.com/drive/docs/61ef9d425d9c400b3c6c03f9"),
-                                                    maxRadius: 30,
-                                                  ),
-                                                  const SizedBox(
-                                                    width: 16,
-                                                  ),
-                                                  Expanded(
-                                                    child: Container(
-                                                      color: Colors.transparent,
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: <Widget>[
-                                                          Text(
-                                                            chatUsers[index]
-                                                                .chatId
-                                                                .toString(),
-                                                            style:
-                                                                const TextStyle(
-                                                                    fontSize:
-                                                                        16),
-                                                          ),
-                                                          const SizedBox(
-                                                            height: 6,
-                                                          ),
-                                                          Text(
-                                                            chatUsers[index]
-                                                                .eId
-                                                                .toString(),
-                                                            style: TextStyle(
-                                                                fontSize: 13,
-                                                                color: Colors
-                                                                    .grey
-                                                                    .shade600,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .normal),
-                                                          ),
-                                                        ],
+                                      child: Column(children: <Widget>[
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 16, vertical: 10),
+                                          child: Row(
+                                            children: <Widget>[
+                                              Expanded(
+                                                child: Row(
+                                                  children: <Widget>[
+                                                    const CircleAvatar(
+                                                      backgroundImage:
+                                                          AssetImage(
+                                                              "images/pp.png"),
+                                                      maxRadius: 30,
+                                                    ),
+                                                    const SizedBox(
+                                                      width: 16,
+                                                    ),
+                                                    Expanded(
+                                                      child: Container(
+                                                        color:
+                                                            Colors.transparent,
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: <Widget>[
+                                                            Text(
+                                                              chatUser!
+                                                                  .value.chatId
+                                                                  .toString(),
+                                                              style:
+                                                                  const TextStyle(
+                                                                      fontSize:
+                                                                          16),
+                                                            ),
+                                                            const SizedBox(
+                                                              height: 6,
+                                                            ),
+                                                            Text(
+                                                              chatUser!.value
+                                                                  .messageText
+                                                                  .toString(),
+                                                              style: TextStyle(
+                                                                  fontSize: 13,
+                                                                  color: Colors
+                                                                      .grey
+                                                                      .shade600,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .normal),
+                                                            ),
+                                                          ],
+                                                        ),
                                                       ),
                                                     ),
-                                                  ),
-                                                  const SizedBox(width: 10),
-                                                  _notifyControllers[index]
-                                                              .text ==
-                                                          ""
-                                                      ? Container()
-                                                      : Container(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .all(2),
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: Colors.red,
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        6),
-                                                          ),
-                                                          constraints:
-                                                              const BoxConstraints(
-                                                            minWidth: 14,
-                                                            minHeight: 14,
-                                                          ),
-                                                          child: Text(
-                                                            _notifyControllers[
-                                                                    index]
-                                                                .text,
-                                                            style:
-                                                                const TextStyle(
-                                                              color:
-                                                                  Colors.white,
-                                                              fontSize: 8,
-                                                            ),
-                                                            textAlign: TextAlign
-                                                                .center,
-                                                          ),
-                                                        ),
-                                                ],
+                                                    const SizedBox(width: 10),
+                                                  ],
+                                                ),
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                  } else {
-                                    return const Center(
-                                        child: Text("There was a Problem "));
-                                  }
-                                },
-                              );
-                      } else if (snapshot.hasError) {
-                        // ErrorAlert(context, snapshot.error.toString());
+                                      ]));
+                            });
+                      } else
+                        return Center(child: CircularProgressIndicator());
+                    }),
 
-                        return Center(
-                          child: Column(children: <Widget>[
-                            const Text(
-                                "There was a Problem.Please click to retry "),
-                            IconButton(
-                                onPressed: () {
-                                  // _checkPrefs();
-                                  // // //clearToken();
+            // ErrorAlert(context, snapshot.error.toString());
 
-                                  // MaterialPageRoute(
-                                  //     builder: (context) => CustomerApp(
-                                  //           customerId: customerId,
-                                  //           eId: eId,
-                                  //           mainPageTitle: MainPageTitle,
-                                  //           theme: customTheme,
-                                  //         ));
-                                  // setState(() {});
-                                  // setState(() {});
-                                },
-                                icon: const Icon(IconData(0xf2f7,
-                                    fontFamily: 'MaterialIcons')))
-                          ]),
-                        );
-                      } else {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                    },
-                    future: getChatList(context)),
             floatingActionButton: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
@@ -482,8 +426,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         onPressed: checkClick,
                         tooltip: 'Increment',
                         child: const ImageIcon(
-                          NetworkImage(
-                              "https://qa.twixor.digital/moc/drive/docs/6221e181524ff067fa675220"),
+                          AssetImage("images/add_chat_256.png"),
                           //color: Colors.white,
 
                           size: 30,
@@ -517,54 +460,133 @@ class _MyHomePageState extends State<MyHomePage> {
     //   SocketObservable();
     //   mainSocket = bSubject;
     // }
-    if (mainSubscription!.isPaused) {
-      print("mainSubscription is paused");
-      mainSubscription!.resume();
-    }
+    // if (mainSubscription!.isPaused) {
+    //   print("mainSubscription is paused");
+    //   mainSubscription!.resume();
+    // }
 
     mainSubscription!.onData((data) {
       print("Main PageMessage ${data.toString()}");
       message1 = json.decode(data);
       if (message1["action"] == "onOpen") {
         print("Connection establised.");
-      } else if (message1["action"] == "customerReplyChat") {
-        print("Message sent Socket");
-        setState(() {
-          //  setState(() {});
-        });
-      } else if (message1["action"] == "agentPickupChat") {
-        setState(() {});
+        isSocketConnection = true;
       } else if (message1["action"] == "agentReplyChat") {
-        print("Message sent Socket");
         var json = SocketResponse.fromJson(message1);
-        var temp = json.content![0].response!.chat!.chatId;
-        print("ChatId $temp");
-        var index = chatUsers.indexWhere((element) => element.chatId == temp);
+        var chatId = json.content![0].response!.chat!.chatId;
+        List<ChatMessage> k = json.content![0].response!.chat!.messages!;
+        if (chatId == chatUser!.value.chatId) {
+          messages!.value = swapMsg(k);
+          messages!.notifyListeners();
+        }
 
-        int count = _notifyControllers[index].text != ""
-            ? int.parse(_notifyControllers[index].text)
-            : 0;
-        _notifyControllers[index].text =
-            _notifyControllers[index].text != "" ? (count + 1).toString() : "1";
-        print("${chatUsers[index].chatId} ${_notifyControllers[index].text}");
-        setState(() {});
+        //       print("Message sent Socket");
+        //       print(message1.toString());
+        //       print(userdata!.name);
+        //       var json = SocketResponse.fromJson(message1);
+      } else if (message1["action"] == "agentPickupChat") {
+        var json = SocketResponse.fromJson(message1);
+        var chatId = json.content![0].response!.chat!.chatId;
+        List<ChatMessage> k = json.content![0].response!.chat!.messages!;
+        List<ChatAgent> m = json.content![0].response!.users!;
+        //       actionBy =
+        //           json.content![0].response!.chat!.messages!.value[0].actionBy.toString();
+        //       print(message1.toString());
+        if (chatId == chatUser!.value.chatId) {
+          messages!.value = swapMsg(k);
+          messages!.notifyListeners();
+          chatUser!.notifyListeners();
+          chatUser!.value.actionBy =
+              json.content![0].response!.users![1].id.toString();
+          chatUser!.notifyListeners();
+          chatAgents = m;
+          isAlreadyPicked = true;
+          //chatUser = m;
+        }
+        //       chatAgents = m.cast<ChatAgent>();
+
+        //       prefs1!.setBool('chatCreated', true); else if (message1["action"] == "agentReplyChat") {
+
       } else if (message1["action"] == "agentEndChat") {
         var json = SocketResponse.fromJson(message1);
-        var temp = json.content![0].response!.chat!.chatId;
-        print("ChatId $temp");
-        var index = chatUsers.indexWhere((element) => element.chatId == temp);
+        var chatId = json.content![0].response!.chat!.chatId;
+        List<ChatMessage> k = json.content![0].response!.chat!.messages!;
 
-        print(chatUsers.length);
-        if (index != null) chatUsers.removeAt(index);
+        // print("ChatId $temp");
+        if (chatId == chatUser!.value.chatId) {
+          messages!.value = swapMsg(k);
+          messages!.notifyListeners();
+          var temp;
+          chatUser!.value = ChatUsers(
+              name: "",
+              messageText: "",
+              imageURL: "",
+              time: "",
+              msgindex: 0,
+              messages: [],
+              actionBy: "",
+              chatId: "",
+              eId: "",
+              chatAgents: chatAgents,
+              state: "",
+              newMessageCount: "");
+          chatUser!.notifyListeners();
+          prefs.setString('chatId', "");
+          isAlreadyPicked = false;
+        }
+
+        // print(chatUsers.length);
+        // if (index != null) chatUsers.removeAt(index);
         //  if (index1 != null) chatUsers1.removeAt(index1);
 
         setState(() {
-          chatUsers = <ChatUsers>[];
+          //chatUser = <ChatUsers>[];
 
-          print("ChatUsersIndex--> ${index}");
+          // print("ChatUsersIndex--> ${index}");
         });
+      } else if (message1["action"] == "customerStartChat") {
+        print("Customer Start Chat");
+        var json = SocketResponse.fromJson(message1);
+        List<ChatMessage> k = json.content![0].response!.chat!.messages!;
+        var chatId = json.content![0].response!.chat!.chatId;
+        print(message1.toString());
+        if (chatId == chatUser!.value.chatId) {
+          messages!.value = swapMsg(k);
+          messages!.notifyListeners();
+          chatUser!.notifyListeners();
+        }
+        //         messages!.value.addAll(k);
+        // print("mainPageMessage ${data.toString()}");
+      } else if (message1["action"] == "customerReplyChat") {
+        print("Message received Socket");
+        var json = SocketResponse.fromJson(message1);
+        List<ChatMessage> k = json.content![0].response!.chat!.messages!;
+        var chatId = json.content![0].response!.chat!.chatId;
+
+        if (chatId == chatUser!.value.chatId) {
+          messages!.value = swapMsg(k);
+          messages!.notifyListeners();
+          chatUser!.notifyListeners();
+        }
+      } else if (message1["action"] == "chatError") {
+        //       print("waitingTransferAccept");
+        ChatMessage k = ChatMessage(
+            messageContent: "Please wait until the Agent has Pickup a Chat",
+            messageType: "receiver",
+            isUrl: false,
+            contentType: "MSG",
+            url: url,
+            actionBy: chatUser!.value.actionBy,
+            attachment: new Attachment(),
+            actionType: "3",
+            actedOn: DateTime.now().toUtc().toString(),
+            eId: chatUser!.value.eId);
+
+        messages!.value.add(k);
+        messages!.notifyListeners();
+
+        setState(() {});
       }
-      print("mainPageMessage ${data.toString()}");
     });
   }
 
@@ -573,6 +595,9 @@ class _MyHomePageState extends State<MyHomePage> {
     print("isSocketConnection $isSocketConnection");
     //_notifyControllers
     // mainSubscription!.pause();
+    // chatListSubscription!.cancel();
+    // print("chatListSubscription dispose ${chatListSubscription.hashCode}");
+
     print("MainSocketisClosed");
     super.dispose();
     // mainSocket!.sink.close();

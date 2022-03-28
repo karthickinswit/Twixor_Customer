@@ -1,5 +1,6 @@
 // ignore_for_file: unnecessary_null_comparison
 
+import 'package:flutter/cupertino.dart';
 import 'package:twixor_customer/models/chatMessageModel.dart';
 
 class ChatUsers {
@@ -147,5 +148,17 @@ class ChatAgent {
     data['id'] = this.id;
     data['type'] = this.type;
     return data;
+  }
+}
+
+class UserNotifier extends ChangeNotifier {
+  ChatUsers? chatUser;
+
+  String temp = "";
+
+  void updateUser(temp1) {
+    // chatUser = tempChatUser;
+    temp = temp1;
+    notifyListeners();
   }
 }

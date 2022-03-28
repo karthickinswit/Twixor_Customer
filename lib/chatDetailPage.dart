@@ -12,9 +12,11 @@ import 'package:http_parser/http_parser.dart';
 import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
 import 'package:rxdart/subjects.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:twixor_customer/API/apidata-service.dart';
 import 'package:twixor_customer/HomePage.dart';
 import 'package:twixor_customer/main.dart';
+import 'package:twixor_customer/models/SavedDataModel.dart';
 
 import 'package:twixor_customer/models/SendMessageModel.dart';
 import 'package:twixor_customer/models/SocketResponseModel.dart';
@@ -46,7 +48,7 @@ class ChatDetailPage extends StatefulWidget {
   String? jsonData = "";
   String attachmentData = "";
   String userChatId = "";
-  List<ChatMessage> messages = [];
+  //List<ChatMessage> messages = [];
 
   ChatDetailPage(this.userChatId, this.attachmentData);
 
@@ -69,8 +71,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   String attachmentData;
   ChatUsers? userdata;
   Attachment? attachment;
-  List<ChatAgent>? chatAgents;
-  List<ChatMessage>? messages = [];
+
   String userChatId;
   List<ChatMessage> nonReadMessages = [];
   StreamController chatSocketStream = StreamController();
@@ -78,7 +79,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   BuildContext? dialogContext;
   BuildContext? tempContext;
   var isKeyboardOpen = false;
-
+  StreamSubscription? chatDetailSubscription;
   static const APP_URL = String.fromEnvironment('APP_URL',
       defaultValue: 'https://qa.twixor.digital/moc');
 
@@ -101,6 +102,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   final shouldEnable = false;
   bool isLoading = false;
   bool isDisable = false;
+  SharedPreferences? prefs1;
 
   _onUrlChanged(String updatedUrl) {}
 
@@ -116,60 +118,61 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 
   getMsg(String userChatId) async {
     print("ChatID2--> $userChatId");
-    return jsonData = json.encode(await getChatUserInfo(context, userChatId));
+    // return jsonData = json.encode(await getChatUserInfo(userChatId));
   }
 
   @override
   initState() {
     super.initState();
-    socketMsgReceive();
-    getMsg(userChatId).then((result) {
-      print(result);
-      setState(() {
-        print("ChatID--> $userChatId");
+    prefs();
 
-        var temp = jsonDecode(result!);
-        attachment = (attachmentData.isNotEmpty)
-            ? Attachment.fromJson(jsonDecode(attachmentData))
-            : Attachment();
-        userdata = ChatUsers.fromJson1(temp);
-        // print(userdata.toString());
-        imageUrl = userdata!.imageURL;
-        name = userdata!.name;
-        msgindex = userdata!.msgindex;
-        messages = userdata!.messages;
-        for (ChatMessage message1 in messages!) {
-          if (message1.status != "2") {
-            nonReadMessages.add(message1);
-          }
-        }
-        messages;
+    // getMsg(userChatId).then((result) {
+    //   print(result);
+    //   setState(() {
+    //     print("ChatID--> $userChatId");
 
-        chatAgents = userdata!.chatAgents!.cast<ChatAgent>();
-        eId = userdata!.eId;
+    //     var temp = jsonDecode(result!);
+    //     attachment = (attachmentData.isNotEmpty)
+    //         ? Attachment.fromJson(jsonDecode(attachmentData))
+    //         : Attachment();
+    //     userdata = ChatUsers.fromJson1(temp);
+    //     // print(userdata.toString());
+    //     imageUrl = userdata!.imageURL;
+    //     name = userdata!.name;
+    //     msgindex = userdata!.msgindex;
+    //     messages = userdata!.messages;
+    //     for (ChatMessage message1 in messages!.value) {
+    //       if (message1.status != "2") {
+    //         nonReadMessages.add(message1);
+    //       }
+    //     }
+    //     messages;
 
-        //var messages=
-        // this.messages =
-        //     ChatMessage.fromJson(userdata.messages) as List<ChatMessage>?;
-        if (attachment!.type == "MSG") {
-          msgController.text = attachment!.desc!;
-        } else if (attachment!.type == "URL") {
-          msgController.text = attachment!.url!;
-        } else if (attachment!.type == "video") {
-          // msgController.text = attachment!.url!;
-          // _videoController!.add(VideoPlayerController.network(attachment!.url!)
-          //   ..initialize().then((_) {
-          //     // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
-          //     setState(() {});
-          //   }));
-        }
+    //     chatAgents = userdata!.chatAgents!.cast<ChatAgent>();
+    //     eId = userdata!.eId;
 
-        actionBy = userdata!.actionBy;
+    //     //var messages=
+    //     // this.messages =
+    //     //     ChatMessage.fromJson(userdata.messages) as List<ChatMessage>?;
+    //     if (attachment!.type == "MSG") {
+    //       msgController.text = attachment!.desc!;
+    //     } else if (attachment!.type == "URL") {
+    //       msgController.text = attachment!.url!;
+    //     } else if (attachment!.type == "video") {
+    //       // msgController.text = attachment!.url!;
+    //       // _videoController!.add(VideoPlayerController.network(attachment!.url!)
+    //       //   ..initialize().then((_) {
+    //       //     // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
+    //       //     setState(() {});
+    //       //   }));
+    //     }
 
-        chatId = userdata!.chatId;
-        eId = userdata!.eId;
-      });
-    });
+    //     actionBy = userdata!.actionBy;
+
+    //     chatId = userdata!.chatId;
+    //     eId = userdata!.eId;
+    //   });
+    // });
     WidgetsBinding.instance?.addObserver(this);
     //
 
@@ -180,6 +183,18 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     // }
   }
 
+  prefs() async {
+    // if (mainSocket.hasListener) {
+    chatDetailSubscription = getSubscribe();
+    print("chatDetailSubscription prefs ${chatDetailSubscription.hashCode}");
+    //socketMsgReceive();
+    print("Resume Socket Main Page");
+
+    // } else {
+    //   await SocketConnect();
+    // }
+  }
+
   @override
   void dispose() {
     print("Chat Socket Closed");
@@ -187,6 +202,10 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     WidgetsBinding.instance?.removeObserver(this);
 
     // mainSocket!.close();
+
+    chatDetailSubscription!.cancel();
+    print("chatDetailSubscription dispose ${chatDetailSubscription.hashCode}");
+
     super.dispose();
   }
 
@@ -199,79 +218,9 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   @override
   Widget build(BuildContext context) {
     dialogContext = context;
+    print("Chatuserstemp ${messages!.value.length}");
     // print("rcvd fdata ${rcvdData['name']}");
 
-    var listView = ListView.builder(
-      controller: _controller,
-      itemCount: messages!.length,
-      addSemanticIndexes: true,
-      padding: const EdgeInsets.only(bottom: 60),
-      itemBuilder: (context, index) {
-        List<String> messageIds = [];
-        messageIds.add(messages![index].actionId.toString());
-        // print("messageIds ${messageIds.runtimeType}");
-        if (messages![index].status != "2" &&
-                messages![index].actionType == "1" ||
-            messages![index].actionType == "0") {
-          // print("messageIds1");
-          SendMessage temp = SendMessage();
-
-          temp.action = "chatMessageStatus";
-
-          temp.chatId = chatId;
-
-          List<String> m = [];
-          m.add(messages![index].actionId!);
-          temp.actiondIds = m;
-
-          updateMessageStatus(temp);
-          messages![index].status = "2";
-          // setState(() {});
-        }
-
-        return Column(
-          children: <Widget>[
-            const SizedBox(
-              height: 10,
-            ),
-            (messages![index].actionType != "1" ||
-                    messages![index].actionType != "3")
-                ? ChatUtilMessage(messages![index], chatAgents!)
-                : Container(),
-            (messages![index].actionType == "1" ||
-                    messages![index].actionType == "0" ||
-                    messages![index].actionType == "3")
-                ? Container(
-                    padding: const EdgeInsets.only(
-                        left: 16, right: 16, top: 5, bottom: 5),
-                    child: Align(
-                      alignment: (messages![index].actionType == "3"
-                          ? Alignment.topLeft
-                          : Alignment.topRight),
-                      child: Container(
-                        //width: MediaQuery.of(context).size.width,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: (messages![index].actionType == "1" ||
-                                  messages![index].actionType == "0"
-                              ? Colors.grey.shade200
-                              : Colors.blue[50]),
-                        ),
-                        padding: const EdgeInsets.all(14),
-                        child: CheckType(index, messages![index].url),
-                      ),
-                    ),
-                  )
-                : Container(),
-            messages![index].actionType == "8"
-                ? const SizedBox(
-                    height: 10,
-                  )
-                : Container()
-          ],
-        );
-      },
-    );
     /////////////////////////////////////////////////
     return WillPopScope(
         //////////////////////////////////////////////
@@ -288,16 +237,14 @@ class _ChatDetailPageState extends State<ChatDetailPage>
               foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
               leading: IconButton(
                 onPressed: () {
-                  // Navigator.of(context).pop(false);
+                  // Navigator.of(context, rootNavigator: true).(false);
                   // mainSubscription!.pause();
                   // Navigator.of(context).pop(true);
-                  Navigator.pushAndRemoveUntil<dynamic>(
+                  Navigator.pushReplacement(
                     context,
                     MaterialPageRoute<dynamic>(
                       builder: (BuildContext context) => const MyHomePage(),
                     ),
-                    (route) =>
-                        true, //if you want to disable back feature set to false
                   );
                   // Navigator.pushAndRemoveUntil<dynamic>(
                   //   context,
@@ -347,7 +294,95 @@ class _ChatDetailPageState extends State<ChatDetailPage>
             children: <Widget>[
               // inspect(messages)
 
-              listView,
+              //listView,
+
+              ValueListenableBuilder(
+                  valueListenable: messages!,
+                  builder:
+                      (BuildContext context, List<ChatMessage> value, child) {
+                    print("notifyValue--> ${value}");
+                    return ListView.builder(
+                      controller: _controller,
+                      itemCount: messages!.value.length,
+                      addSemanticIndexes: true,
+                      padding: const EdgeInsets.only(bottom: 60),
+                      itemBuilder: (context, index) {
+                        List<String> messageIds = [];
+                        messageIds
+                            .add(messages!.value[index].actionId.toString());
+                        // print("messageIds ${messageIds.runtimeType}");
+                        if (messages!.value[index].status != "2" &&
+                                messages!.value[index].actionType == "1" ||
+                            messages!.value[index].actionType == "0") {
+                          // print("messageIds1");
+                          SendMessage temp = SendMessage();
+
+                          temp.action = "chatMessageStatus";
+
+                          temp.chatId = chatId;
+
+                          List<String> m = [];
+                          m.add(messages!.value[index].actionId!);
+                          temp.actiondIds = m;
+
+                          updateMessageStatus(temp);
+                          messages!.value[index].status = "2";
+                          // setState(() {});
+                        }
+                        _scrollToEnd(0);
+
+                        return Column(
+                          children: <Widget>[
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            (messages!.value[index].actionType != "1" ||
+                                    messages!.value[index].actionType != "3")
+                                ? ChatUtilMessage(messages!.value[index])
+                                : Container(),
+                            (messages!.value[index].actionType == "1" ||
+                                    messages!.value[index].actionType == "0" ||
+                                    messages!.value[index].actionType == "3")
+                                ? Container(
+                                    padding: const EdgeInsets.only(
+                                        left: 16, right: 16, top: 5, bottom: 5),
+                                    child: Align(
+                                      alignment:
+                                          (messages!.value[index].actionType ==
+                                                  "3"
+                                              ? Alignment.topLeft
+                                              : Alignment.topRight),
+                                      child: Container(
+                                        //width: MediaQuery.of(context).size.width,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          color: (messages!.value[index]
+                                                          .actionType ==
+                                                      "1" ||
+                                                  messages!.value[index]
+                                                          .actionType ==
+                                                      "0"
+                                              ? Colors.grey.shade200
+                                              : Colors.blue[50]),
+                                        ),
+                                        padding: const EdgeInsets.all(14),
+                                        child: CheckType(
+                                            index, messages!.value[index].url),
+                                      ),
+                                    ),
+                                  )
+                                : Container(),
+                            messages!.value[index].actionType == "8"
+                                ? const SizedBox(
+                                    height: 10,
+                                  )
+                                : Container()
+                          ],
+                        );
+                      },
+                    );
+                  }),
               //  alignList("text", false, "")
               // (attachment!.url != null && attachment!.url != "")
               //? alignList(attachment!)
@@ -377,13 +412,15 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                             if (!currentFocus.hasPrimaryFocus) {
                               currentFocus.unfocus();
                             }
+                            print("keyboard send");
                             if (value.isNotEmpty) {
                               sendmessage(SendMessage(
-                                  action: actionBy != ""
+                                  action: isAlreadyPicked
                                       ? "customerReplyChat"
                                       : "customerStartChat",
-                                  actionBy:
-                                      actionBy != "" ? int.parse(actionBy!) : 0,
+                                  actionBy: isAlreadyPicked != ""
+                                      ? int.parse(actionBy!)
+                                      : 0,
                                   actionType: 1,
                                   attachment: Attachment(),
                                   chatId: chatId!,
@@ -436,20 +473,22 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                             //     actionType: "1",
                             //     actionBy: actionBy!,
                             //     actedOn: DateTime.now().toUtc().toString());
-                            // messages!.add(temp);
+                            // messages!.value.add(temp);
                             // print(actionBy);
-
+                            print("app send");
+                            print(chatUser!.value.toJson());
                             sendmessage(SendMessage(
-                                action: actionBy != ""
+                                action: isAlreadyPicked
                                     ? "customerReplyChat"
                                     : "customerStartChat",
-                                actionBy:
-                                    actionBy != "" ? int.parse(actionBy!) : 0,
+                                actionBy: isAlreadyPicked
+                                    ? int.parse(chatUser!.value.actionBy!)
+                                    : 0,
                                 actionType: 1,
                                 attachment: Attachment(),
-                                chatId: chatId!,
+                                chatId: chatUser!.value.chatId,
                                 contentType: "TEXT",
-                                eId: int.parse(eId!),
+                                eId: int.parse(chatUser!.value.eId!),
                                 message: msgController.text));
 
                             setState(() {
@@ -514,7 +553,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   }
 
   // ignore: non_constant_identifier_names
-  ChatUtilMessage(ChatMessage message, List chatAgent) {
+  ChatUtilMessage(ChatMessage message) {
     // print("ChatUtilMessage ${message.toString()}");
     var utilMsg = "", relativeMsg = "";
     if (message.actionType != "1" && message.actionType != "3") {
@@ -536,7 +575,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       if (message.actionType == "0") {
         utilMsg = relativeMsg;
       } else {
-        utilMsg = chatAgent[0].name.toString() + relativeMsg;
+        utilMsg = chatAgents[0].name! + relativeMsg;
         // if (chatAgent[0].name.toString() == "Medplus") {
         //   utilMsg = chatAgent[0].name.toString() + relativeMsg;
         // } else {
@@ -587,10 +626,10 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   }
 
   CheckType(index, url) {
-    if (messages![index].contentType == "TEXT") {
+    if (messages!.value[index].contentType == "TEXT") {
       var checkUrl = false;
       try {
-        checkUrl = Uri.parse(messages![index].messageContent!).isAbsolute;
+        checkUrl = Uri.parse(messages!.value[index].messageContent!).isAbsolute;
       } catch (Exc) {
         checkUrl = false;
       }
@@ -600,26 +639,26 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         return textPreview(index);
       }
     }
-    if (messages![index].contentType == "DOC") {
+    if (messages!.value[index].contentType == "DOC") {
       return UrlPreview(index);
     }
-    if (messages![index].contentType == "VIDEO") {
-      return videoPreview(messages![index]);
+    if (messages!.value[index].contentType == "VIDEO") {
+      return videoPreview(messages!.value[index]);
     }
 
-    if (messages![index].contentType == "IMAGE") {
-      return imagePreview(messages![index]);
+    if (messages!.value[index].contentType == "IMAGE") {
+      return imagePreview(messages!.value[index]);
     }
-    // if (messages![index].contentType == "DOC") {
+    // if (messages!.value[index].contentType == "DOC") {
     //   return docPreview(index, url);
     // }
 
-    if (messages![index].isUrl == "") {
+    if (messages!.value[index].isUrl == "") {
       return (UrlPreview(index));
     } else {
       var checkUrl = false;
       try {
-        checkUrl = Uri.parse(messages![index].messageContent!).isAbsolute;
+        checkUrl = Uri.parse(messages!.value[index].messageContent!).isAbsolute;
       } catch (Exc) {
         checkUrl = false;
       }
@@ -1101,18 +1140,21 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                       Attachment attachment =
                           await uploadSelectedFile(localFileData) ??
                               new Attachment();
-
+                      print("attachment");
                       if (attachment.url != null) {
                         sendmessage(SendMessage(
-                          action: actionBy != ""
+                          action: isAlreadyPicked
                               ? "customerReplyChat"
                               : "customerStartChat",
-                          actionBy: actionBy != "" ? int.parse(actionBy!) : 0,
+                          actionBy: chatUser!.value.actionBy != ""
+                              ? int.parse(chatUser!.value.actionBy!)
+                              : 0,
                           actionType: 1,
                           attachment: attachment,
-                          chatId: chatId!,
+                          message: "Hi",
+                          chatId: chatUser!.value.chatId!,
                           contentType: attachment.type,
-                          eId: int.parse(eId!),
+                          eId: int.parse(chatUser!.value.eId!),
                         ));
                         setState(() {
                           Navigator.pop(dialogContext1!);
@@ -1188,12 +1230,12 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   }
 
   Widget UrlPreview(index) {
-    String? urlText = messages![index].messageContent != ""
-        ? messages![index].messageContent
-        : messages![index].attachment!.name;
-    String? urlLink = messages![index].messageContent != ""
-        ? messages![index].messageContent
-        : messages![index].attachment!.url;
+    String? urlText = messages!.value[index].messageContent != ""
+        ? messages!.value[index].messageContent
+        : messages!.value[index].attachment!.name;
+    String? urlLink = messages!.value[index].messageContent != ""
+        ? messages!.value[index].messageContent
+        : messages!.value[index].attachment!.url;
 
     return GestureDetector(
       child: Align(
@@ -1203,7 +1245,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                 decoration: TextDecoration.underline, color: Colors.blue)),
       ),
       onTap: () async {
-        if (messages![index].messageContent != "") {
+        if (messages!.value[index].messageContent != "") {
           if (await canLaunch(urlLink!)) launch(urlLink);
         } else {
           BuildContext? dialogContex1;
@@ -1234,8 +1276,10 @@ class _ChatDetailPageState extends State<ChatDetailPage>
             },
           );
           var tempPath = await StoredtoFile(
-              messages![index].attachment!.url!.toString(),
-              messages![index].attachment!.name.toString().replaceAll(' ', ''));
+              messages!.value[index].attachment!.url!.toString(),
+              messages!.value[index].attachment!.name
+                  .toString()
+                  .replaceAll(' ', ''));
 
           String path = tempPath.toString();
 
@@ -1250,10 +1294,10 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   }
 
   Widget textPreview(index) {
-    print("Message Status${messages![index].status}");
-    String? temp = messages![index].messageContent;
+    print("Message Status${messages!.value[index].status}");
+    String? temp = messages!.value[index].messageContent;
     return Column(
-        crossAxisAlignment: messages![index].actionType == "1"
+        crossAxisAlignment: messages!.value[index].actionType == "1"
             ? CrossAxisAlignment.start
             : CrossAxisAlignment.end,
         children: [
@@ -1261,7 +1305,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
             Text(
               temp!,
               //overflow: TextOverflow.clip,
-              textAlign: messages![index].actionType == "1"
+              textAlign: messages!.value[index].actionType == "1"
                   ? TextAlign.left
                   : TextAlign.right,
               softWrap: true,
@@ -1272,9 +1316,9 @@ class _ChatDetailPageState extends State<ChatDetailPage>
             margin: const EdgeInsets.only(top: 5.0, left: 10),
             child: Row(mainAxisSize: MainAxisSize.min, children: [
               Icon(
-                messages![index].status == "0"
+                messages!.value[index].status == "0"
                     ? const IconData(0xe73b, fontFamily: 'MaterialIcons')
-                    : (messages![index].status == "2"
+                    : (messages!.value[index].status == "2"
                         ? const IconData(0xe1f7, fontFamily: 'MaterialIcons')
                         : const IconData(0xe1f6, fontFamily: 'MaterialIcons')),
                 size: 10,
@@ -1282,9 +1326,9 @@ class _ChatDetailPageState extends State<ChatDetailPage>
               ),
               const SizedBox(width: 5),
               Text(
-                ConvertTime(messages![index].actedOn.toString()),
+                ConvertTime(messages!.value[index].actedOn.toString()),
                 textScaleFactor: 0.7,
-                textAlign: messages![index].actionType == "1"
+                textAlign: messages!.value[index].actionType == "1"
                     ? TextAlign.left
                     : TextAlign.right,
               ),
@@ -1375,7 +1419,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 
   Widget docPreview(index, url) {
     // String _image1=_image;
-    String? temp = messages![index].messageContent;
+    String? temp = messages!.value[index].messageContent;
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -1443,158 +1487,161 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     }
   }
 
-  socketMsgReceive() {
-    print("socketMsgReceive isSocketConnection $isSocketConnection");
-    var message1;
+  // socketMsgReceive() {
+  //   print("socketMsgReceive isSocketConnection $isSocketConnection");
+  //   var message1;
 
-    // if (!chatPageSocket.hasListener) {
-    //   print("chatPageSocket socket is not listener");
-    //   chatPageSocket = bSubject;
-    // }
-    // if (chatPageSocket.isClosed) {
-    //   mainSocket.close();
-    //   chatPageSocket = bSubject;
-    // }
-    if (mainSubscription!.isPaused) {
-      getSubscribe();
-    }
+  //   // if (!chatPageSocket.hasListener) {
+  //   //   print("chatPageSocket socket is not listener");
+  //   //   chatPageSocket = bSubject;
+  //   // }
+  //   // if (chatPageSocket.isClosed) {
+  //   //   mainSocket.close();
+  //   //   chatPageSocket = bSubject;
+  //   // }
+  //   // if (mainSubscription!.isPaused) {
+  //   //   getSubscribe();
+  //   // }
 
-    mainSubscription!.onData((data) {
-      message1 = json.decode(data);
-      print("ChatPageMessage ${data.toString()}");
-      if (message1["action"] == "onOpen") {
-        // connected = true;
+  //   chatDetailSubscription!.onData((data) async {
+  //     message1 = json.decode(data);
+  //     print("ChatPageMessage ${data.toString()}");
+  //     if (message1["action"] == "onOpen") {
+  //       // connected = true;
 
-        print("Connection establised.");
-      } else if (message1["action"] == "customerReplyChat") {
-        print("Message received Socket");
-        var json = SocketResponse.fromJson(message1);
-        List<ChatMessage> k = json.content![0].response!.chat!.messages!;
+  //       print("Connection establised.");
+  //       isSocketConnection = true;
+  //     } else if (message1["action"] == "customerReplyChat") {
+  //       print("Message received Socket");
+  //       var json = SocketResponse.fromJson(message1);
+  //       List<ChatMessage> k = json.content![0].response!.chat!.messages!.value;
 
-        messages!.addAll(k);
-        setState(() {
-          WidgetsBinding.instance?.removeObserver(this);
-          print(k[0].contentType);
-          if (k[0].contentType != "TEXT") {
-            _scrollToEnd(0);
-          } else {
-            _scrollToEnd(0);
-          }
-          setState(() {
-            // _onKeyboardChanged(false);
-            WidgetsBinding.instance?.removeObserver(this);
-          });
-        });
-      } else if (message1["action"] == "agentReplyChat") {
-        print("Message sent Socket");
-        print(message1.toString());
-        print(userdata!.name);
-        var json = SocketResponse.fromJson(message1);
-        if (json.content![0].response!.users![1].name == userdata!.name) {
-          List<ChatMessage> k = json.content![0].response!.chat!.messages!;
+  //       messages!.value.addAll(k);
+  //       setState(() {
+  //         WidgetsBinding.instance?.removeObserver(this);
+  //         print(k[0].contentType);
+  //         if (k[0].contentType != "TEXT") {
+  //           _scrollToEnd(0);
+  //         } else {
+  //           _scrollToEnd(0);
+  //         }
+  //         setState(() {
+  //           // _onKeyboardChanged(false);
+  //           WidgetsBinding.instance?.removeObserver(this);
+  //         });
+  //       });
+  //     } else if (message1["action"] == "agentReplyChat") {
+  //       print("Message sent Socket");
+  //       print(message1.toString());
+  //       print(userdata!.name);
+  //       var json = SocketResponse.fromJson(message1);
+  //       if (json.content![0].response!.users![1].name == userdata!.name) {
+  //         List<ChatMessage> k = json.content![0].response!.chat!.messages!.value;
 
-          messages!.addAll(k);
-          //setState(() {});
+  //         messages!.value.addAll(k);
+  //         //setState(() {});
 
-          setState(() {
-            WidgetsBinding.instance?.removeObserver(this);
-            if (k[0].contentType != "TEXT")
-              _scrollToEnd(0);
-            else
-              _scrollToEnd(0);
-          });
-          print("haai");
-        }
-      } else if (message1["action"] == "customerStartChat") {
-        print("Customer Start Chat");
-        var json = SocketResponse.fromJson(message1);
-        List<ChatMessage> k = json.content![0].response!.chat!.messages!;
-        print(message1.toString());
-        if (json.content!.elementAt(0).response!.users!.elementAt(0).name ==
-            userdata!.name) {
-          messages!.addAll(k);
-          setState(() {
-            WidgetsBinding.instance?.removeObserver(this);
-            if (k[0].contentType != "TEXT") {
-              _scrollToEnd(0);
-            } else {
-              _scrollToEnd(0);
-            }
-          });
-        }
-      } else if (message1["action"] == "agentPickupChat") {
-        var json = SocketResponse.fromJson(message1);
-        var chatId = json.content![0].response!.chat!.chatId;
-        List<ChatMessage> k = json.content![0].response!.chat!.messages!;
-        List<ChatAgent> m = json.content![0].response!.users!;
-        actionBy =
-            json.content![0].response!.chat!.messages![0].actionBy.toString();
-        print(message1.toString());
-        // if (json.content!.elementAt(0).response!.users!.elementAt(1).name ==
-        //     userdata!.name) {
-        messages!.addAll(k);
-        chatAgents = m.cast<ChatAgent>();
-        setState(() {
-          WidgetsBinding.instance?.removeObserver(this);
-          if (k[0].contentType != "TEXT") {
-            _scrollToEnd(0);
-          } else {
-            _scrollToEnd(0);
-          }
-        });
+  //         setState(() {
+  //           WidgetsBinding.instance?.removeObserver(this);
+  //           if (k[0].contentType != "TEXT")
+  //             _scrollToEnd(0);
+  //           else
+  //             _scrollToEnd(0);
+  //         });
+  //         print("haai");
+  //       }
+  //     } else if (message1["action"] == "customerStartChat") {
+  //       print("Customer Start Chat");
+  //       var json = SocketResponse.fromJson(message1);
+  //       List<ChatMessage> k = json.content![0].response!.chat!.messages!.value;
+  //       print(message1.toString());
+  //       if (json.content!.elementAt(0).response!.users!.elementAt(0).name ==
+  //           userdata!.name) {
+  //         messages!.value.addAll(k);
+  //         setState(() {
+  //           WidgetsBinding.instance?.removeObserver(this);
+  //           if (k[0].contentType != "TEXT") {
+  //             _scrollToEnd(0);
+  //           } else {
+  //             _scrollToEnd(0);
+  //           }
+  //         });
+  //       }
+  //     } else if (message1["action"] == "agentPickupChat") {
+  //       var json = SocketResponse.fromJson(message1);
+  //       var chatId = json.content![0].response!.chat!.chatId;
+  //       List<ChatMessage> k = json.content![0].response!.chat!.messages!.value;
+  //       List<ChatAgent> m = json.content![0].response!.users!;
+  //       actionBy =
+  //           json.content![0].response!.chat!.messages!.value[0].actionBy.toString();
+  //       print(message1.toString());
+  //       // if (json.content!.elementAt(0).response!.users!.elementAt(1).name ==
+  //       //     userdata!.name) {
+  //       messages!.value.addAll(k);
+  //       chatAgents = m.cast<ChatAgent>();
 
-        // }
-        print("agentPickupChat");
-      } else if (message1["action"] == "agentEndChat") {
-        var json = SocketResponse.fromJson(message1);
-        var chatId = json.content![0].response!.chat!.chatId;
-        List<ChatMessage>? k = json.content![0].response!.chat!.messages!;
+  //       prefs1!.setBool('chatCreated', true);
+  //       setState(() {
+  //         WidgetsBinding.instance?.removeObserver(this);
+  //         if (k[0].contentType != "TEXT") {
+  //           _scrollToEnd(0);
+  //         } else {
+  //           _scrollToEnd(0);
+  //         }
+  //       });
 
-        if (chatId == userdata!.chatId) {
-          List<ChatAgent> m = json.content![0].response!.users!;
-          actionBy =
-              json.content![0].response!.chat!.messages![0].actionBy.toString();
-          messages!.addAll(k);
-          chatAgents = m.cast<ChatAgent>();
-          setState(() {
-            WidgetsBinding.instance?.removeObserver(this);
-            if (k[0].contentType != "TEXT") {
-              _scrollToEnd(0);
-            } else {
-              _scrollToEnd(0);
-            }
-          });
-        }
-        print("agentEndCht");
-      } else if (message1 == "waitingTransferAccept") {
-        print("waitingTransferAccept");
-      } else if (message1["action"] == "chatError") {
-        print("waitingTransferAccept");
-        ChatMessage k = ChatMessage(
-            messageContent: "Please wait until the Agent has Pickup a Chat",
-            messageType: "receiver",
-            isUrl: false,
-            contentType: "MSG",
-            url: url,
-            actionBy: actionBy,
-            attachment: attachment,
-            actionType: "3",
-            actedOn: DateTime.now().toUtc().toString(),
-            eId: eId);
+  //       // }
+  //       print("agentPickupChat");
+  //     } else if (message1["action"] == "agentEndChat") {
+  //       var json = SocketResponse.fromJson(message1);
+  //       var chatId = json.content![0].response!.chat!.chatId;
+  //       List<ChatMessage>? k = json.content![0].response!.chat!.messages!.value;
 
-        messages!.add(k);
-        setState(() {
-          WidgetsBinding.instance?.removeObserver(this);
+  //       if (chatId == userdata!.chatId) {
+  //         List<ChatAgent> m = json.content![0].response!.users!;
+  //         actionBy =
+  //             json.content![0].response!.chat!.messages!.value[0].actionBy.toString();
+  //         messages!.value.addAll(k);
+  //         chatAgents = m.cast<ChatAgent>();
+  //         setState(() {
+  //           WidgetsBinding.instance?.removeObserver(this);
+  //           if (k[0].contentType != "TEXT") {
+  //             _scrollToEnd(0);
+  //           } else {
+  //             _scrollToEnd(0);
+  //           }
+  //         });
+  //       }
+  //       print("agentEndCht");
+  //     } else if (message1 == "waitingTransferAccept") {
+  //       print("waitingTransferAccept");
+  //     } else if (message1["action"] == "chatError") {
+  //       print("waitingTransferAccept");
+  //       ChatMessage k = ChatMessage(
+  //           messageContent: "Please wait until the Agent has Pickup a Chat",
+  //           messageType: "receiver",
+  //           isUrl: false,
+  //           contentType: "MSG",
+  //           url: url,
+  //           actionBy: actionBy,
+  //           attachment: attachment,
+  //           actionType: "3",
+  //           actedOn: DateTime.now().toUtc().toString(),
+  //           eId: eId);
 
-          setState(() {
-            _scrollToEnd(0);
-            // _onKeyboardChanged(false);
-            WidgetsBinding.instance?.removeObserver(this);
-          });
-        });
-      }
-    });
-  }
+  //       messages!.value.add(k);
+  //       setState(() {
+  //         WidgetsBinding.instance?.removeObserver(this);
+
+  //         setState(() {
+  //           _scrollToEnd(0);
+  //           // _onKeyboardChanged(false);
+  //           WidgetsBinding.instance?.removeObserver(this);
+  //         });
+  //       });
+  //     }
+  //   });
+  // }
 
   Widget toast() {
     return Container(child: CircularProgressIndicator());

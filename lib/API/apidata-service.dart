@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:twixor_customer/helper_files/utilities_files.dart';
+import 'package:twixor_customer/models/SavedDataModel.dart';
 import 'package:twixor_customer/models/chatMessageModel.dart';
 import 'package:twixor_customer/models/chatUsersModel.dart';
 import 'package:twixor_customer/main.dart';
@@ -20,6 +21,7 @@ late String userChatId;
 bool isValidToken = false;
 
 late SharedPreferences prefs;
+ListView? listView;
 
 String? authToken;
 bool isVisible = true;
@@ -35,35 +37,80 @@ getTokenApi() async {
   return authToken;
 }
 
-Future<ChatUsers?> getChatUserInfo(BuildContext context, String ChatId) async {
+////////////////////////////////////////////////////////
+Future<bool> _checkPrefs() async {
+  var tempCustId, tempEid;
+
+  prefs = await SharedPreferences.getInstance();
+  tempCustId = prefs.getString('customerId') ?? "";
+  tempEid = prefs.getString('eId') ?? "";
+  authToken = prefs.getString('authToken') ?? "";
+  //prefs.setString('title', MainPageTitle);
+  if (tempCustId == "" && tempEid == "") {
+    await clearToken();
+    prefs.setString('customerId', userCustomerId);
+    prefs.setString('eId', userEid);
+    prefs.setString('title', MainPageTitle);
+    authToken = await getTokenApi() ?? "";
+    prefs.setString('authToken', authToken!);
+
+    return await checktoken() ? true : await _checkPrefs();
+  } else if (tempCustId == userCustomerId && tempEid == userEid) {
+    if (authToken == "") {
+      authToken = await getTokenApi() ?? "";
+      prefs.setString('authToken', authToken!);
+      return await checktoken() ? true : await _checkPrefs();
+    } else {
+      return await checktoken() ? true : await _checkPrefs();
+    }
+  } else if (tempCustId != userCustomerId || tempEid != userEid) {
+    await clearToken();
+    prefs.setString('customerId', userCustomerId);
+    prefs.setString('eId', userEid);
+    authToken = await getTokenApi() ?? "";
+    prefs.setString('authToken', authToken!);
+    return await checktoken() ? true : await _checkPrefs();
+  } else {
+    return await checktoken() ? true : await _checkPrefs();
+  }
+}
+///////////////////////////////////////////////////////
+
+getChatUserInfo(String ChatId) async {
   var response = await http.get(Uri.parse(url + userEid + '/chat/' + ChatId),
       headers: {"authentication-token": await getTokenApi()});
-  ChatUsers? chatUserData;
+
   print(response.headers.toString());
   if (response.statusCode == 200) {
     var obj = checkApiResponse(response.body.replaceAll("\$", ""));
     try {
-      var chatUser = obj["response"]["chat"];
+      var tempUser = obj["response"]["chat"];
       List chatuserDetails = obj["response"]["users"];
-      chatUser["chatuserDetails"] = chatuserDetails;
+      tempUser["chatuserDetails"] = chatuserDetails;
+      chatuserDetails.forEach((element) {
+        chatAgents.add(ChatAgent.fromJson(element));
+      });
+      //chatAgents = ChatAgent.fromJson(chatuserDetails) as List<ChatAgent>;
       var oh = obj["response"];
       print(obj["response"]["chat"].runtimeType);
-      List<ChatMessage> messages = [];
-      chatUserData = ChatUsers.fromJson(chatUser);
-      return chatUserData;
+
+      chatUser!.value = ChatUsers.fromJson(tempUser);
+      print(chatUser!.value.toJson());
+      return true;
+
+      ;
     } catch (Exp) {
       clearToken();
-      ErrorAlert(context, "Session TimeOut");
+      // ErrorAlert(context, "Session TimeOut");
       await customerRegisterInfo();
     }
-    return chatUserData;
   } else {
     clearToken();
     throw ("SessionTimeOut");
   }
 }
 
-newChatCreate(BuildContext context) async {
+newChatCreate() async {
   var map = Map<String, dynamic>();
   map['stickySession'] = 'false';
 
@@ -82,14 +129,20 @@ newChatCreate(BuildContext context) async {
       var obj = checkApiResponse(response.body.replaceAll("\$", ""));
       var chatId = obj["response"]["chatId"];
       print("Chat Id generated");
+      //websocket resume
       return chatId.toString();
     } catch (Exp) {
-      ErrorAlert(context, "Session TimeOutError");
+      // ErrorAlert(context, "Session TimeOutError");
     }
   } else {
     clearToken();
     isValidToken = false;
-    customerRegisterInfo();
+    //websocket pause
+    //loader
+    var token = customerRegisterInfo();
+    if (token) {
+      newChatCreate();
+    }
     throw ("New Chat Creation Failed");
   }
 }
@@ -123,45 +176,60 @@ customerRegisterInfo() async {
   }
 }
 
-getChatList(BuildContext context) async {
-  // https://aim.twixor.com/c/enterprises/103/chats
-  List<ChatUsers> chatUsers = [];
-  var tempUrl = APP_URL +
-      'c/enterprises/chat/summary?fromDate=2019-02-16T06:34:16.859Z'; //url + userEid + '/chats
-  final response =
-      await http.get(Uri.parse(url + userEid + '/chats'), headers: {
-    'authentication-token': await getTokenApi(),
-    'Content-Type': 'application/x-www-form-urlencoded'
-  });
+// getChatList() async {
+//   // https://aim.twixor.com/c/enterprises/103/chats
+//   List<ChatUsers> chatUsers = [];
+//   var tempUrl = APP_URL +
+//       'c/enterprises/chat/summary?fromDate=2019-02-16T06:34:16.859Z'; //url + userEid + '/chats
+//   final response =
+//       await http.get(Uri.parse(url + userEid + '/chats'), headers: {
+//     'authentication-token': await getTokenApi(),
+//     'Content-Type': 'application/x-www-form-urlencoded'
+//   });
 
-  print(response.headers.toString());
-  if (response.statusCode == 200) {
-    isValidToken = true;
-    print(response.body.toString());
-    var obj = checkApiResponse(response.body.replaceAll("\$", ""));
-    //json.decode(response.body.replaceAll("\$", ""));
-    try {
-      var chats = obj["response"]["chats"];
-      chats.forEach((v) {
-        chatUsers.add(ChatUsers.fromJson(v));
-        //print(v);
-      });
-      //throw ("getting Chat List Failed");
-      return chatUsers;
-    } catch (Exp) {
-      ErrorAlert(context, "getting Chat List Failed");
-      isValidToken = false;
-      //throw ("getting Chat List Failed");
-      return getChatList(context);
-    }
-  } else {
-    isValidToken = false;
-    clearToken();
-    await getTokenApi();
+//   print(response.headers.toString());
+//   if (response.statusCode == 200) {
+//     isValidToken = true;
+//     print(response.body.toString());
+//     var obj = checkApiResponse(response.body.replaceAll("\$", ""));
+//     //json.decode(response.body.replaceAll("\$", ""));
+//     try {
+//       var chats = obj["response"]["chats"];
+//       if (chats.length > 0) {
+//         chats.forEach((v) {
+//           chatUsers.add(ChatUsers.fromJson(v));
 
-    return getChatList(context);
-  }
-}
+//           //print(v);
+//         });
+//       }
+
+//       //throw ("getting Chat List Failed");
+//       chatUsers.add(ChatUsers.fromJson(tempChatUser));
+//       return chatUsers;
+//     } catch (Exp) {
+//       // ErrorAlert(context, "getting Chat List Failed");
+//       isValidToken = false;
+
+//       //throw ("getting Chat List Failed");
+//       return chatUsers;
+//       //getChatList();
+//     }
+//   } else {
+//     isValidToken = false;
+//     clearToken();
+//     await getTokenApi();
+
+//     return chatUsers;
+//     getChatList();
+//   }
+// }
+// session start --> user register --> token --> chat --> chat close --> session active --> new chat --> check token from localstorage --> customerStartChat --> success --> live chat --> failure --> loader --> re-register --> get token
+
+//-->customerStartChat --> attachment
+
+//chatCreated : false --> clicked chat creation --> --> chatId --> chatCreatd : true --> chat(localStorage chatId == agentEndChat ChatId) close (inactive/agent close) --> chatCreated : false
+
+//sendMessage common , navigator common
 
 checktoken() async {
 //url + user + '/chats

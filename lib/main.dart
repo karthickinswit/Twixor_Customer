@@ -9,6 +9,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:twixor_customer/HomePage.dart';
 import 'package:twixor_customer/chatDetailPage.dart';
+import 'package:twixor_customer/models/SavedDataModel.dart';
 
 import 'package:twixor_customer/models/chatUsersModel.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -48,43 +49,6 @@ void main() {
   ));
 }
 
-Future<bool> _checkPrefs() async {
-  var tempCustId, tempEid;
-
-  prefs = await SharedPreferences.getInstance();
-  tempCustId = prefs.getString('customerId') ?? "";
-  tempEid = prefs.getString('eId') ?? "";
-  authToken = prefs.getString('authToken') ?? "";
-  //prefs.setString('title', MainPageTitle);
-  if (tempCustId == "" && tempEid == "") {
-    await clearToken();
-    prefs.setString('customerId', userCustomerId);
-    prefs.setString('eId', userEid);
-    prefs.setString('title', MainPageTitle);
-    authToken = await getTokenApi() ?? "";
-    prefs.setString('authToken', authToken!);
-
-    return await checktoken() ? true : await _checkPrefs();
-  } else if (tempCustId == userCustomerId && tempEid == userEid) {
-    if (authToken == "") {
-      authToken = await getTokenApi() ?? "";
-      prefs.setString('authToken', authToken!);
-      return await checktoken() ? true : await _checkPrefs();
-    } else {
-      return await checktoken() ? true : await _checkPrefs();
-    }
-  } else if (tempCustId != userCustomerId || tempEid != userEid) {
-    await clearToken();
-    prefs.setString('customerId', userCustomerId);
-    prefs.setString('eId', userEid);
-    authToken = await getTokenApi() ?? "";
-    prefs.setString('authToken', authToken!);
-    return await checktoken() ? true : await _checkPrefs();
-  } else {
-    return await checktoken() ? true : await _checkPrefs();
-  }
-}
-
 class CustomerApp extends StatelessWidget {
   String customerId;
   String eId;
@@ -101,6 +65,8 @@ class CustomerApp extends StatelessWidget {
 
   late SharedPreferences prefs;
 
+  get refresh => null;
+  @override
   @override
   Widget build(BuildContext context) {
     // print("ManPageTitile ${ThemeClass().MainPageTitile}");
@@ -108,8 +74,9 @@ class CustomerApp extends StatelessWidget {
     userCustomerId = customerId;
     userEid = eId;
     MainPageTitle = mainPageTitle;
-    getSubscribe();
+    // getSubscribe();
     getPref();
+    //SocketConnect();
 
     return WillPopScope(
         //////////////////////////////////////////////
@@ -118,8 +85,10 @@ class CustomerApp extends StatelessWidget {
               content: Text('The System Back Button is Deactivated')));
           return false;
         },
-        child: MaterialApp(
-            theme: customTheme, title: "Twixor", home: MyHomePage()));
+        child: SocketConnect() != false
+            ? MaterialApp(
+                theme: customTheme, title: "Twixor", home: const MyHomePage())
+            : const CircularProgressIndicator());
   }
 
   getPref() async {
@@ -134,6 +103,7 @@ class CustomerApp extends StatelessWidget {
     // }
     prefs = await SharedPreferences.getInstance();
     prefs.setString('title', mainPageTitle);
-    await SocketConnect();
+
+    getSubscribe();
   }
 }
