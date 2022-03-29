@@ -15,7 +15,7 @@ import 'package:twixor_customer/models/chatUsersModel.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:web_socket_channel/io.dart';
 
-import 'API/apidata-service.dart';
+import 'package:twixor_customer/API/apidata-service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'helper_files/Websocket.dart';
@@ -79,14 +79,44 @@ class CustomerApp extends StatelessWidget {
     //SocketConnect();
 
     return WillPopScope(
-        //////////////////////////////////////////////
-        onWillPop: () async {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text('The System Back Button is Deactivated')));
-          return false;
-        },
-        child: MaterialApp(
-            theme: customTheme, title: "Twixor", home: const MyHomePage()));
+      //////////////////////////////////////////////
+      onWillPop: () async {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('The System Back Button is Deactivated')));
+        return false;
+      },
+      child: FutureBuilder<bool>(
+          future: _checkPrefs(),
+          builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+            print(const AsyncSnapshot.nothing().toString());
+            // if (snapshot.connectionState == ConnectionState.none) {
+
+            // }
+
+            if (snapshot.connectionState == ConnectionState.done) {
+              if (snapshot.data == true) {
+                return MaterialApp(
+                    theme: customTheme,
+                    title: "Twixor",
+                    home: const MyHomePage());
+              } else {
+                return MaterialApp(
+                    theme: customTheme,
+                    title: "Twixor",
+                    home: Center(
+                      child: CircularProgressIndicator(),
+                    ));
+              }
+            } else {
+              return MaterialApp(
+                  theme: customTheme,
+                  title: "Twixor",
+                  home: Center(
+                    child: CircularProgressIndicator(),
+                  ));
+            }
+          }),
+    );
   }
 
   getPref() async {
@@ -121,6 +151,43 @@ class CustomerApp extends StatelessWidget {
         newMessageCount: "");
   }
 
+  Future<bool> _checkPrefs() async {
+    var tempCustId, tempEid;
+
+    prefs = await SharedPreferences.getInstance();
+    tempCustId = prefs.getString('customerId') ?? "";
+    tempEid = prefs.getString('eId') ?? "";
+    authToken = prefs.getString('authToken') ?? "";
+    //prefs.setString('title', MainPageTitle);
+    if (tempCustId == "" && tempEid == "") {
+      clearToken();
+      prefs.setString('customerId', userCustomerId);
+      prefs.setString('eId', userEid);
+      prefs.setString('title', MainPageTitle);
+      authToken = await getTokenApi() ?? "";
+      prefs.setString('authToken', authToken!);
+
+      return true;
+    } else if (tempCustId == userCustomerId && tempEid == userEid) {
+      if (authToken == "") {
+        authToken = await getTokenApi() ?? "";
+        prefs.setString('authToken', authToken!);
+        return true;
+      } else {
+        return true;
+      }
+    } else if (tempCustId != userCustomerId || tempEid != userEid) {
+      clearToken();
+      prefs.setString('customerId', userCustomerId);
+      prefs.setString('eId', userEid);
+      authToken = await getTokenApi() ?? "";
+      prefs.setString('authToken', authToken!);
+      return true;
+    } else {
+      return _checkPrefs();
+    }
+  }
+
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     switch (state) {
@@ -133,7 +200,7 @@ class CustomerApp extends StatelessWidget {
         break;
       case AppLifecycleState.resumed:
         print("App has been resumed");
-        // if (!isSocketConnection) await SocketConnect();
+        if (!isSocketConnection) SocketConnect();
         break;
     }
   }
