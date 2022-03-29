@@ -673,7 +673,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     } else {
       var checkUrl = false;
       try {
-        checkUrl = Uri.parse(messages!.value[index].messageContent!).isAbsolute;
+        checkUrl = Uri.parse(messages!.value[index].url!).isAbsolute;
       } catch (Exc) {
         checkUrl = false;
       }
@@ -1245,6 +1245,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   }
 
   Widget UrlPreview(index) {
+    if (messages!.value[index].messageContent != "" &&
+        messages!.value[index].attachment!.url != "") {}
     String? urlText = messages!.value[index].messageContent != ""
         ? messages!.value[index].messageContent
         : messages!.value[index].attachment!.name;
@@ -1254,11 +1256,15 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 
     return GestureDetector(
       child: Align(
-        alignment: Alignment.topRight,
-        child: Text(urlText!,
-            style: const TextStyle(
-                decoration: TextDecoration.underline, color: Colors.blue)),
-      ),
+          alignment: Alignment.topRight,
+          child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [
+            Text(messages!.value[index].messageContent!,
+                style: const TextStyle(
+                    decoration: TextDecoration.none, color: Colors.black)),
+            Text(messages!.value[index].attachment!.url!,
+                style: const TextStyle(
+                    decoration: TextDecoration.underline, color: Colors.blue))
+          ])),
       onTap: () async {
         if (messages!.value[index].messageContent != "") {
           if (await canLaunch(urlLink!)) launch(urlLink);

@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'package:twixor_customer/chatDetailPage.dart';
-import 'package:twixor_customer/models/Attachmentmodel.dart';
 import 'package:twixor_customer/models/SavedDataModel.dart';
 
 import 'package:twixor_customer/models/chatUsersModel.dart';
@@ -131,7 +130,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     prefs = await SharedPreferences.getInstance();
     var storedchatId = prefs.getString('chatId');
 
-    print("storedChatID-->${storedchatId}");
+    print("storedChatID-->$storedchatId");
     if (storedchatId != null) {
       if (await getChatUserInfo(storedchatId)) {
         if (chatUser!.value.state == "2") {
@@ -146,17 +145,22 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               chatUser!.value.state != "3") {
             if (!isSocketConnection) SocketConnect();
             return chatUser;
-          } else
+          } else {
             return null;
+          }
         }
       }
-    } else
+    } else {
       return null;
+    }
   }
 
   checkClick() {
     if (!isAlreadyPicked) {
       initiateChat();
+    } else {
+      print("AlreadyClicked");
+      return;
     }
   }
 
@@ -174,7 +178,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     // prefs.setStringList('chatIds', chatIds!);
     // print(prefs?.getStringList("chatIds"));
     ChatId = chatId;
-    print("new Chat Id ${ChatId}");
+    print("new Chat Id $ChatId");
 
     if (ChatId != null) {
       ChatId != null
@@ -198,6 +202,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         // messages!.value = chatUser!.value.messages!;
         messages!.value = [];
         prefs.setString('chatId', chatUser!.value.chatId!);
+
         print(chatUser!.value.toJson());
         // await SocketConnect();
 
