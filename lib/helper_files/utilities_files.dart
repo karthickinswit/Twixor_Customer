@@ -114,7 +114,7 @@ StoredtoFile(String url, String filename) async {
     var response = await request.close();
     const folderName = "twixor_customer";
     var bytes = await consolidateHttpClientResponseBytes(response);
-    String dir = (await getApplicationSupportDirectory()).path;
+    String dir = (await getApplicationDocumentsDirectory()).path;
     final path = Directory('$dir/$folderName');
     //print(path.path);
     File file = File(path.path + '/$filename');
