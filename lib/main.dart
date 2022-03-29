@@ -174,6 +174,7 @@ class CustomerApp extends StatelessWidget {
         //prefs.setString('authToken', authToken!);
         return true;
       } else {
+        clearToken();
         return true;
       }
     } else if (tempCustId != userCustomerId || tempEid != userEid) {
