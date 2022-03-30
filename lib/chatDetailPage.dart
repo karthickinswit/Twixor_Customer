@@ -590,16 +590,12 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       if (message.actionType == "0") {
         utilMsg = relativeMsg;
       } else {
-        String temp = chatAgents
-            .where((element) {
-              print("Agent name $element");
-              return element.type == "MOC_CUSTOMER";
-            })
-            .first
-            .name
-            .toString();
+        Iterable<ChatAgent> temp = chatAgents.where((element) {
+          print("Agent name $element");
+          return element.type == "MOC_CUSTOMER";
+        });
         print("Agent name $temp");
-        utilMsg = temp + relativeMsg;
+        utilMsg = temp.iterator.current.name.toString() + relativeMsg;
         // if (chatAgent[0].name.toString() == "Medplus") {
         //   utilMsg = chatAgent[0].name.toString() + relativeMsg;
         // } else {
