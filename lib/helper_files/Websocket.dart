@@ -90,6 +90,7 @@ Future<bool> SocketConnect() async {
             chatAgents = m;
 
             isAlreadyPicked = true;
+            canCreateChat = false;
             //chatUser = m;
           }
           //       chatAgents = m.cast<ChatAgent>();
@@ -124,6 +125,7 @@ Future<bool> SocketConnect() async {
             // setState(() {});
             prefs.setString('chatId', "");
             isAlreadyPicked = false;
+            canCreateChat = true;
             //getCloseSocket();
           }
 
@@ -186,7 +188,7 @@ Future<bool> SocketConnect() async {
       onDone: () async {
         debugPrint('ws error onDone ${channel!.closeCode} ');
         isSocketConnection = false;
-        if (channel!.closeCode != 4001) {
+        if (channel!.closeCode != 4001 && channel!.closeCode != 1005) {
           clearToken();
           SocketConnect();
         }
@@ -237,7 +239,7 @@ getSubscribe() {
 
 getCloseSocket() async {
   print(channel);
-  channel!.sink.close(status.goingAway);
+  channel!.sink.close();
   print("Socket closed");
   isSocketConnection = false;
 }

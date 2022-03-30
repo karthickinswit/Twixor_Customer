@@ -21,6 +21,8 @@ List<ChatAgent> chatAgents = [];
 ValueNotifier<List<ChatMessage>>? messages = ValueNotifier([]);
 
 bool isAlreadyPicked = false;
+
+bool canCreateChat = false;
 ScrollController _controller = ScrollController(initialScrollOffset: 10);
 
 _scrollToEnd(int o) async {

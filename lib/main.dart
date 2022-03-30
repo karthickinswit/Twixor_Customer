@@ -166,12 +166,14 @@ class CustomerApp extends StatelessWidget {
       prefs.setString('customerId', userCustomerId);
       prefs.setString('eId', userEid);
       prefs.setString('title', MainPageTitle);
+      canCreateChat = true;
       //authToken = await getTokenApi() ?? "";
       //prefs.setString('authToken', authToken!);
 
       return true;
     } else if (tempCustId == userCustomerId && tempEid == userEid) {
       if (authToken == "") {
+        canCreateChat = false;
         //authToken = await getTokenApi() ?? "";
         //prefs.setString('authToken', authToken!);
         return true;
@@ -181,6 +183,7 @@ class CustomerApp extends StatelessWidget {
       }
     } else if (tempCustId != userCustomerId || tempEid != userEid) {
       clearToken();
+      canCreateChat = false;
       prefs.setString('customerId', userCustomerId);
       prefs.setString('eId', userEid);
       prefs.setString('chatId', '');

@@ -112,29 +112,61 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           print("CheckState--> ${chatUser!.value.toJson()}");
           isAlreadyPicked = true;
           if (!isSocketConnection) SocketConnect();
+          canCreateChat = false;
           return chatUser;
         } else {
           isAlreadyPicked = false;
+          canCreateChat = true;
           if ((chatUser!.value.chatId != "" ||
                   chatUser!.value.chatId != null) &&
               chatUser!.value.state != "3") {
             if (!isSocketConnection) SocketConnect();
+            canCreateChat = false;
             return chatUser;
           } else {
+            canCreateChat = true;
             return null;
           }
         }
       }
     } else {
+      canCreateChat = true;
       return null;
     }
   }
 
   checkClick() {
-    if (!isAlreadyPicked) {
+    print("Cancreate when CLick ${canCreateChat} ");
+    if (canCreateChat) {
       initiateChat();
     } else {
-      print("AlreadyClicked");
+      showDialog(
+          context: context,
+          barrierDismissible: true,
+          builder: (BuildContext context) {
+            return Dialog(
+              child: Container(
+                height: 50,
+                width: 120,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    // Icon(
+                    //     IconData(0xe8ac,
+                    //         fontFamily: 'MaterialIcons'),
+                    //     color: Colors.red),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      "Failed to create a New Chat",
+                      textScaleFactor: 1.0,
+                    ),
+                  ],
+                ),
+              ),
+            );
+          });
       return;
     }
   }
@@ -447,5 +479,23 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     print("MainSocketisClosed");
     super.dispose();
     // mainSocket!.sink.close();
+  }
+
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    switch (state) {
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.paused:
+      case AppLifecycleState.detached:
+        // await detachedCallBack();
+        print("App has Idle State");
+        getCloseSocket();
+        break;
+      case AppLifecycleState.resumed:
+        print("App has been resumed");
+        if (!isSocketConnection) SocketConnect();
+
+        break;
+    }
   }
 }

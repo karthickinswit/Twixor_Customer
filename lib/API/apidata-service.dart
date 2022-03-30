@@ -136,6 +136,7 @@ newChatCreate() async {
       chatUser!.value.chatId = chatId;
       //websocket resume
       if (isSocketConnection == false) await SocketConnect();
+      getCloseSocket();
       return chatId.toString();
     } catch (Exp) {
       // ErrorAlert(context, "Session TimeOutError");
