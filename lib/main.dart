@@ -204,7 +204,7 @@ class CustomerApp extends StatelessWidget {
         break;
       case AppLifecycleState.resumed:
         print("App has been resumed");
-        if (!isSocketConnection) SocketConnect();
+        //if (!isSocketConnection) SocketConnect();
         break;
     }
   }

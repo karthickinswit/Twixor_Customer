@@ -88,31 +88,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     //
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-
-    // These are the callbacks
-    switch (state) {
-      case AppLifecycleState.resumed:
-        // widget is resumed
-        print("HomePop-->Resumed");
-        break;
-      case AppLifecycleState.inactive:
-        // widget is inactive
-        print("HomePop-->Inactive");
-        break;
-      case AppLifecycleState.paused:
-        // widget is paused
-        print("HomePop-->Paused");
-        break;
-      case AppLifecycleState.detached:
-        print("HomePop-->Detached");
-        // widget is detached
-        break;
-    }
-  }
-
   pref() async {
     prefs = await SharedPreferences.getInstance();
     //prefs.setString('title', mainPageTitle);
@@ -472,5 +447,22 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     print("MainSocketisClosed");
     super.dispose();
     // mainSocket!.sink.close();
+  }
+
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    switch (state) {
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.paused:
+      case AppLifecycleState.detached:
+        // await detachedCallBack();
+        print("App has Idle State");
+        getCloseSocket();
+        break;
+      case AppLifecycleState.resumed:
+        print("App has been resumed");
+        //if (!isSocketConnection) SocketConnect();
+        break;
+    }
   }
 }
