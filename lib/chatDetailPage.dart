@@ -1257,7 +1257,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     return GestureDetector(
       child: Align(
           alignment: Alignment.topRight,
-          child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [
+          child: Column(mainAxisAlignment: MainAxisAlignment.end, children: [
             Text(messages!.value[index].messageContent!,
                 style: const TextStyle(
                     decoration: TextDecoration.none, color: Colors.black)),
