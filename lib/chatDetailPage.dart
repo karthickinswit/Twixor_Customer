@@ -1813,21 +1813,4 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         .catchError((err) => print('error : ' + err.toString()))
         .whenComplete(() {});
   }
-
-  @override
-  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
-    switch (state) {
-      case AppLifecycleState.inactive:
-      case AppLifecycleState.paused:
-      case AppLifecycleState.detached:
-        // await detachedCallBack();
-        print("App has Idle State");
-        getCloseSocket();
-        break;
-      case AppLifecycleState.resumed:
-        print("App has been resumed");
-        if (!isSocketConnection) SocketConnect();
-        break;
-    }
-  }
 }
