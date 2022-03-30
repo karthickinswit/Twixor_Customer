@@ -592,7 +592,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       } else {
         utilMsg = chatAgents
             .where((element) {
-              return element.name != chatUser!.value.name;
+              return element.type == "MOC_CUSTOMER";
             })
             .first
             .name!;

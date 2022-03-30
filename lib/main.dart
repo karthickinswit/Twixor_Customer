@@ -187,6 +187,7 @@ class CustomerApp extends StatelessWidget {
       prefs.setString('customerId', userCustomerId);
       prefs.setString('eId', userEid);
       prefs.setString('chatId', '');
+      canCreateChat = true;
       //authToken = await getTokenApi() ?? "";
       //prefs.setString('authToken', authToken!);
       return true;

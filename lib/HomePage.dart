@@ -159,7 +159,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                       width: 10,
                     ),
                     Text(
-                      "Failed to create a New Chat",
+                      "Cannot create new chat now!",
                       textScaleFactor: 1.0,
                     ),
                   ],
