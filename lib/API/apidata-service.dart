@@ -89,6 +89,8 @@ getChatUserInfo(String ChatId) async {
       List chatuserDetails = obj["response"]["users"];
       tempUser["chatuserDetails"] = chatuserDetails;
       chatuserDetails.forEach((element) {
+        print("Agnets");
+        print(element.toString());
         chatAgents.add(ChatAgent.fromJson(element));
       });
       //chatAgents = ChatAgent.fromJson(chatuserDetails) as List<ChatAgent>;

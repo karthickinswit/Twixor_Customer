@@ -88,6 +88,7 @@ Future<bool> SocketConnect() async {
                 json.content![0].response!.users![1].id.toString();
             chatUser!.notifyListeners();
             chatAgents = m;
+
             isAlreadyPicked = true;
             //chatUser = m;
           }
