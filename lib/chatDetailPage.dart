@@ -592,10 +592,10 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       } else {
         print(" ${chatAgents.toList()[0].name} ${chatAgents.toList()[1].name}");
         Iterable<ChatAgent> temp = chatAgents.where((element) {
-          print("Agent name $element");
+          print("Agent name ${element.name}");
           return element.type == "MOC_CUSTOMER";
         });
-        print("Agent name $temp");
+        print("Agent name ${temp.toList()[0].name}");
         utilMsg = temp.iterator.current.name.toString() + relativeMsg;
         // if (chatAgent[0].name.toString() == "Medplus") {
         //   utilMsg = chatAgent[0].name.toString() + relativeMsg;
