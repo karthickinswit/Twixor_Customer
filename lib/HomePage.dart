@@ -139,8 +139,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     //canCreateChat = true;
     print("Cancreate when CLick ${canCreateChat} ");
     if (canCreateChat) {
-      initiateChat();
       canCreateChat = false;
+      initiateChat();
     } else {
       showDialog(
           context: context,
