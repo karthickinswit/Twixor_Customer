@@ -137,6 +137,8 @@ newChatCreate() async {
       chatUser!.value.chatId = chatId;
       //websocket resume
       if (isSocketConnection == false) await SocketConnect();
+      chatCreationTime = DateTime.now();
+      prefs.setString('chatCreationTime', chatCreationTime!.toString());
 
       return chatId.toString();
     } catch (Exp) {

@@ -144,8 +144,7 @@ Future<bool> SocketConnect() async {
             messages!.notifyListeners();
             chatUser!.value.chatId = chatId;
             chatUser!.value.messageText = "You Started the chat!";
-            chatCreationTime = DateTime.now();
-            prefs.setString('chatCreationTime', chatCreationTime!.toString());
+
             chatUser!.notifyListeners();
             canCreateChat = false;
           }
