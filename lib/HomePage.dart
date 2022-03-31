@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import 'package:permission_handler/permission_handler.dart';
 
@@ -92,6 +93,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     prefs = await SharedPreferences.getInstance();
     //prefs.setString('title', mainPageTitle);
     MainPageTitle = prefs.getString('title')!;
+    chatCreationTime = DateTime.parse(prefs.getString('chatCreationTime')!);
 
     // if (mainSocket.hasListener) {
     // chatListSubscription = getSubscribe();
@@ -395,27 +397,51 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                               CrossAxisAlignment
                                                                   .start,
                                                           children: <Widget>[
-                                                            Text(
-                                                              chatUser!
-                                                                  .value.chatId
-                                                                  .toString(),
-                                                              style:
-                                                                  const TextStyle(
+                                                            Row(
+                                                              children: <
+                                                                  Widget>[
+                                                                Text(
+                                                                  userCustomerId
+                                                                      .toString(),
+                                                                  style: const TextStyle(
                                                                       fontSize:
-                                                                          16),
-                                                            ),
-                                                            const SizedBox(
-                                                              height: 6,
+                                                                          16,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w900),
+                                                                ),
+                                                                const SizedBox(
+                                                                  width: 6,
+                                                                ),
+                                                                chatCreationTime !=
+                                                                        null
+                                                                    ? Text(DateFormat(
+                                                                            'yyyy-MM-dd  kk:mm')
+                                                                        .format(
+                                                                            chatCreationTime!)
+                                                                        .toString())
+                                                                    : Text(DateFormat(
+                                                                            'yyyy-MM-dd  kk:mm')
+                                                                        .format(
+                                                                            DateTime.now())
+                                                                        .toString()),
+                                                                const SizedBox(
+                                                                  height: 6,
+                                                                ),
+                                                              ],
                                                             ),
                                                             Text(
                                                               chatUser!.value
                                                                   .messageText
                                                                   .toString(),
-                                                              style: TextStyle(
+                                                              style: const TextStyle(
                                                                   fontSize: 13,
-                                                                  color: Colors
-                                                                      .grey
-                                                                      .shade600,
+                                                                  color: Color
+                                                                      .fromARGB(
+                                                                          255,
+                                                                          53,
+                                                                          50,
+                                                                          50),
                                                                   fontWeight:
                                                                       FontWeight
                                                                           .normal),

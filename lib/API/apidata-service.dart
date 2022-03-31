@@ -18,6 +18,7 @@ String url = APP_URL + '/c/enterprises/';
 late String userEid;
 late String userCustomerId;
 late String userChatId;
+DateTime? chatCreationTime;
 
 bool isValidToken = false;
 
