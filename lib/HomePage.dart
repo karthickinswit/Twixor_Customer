@@ -160,7 +160,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                     //         fontFamily: 'MaterialIcons'),
                     //     color: Colors.red),
                     SizedBox(
-                      width: 10,
+                      width: 40,
                     ),
                     Text(
                       "Cannot create new chat now!",
@@ -411,7 +411,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                                               .w900),
                                                                 ),
                                                                 const SizedBox(
-                                                                  width: 20,
+                                                                  width: 80,
                                                                 ),
                                                                 chatCreationTime !=
                                                                         null
