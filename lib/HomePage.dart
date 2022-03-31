@@ -411,22 +411,32 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                                               .w900),
                                                                 ),
                                                                 const SizedBox(
-                                                                  width: 6,
+                                                                  width: 20,
                                                                 ),
                                                                 chatCreationTime !=
                                                                         null
-                                                                    ? Text(DateFormat(
-                                                                            'yyyy-MM-dd  kk:mm')
-                                                                        .format(
-                                                                            chatCreationTime!)
-                                                                        .toString())
+                                                                    ? Text(
+                                                                        DateFormat('yyyy-MM-dd  kk:mm')
+                                                                            .format(chatCreationTime!)
+                                                                            .toString(),
+                                                                        style: const TextStyle(
+                                                                            color: Color.fromARGB(
+                                                                                255,
+                                                                                32,
+                                                                                39,
+                                                                                43),
+                                                                            fontSize:
+                                                                                14,
+                                                                            fontWeight:
+                                                                                FontWeight.w400),
+                                                                      )
                                                                     : Text(DateFormat(
                                                                             'yyyy-MM-dd  kk:mm')
                                                                         .format(
                                                                             DateTime.now())
                                                                         .toString()),
                                                                 const SizedBox(
-                                                                  height: 6,
+                                                                  height: 20,
                                                                 ),
                                                               ],
                                                             ),
