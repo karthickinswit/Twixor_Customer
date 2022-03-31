@@ -136,9 +136,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   }
 
   checkClick() {
+    //canCreateChat = true;
     print("Cancreate when CLick ${canCreateChat} ");
     if (canCreateChat) {
       initiateChat();
+      canCreateChat = false;
     } else {
       showDialog(
           context: context,
@@ -181,6 +183,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     // if (isSocketConnection) {
     // SharedPreferences prefs = await SharedPreferences.getInstance();
     var chatId = await newChatCreate();
+    canCreateChat = false;
+
     // chatIds!.add(chatId);
     // prefs.setStringList('chatIds', chatIds!);
     // print(prefs?.getStringList("chatIds"));

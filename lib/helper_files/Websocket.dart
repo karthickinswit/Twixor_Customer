@@ -145,6 +145,7 @@ Future<bool> SocketConnect() async {
             chatUser!.value.chatId = chatId;
             chatUser!.value.messageText = "You Started the chat!";
             chatUser!.notifyListeners();
+            canCreateChat = false;
           }
           //         messages!.value.addAll(k);
           // print("mainPageMessage ${data.toString()}");
