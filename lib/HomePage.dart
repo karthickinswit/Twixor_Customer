@@ -105,27 +105,33 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   checkChatID() async {
     prefs = await SharedPreferences.getInstance();
-    var storedchatId = prefs.getString('chatId');
+    var storedchatId = prefs.getString('chatId') ?? "";
 
     print("storedChatID-->$storedchatId");
-    if (storedchatId != null) {
+    if (storedchatId != "") {
+      print("1-->${storedchatId.runtimeType}");
       if (await getChatUserInfo(storedchatId)) {
+        print("2-->");
         if (chatUser!.value.state == "2") {
           print("CheckState--> ${chatUser!.value.toJson()}");
           isAlreadyPicked = true;
           if (!isSocketConnection) SocketConnect();
+          print("3--> ${chatUser!.value.toJson()}");
           canCreateChat = false;
           return chatUser;
         } else {
           isAlreadyPicked = false;
           canCreateChat = true;
+          print("4--> ");
           if ((chatUser!.value.chatId != "" ||
                   chatUser!.value.chatId != null) &&
               chatUser!.value.state != "3") {
+            print("5--> ");
             if (!isSocketConnection) SocketConnect();
             canCreateChat = false;
             return chatUser;
           } else {
+            print("6--> ");
             canCreateChat = true;
             return null;
           }
