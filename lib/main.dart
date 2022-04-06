@@ -159,7 +159,6 @@ class CustomerApp extends StatelessWidget {
       print("MainConnection check-->${channel.hashCode}");
       // isSocketConnection = true;
       getCloseSocket();
-      SocketConnect();
     }
     //else {
     // }

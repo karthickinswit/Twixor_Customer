@@ -54,7 +54,6 @@ Future<bool> SocketConnect() async {
         message1 = json.decode(data);
         if (message1["action"] == "onOpen") {
           print("Connection establised.");
-          isSocketConnection = true;
         } else if (message1["action"] == "agentReplyChat") {
           var json = SocketResponse.fromJson(message1);
           var chatId = json.content![0].response!.chat!.chatId;
