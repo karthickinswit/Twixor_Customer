@@ -44,7 +44,7 @@ Future<bool> SocketConnect() async {
         //strmControl.add(event);
 
         var message1 = json.decode(data);
-        //print("Socket ErrMsg ${event.toString()}");
+        print("Socket Msg ${data.toString()}");
         // if (message1["action"] == "onOpen") {
         //   print("Connection establised.");
         //   isSocketConnection = true;
@@ -281,15 +281,15 @@ Future<void> sendmessage(SendMessage sendMessage) async {
   data["service"] = "";
 
   print(json.encode(data).toString());
-  print("Send ${channel.hashCode}");
+  // print("Send ${channel.hashCode}");
   channel!.sink.add(json.encode(data)); //send message to reciever channel
 }
 
 Future<void> updateMessageStatus(SendMessage sendMessage) async {
-  if (isSocketConnection == false) {
-    print("webSocket Page 289-->$isSocketConnection");
-    SocketConnect();
-  }
+  // if (isSocketConnection == false) {
+  //   print("webSocket Page 289-->$isSocketConnection");
+  //   SocketConnect();
+  // }
   var data = {};
   data["action"] = sendMessage.action; //"chatMessageStatus";
   data["actionIds"] = sendMessage.actiondIds;
@@ -298,7 +298,7 @@ Future<void> updateMessageStatus(SendMessage sendMessage) async {
   data["state"] = 2;
 
   print(json.encode(data));
-  print("Update ${channel.hashCode}");
+  // print("Update ${channel.hashCode}");
   channel!.sink.add(json.encode(data));
 }
 
