@@ -523,6 +523,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     // print("chatListSubscription dispose ${chatListSubscription.hashCode}");
     getCloseSocket();
     isSocketConnection = false;
+    print("HomePageConnection$isSocketConnection");
     print("MainSocketisClosed");
 
     super.dispose();
