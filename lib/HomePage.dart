@@ -127,13 +127,15 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           print("4--> ");
           if ((chatUser!.value.chatId != "" ||
                   chatUser!.value.chatId != null) &&
-              chatUser!.value.state != "3") {
+              chatUser!.value.state != "3" &&
+              chatUser!.value.state != "4") {
             print("5--> ");
             if (!isSocketConnection) SocketConnect();
             canCreateChat = false;
             return chatUser;
           } else {
             print("6--> ");
+            isAlreadyPicked = false;
             canCreateChat = true;
             return null;
           }
