@@ -84,7 +84,7 @@ getChatUserInfo(String ChatId) async {
       headers: {"authentication-token": await getTokenApi()});
 
   print(response.headers.toString());
-  sleep(const Duration(seconds: 2));
+  // sleep(const Duration(seconds: 2));
   if (response.statusCode == 200) {
     var obj = checkApiResponse(response.body.replaceAll("\$", ""));
     try {
