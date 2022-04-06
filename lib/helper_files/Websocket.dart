@@ -240,7 +240,8 @@ getSubscribe() {
 }
 
 getCloseSocket() async {
-  print(channel);
+  // print(channel);
+  print("CloseSocket-->${channel.hashCode}");
   channel!.sink.close();
   print("Socket closed");
   isSocketConnection = false;

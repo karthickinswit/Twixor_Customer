@@ -157,9 +157,9 @@ class CustomerApp extends StatelessWidget {
     isSocketConnection = false;
     if (channel != null) {
       print("MainConnection check-->${channel.hashCode}");
+      getCloseSocket();
     }
 
-    getCloseSocket();
     prefs = await SharedPreferences.getInstance();
     tempCustId = prefs.getString('customerId') ?? "";
     tempEid = prefs.getString('eId') ?? "";
