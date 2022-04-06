@@ -309,7 +309,6 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                   builder:
                       (BuildContext context, List<ChatMessage> value, child) {
                     print("notifyValue--> ${value}");
-                    _scrollToEnd();
 
                     return ListView.builder(
                       controller: _controller,
@@ -320,6 +319,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                       shrinkWrap: true,
                       itemBuilder: (context, index) {
                         // _scrollToEnd();
+                        _scrollToEnd();
 
                         List<String> messageIds = [];
                         messageIds
