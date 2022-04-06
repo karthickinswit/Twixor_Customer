@@ -154,10 +154,12 @@ class CustomerApp extends StatelessWidget {
 
   Future<bool> _checkPrefs() async {
     var tempCustId, tempEid;
-    isSocketConnection = false;
+
     if (channel != null) {
       print("MainConnection check-->${channel.hashCode}");
-      getCloseSocket();
+      isSocketConnection = true;
+    } else {
+      isSocketConnection = false;
     }
 
     prefs = await SharedPreferences.getInstance();
