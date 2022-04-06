@@ -112,7 +112,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     if (storedchatId != "") {
       // sleep(const Duration(seconds: 2));
       print("1-->${storedchatId.runtimeType}");
-      if (getChatUserInfo(storedchatId)) {
+      if (await getChatUserInfo(storedchatId)) {
         print("2-->");
         if (chatUser!.value.state == "2") {
           print("CheckState--> ${chatUser!.value.toJson()}");
