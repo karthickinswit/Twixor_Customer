@@ -50,7 +50,7 @@ Future<bool> SocketConnect() async {
         //   isSocketConnection = true;
         //   //return true;
         // }
-        print("Main PageMessage ${data.toString()}");
+        // print("Main PageMessage ${data.toString()}");
         message1 = json.decode(data);
         if (message1["action"] == "onOpen") {
           print("Connection establised.");
@@ -134,7 +134,7 @@ Future<bool> SocketConnect() async {
           //  if (index1 != null) chatUsers1.removeAt(index1);
 
         } else if (message1["action"] == "customerStartChat") {
-          print("Customer Start Chat");
+          // print("Customer Start Chat");
           var json = SocketResponse.fromJson(message1);
           List<ChatMessage> k = json.content![0].response!.chat!.messages!;
           var chatId = json.content![0].response!.chat!.chatId;
@@ -282,6 +282,7 @@ Future<void> sendmessage(SendMessage sendMessage) async {
   data["service"] = "";
 
   print(json.encode(data).toString());
+  print("Send ${channel.hashCode}");
   channel!.sink.add(json.encode(data)); //send message to reciever channel
 }
 
@@ -298,6 +299,7 @@ Future<void> updateMessageStatus(SendMessage sendMessage) async {
   data["state"] = 2;
 
   print(json.encode(data));
+  print("Update ${channel.hashCode}");
   channel!.sink.add(json.encode(data));
 }
 

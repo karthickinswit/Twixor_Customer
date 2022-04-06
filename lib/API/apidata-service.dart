@@ -82,7 +82,7 @@ getChatUserInfo(String ChatId) async {
   var response = await http.get(Uri.parse(url + userEid + '/chat/' + ChatId),
       headers: {"authentication-token": await getTokenApi()});
 
-  print(response.headers.toString());
+  // print(response.headers.toString());
   if (response.statusCode == 200) {
     var obj = checkApiResponse(response.body.replaceAll("\$", ""));
     try {
@@ -91,7 +91,7 @@ getChatUserInfo(String ChatId) async {
       tempUser["chatuserDetails"] = chatuserDetails;
       chatuserDetails.forEach((element) {
         print("Agnets");
-        print(element.toString());
+        // print(element.toString());
         chatAgents.add(ChatAgent.fromJson(element));
       });
       //chatAgents = ChatAgent.fromJson(chatuserDetails) as List<ChatAgent>;
@@ -100,7 +100,7 @@ getChatUserInfo(String ChatId) async {
 
       chatUser!.value = ChatUsers.fromJson(tempUser);
       // messages!.value = chatUser!.value.messages!;
-      print(chatUser!.value.toJson());
+      // print(chatUser!.value.toJson());
       return true;
 
       ;
@@ -251,7 +251,7 @@ checktoken() async {
     'Content-Type': 'application/x-www-form-urlencoded'
   });
 
-  print(response.headers.toString());
+  // print(response.headers.toString());
   if (response.statusCode == 200) {
     isValidToken = true;
     return true;

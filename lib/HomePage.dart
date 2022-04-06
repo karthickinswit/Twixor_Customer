@@ -100,7 +100,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     //print("chatListSubscription prefs ${chatListSubscription.hashCode}");
     //getSubscribe();
     //socketMsgReceiveMain();
-    print("Resume Socket Main Page");
+    // print("Resume Socket Main Page");
   }
 
   checkChatID() async {
@@ -224,7 +224,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         messages!.value = [];
         prefs.setString('chatId', chatUser!.value.chatId!);
 
-        print(chatUser!.value.toJson());
+        // print(chatUser!.value.toJson());
         // await SocketConnect();
 
         Navigator.push(
@@ -321,9 +321,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                 FutureBuilder(
                     future: checkChatID(),
                     builder: (context, snapshot) {
-                      print("snapChat data -> ${snapshot.data.toString()}");
+                      // print("snapChat data -> ${snapshot.data.toString()}");
                       if (snapshot.connectionState == ConnectionState.done) {
-                        print(chatUser!.value.toJson());
+                        // print(chatUser!.value.toJson());
                         return ValueListenableBuilder(
                             valueListenable: chatUser!,
                             builder:
@@ -369,7 +369,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                         messages!.value =
                                             chatUser!.value.messages!;
                                         // prefs.setString('chatId', chatUser!.value.chatId!);
-                                        print(chatUser!.value.toJson());
+                                        // print(chatUser!.value.toJson());
 
                                         Navigator.push(
                                             context,
@@ -524,7 +524,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     // chatListSubscription!.cancel();
     // print("chatListSubscription dispose ${chatListSubscription.hashCode}");
 
-    print("MainSocketisClosed");
+    // print("MainSocketisClosed");
     super.dispose();
     // mainSocket!.sink.close();
   }
