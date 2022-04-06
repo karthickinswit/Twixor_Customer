@@ -154,18 +154,18 @@ class CustomerApp extends StatelessWidget {
 
   Future<bool> _checkPrefs() async {
     var tempCustId, tempEid;
-    if (!isSocketConnection) isSocketConnection = false;
+    // if (!isSocketConnection) isSocketConnection = false;
     prefs = await SharedPreferences.getInstance();
     tempCustId = prefs.getString('customerId') ?? "";
     tempEid = prefs.getString('eId') ?? "";
     authToken = prefs.getString('authToken') ?? "";
 
-    if (channel != null) {
-      channel!.innerWebSocket!.done;
-    } else {
-      print("ChannelisNotCLose");
-      print(channel.toString());
-    }
+    // if (channel != null) {
+    //   channel!.innerWebSocket!.done;
+    // } else {
+    //   print("ChannelisNotCLose");
+    //   print(channel.toString());
+    // }
     //prefs.setString('title', MainPageTitle);
     if (tempCustId == "" && tempEid == "") {
       clearToken();
