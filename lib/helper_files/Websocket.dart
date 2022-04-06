@@ -185,7 +185,7 @@ Future<bool> SocketConnect() async {
         // aSubject.add(event);
         // if (!bSubject.isClosed) bSubject.sink.add(event);
         // if (!chatPageSocket.isClosed) chatPageSocket.sink.add(event);
-        if (!mainSocket.isClosed) mainSocket.sink.add(data);
+        // if (!mainSocket.isClosed) mainSocket.sink.add(data);
       },
       onDone: () async {
         debugPrint('ws error onDone ${channel!.closeCode} ');
