@@ -15,7 +15,13 @@ import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/status.dart' as status;
 import 'package:rxdart/rxdart.dart';
 
-IOWebSocketChannel? channel;
+Map<String, String> mainheader = {
+  "Content-type": "application/json",
+  "authentication-token": getTokenApi()!
+};
+final IOWebSocketChannel channel = IOWebSocketChannel.connect(
+    APP_URL.replaceAll("http", "ws") + "/actions",
+    headers: mainheader);
 bool isSocketConnection = false;
 var channelStream;
 var bSubject = new BehaviorSubject();
@@ -28,18 +34,10 @@ var aSubject = new BehaviorSubject();
 // StreamSubscription? streamSubscription;
 
 Future<bool> SocketConnect() async {
-  Map<String, String> mainheader = {
-    "Content-type": "application/json",
-    "authentication-token": await getTokenApi()!
-  };
-
   try {
-    channel = IOWebSocketChannel.connect(
-        APP_URL.replaceAll("http", "ws") + "/actions",
-        headers: mainheader);
     //print("Channel sink ${await channel!.sink.done}");
 
-    channel!.stream.listen(
+    channel.stream.listen(
       (data) {
         //strmControl.add(event);
 
@@ -218,21 +216,21 @@ Future<bool> SocketConnect() async {
   return isSocketConnection;
 }
 
-SocketReConnect() async {
-  Map<String, String> mainheader = {
-    "Content-type": "application/json",
-    "authentication-token": await getTokenApi()!
-  };
-  try {
-    channel = IOWebSocketChannel.connect(
-        APP_URL.replaceAll("http", "ws") + "/actions",
-        headers: mainheader);
-  } catch (Exp) {
-    //ErrorAlert(context, msg)
-    isSocketConnection = false;
-  }
-  getSubscribe();
-}
+// SocketReConnect() async {
+//   Map<String, String> mainheader = {
+//     "Content-type": "application/json",
+//     "authentication-token": await getTokenApi()!
+//   };
+//   try {
+//     channel = IOWebSocketChannel.connect(
+//         APP_URL.replaceAll("http", "ws") + "/actions",
+//         headers: mainheader);
+//   } catch (Exp) {
+//     //ErrorAlert(context, msg)
+//     isSocketConnection = false;
+//   }
+//   getSubscribe();
+// }
 
 getSubscribe() {
   mainSubscription = mainSocket.stream.listen((event) {});
