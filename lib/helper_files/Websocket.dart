@@ -45,11 +45,11 @@ Future<bool> SocketConnect() async {
 
         var message1 = json.decode(data);
         //print("Socket ErrMsg ${event.toString()}");
-        if (message1["action"] == "onOpen") {
-          print("Connection establised.");
-          isSocketConnection = true;
-          //return true;
-        }
+        // if (message1["action"] == "onOpen") {
+        //   print("Connection establised.");
+        //   isSocketConnection = true;
+        //   //return true;
+        // }
         print("Main PageMessage ${data.toString()}");
         message1 = json.decode(data);
         if (message1["action"] == "onOpen") {
@@ -286,6 +286,7 @@ Future<void> sendmessage(SendMessage sendMessage) async {
 
 Future<void> updateMessageStatus(SendMessage sendMessage) async {
   if (isSocketConnection == false) {
+    print("webSocket Page 289-->$isSocketConnection");
     SocketConnect();
   }
   var data = {};

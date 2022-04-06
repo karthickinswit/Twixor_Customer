@@ -136,6 +136,7 @@ newChatCreate() async {
       print("Chat Id generated");
       chatUser!.value.chatId = chatId;
       //websocket resume
+      print("APiPage 139-->$isSocketConnection");
       if (isSocketConnection == false) await SocketConnect();
       chatCreationTime = DateTime.now();
       prefs.setString('chatCreationTime', chatCreationTime!.toString());

@@ -115,6 +115,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         if (chatUser!.value.state == "2") {
           print("CheckState--> ${chatUser!.value.toJson()}");
           isAlreadyPicked = true;
+          print("HomePage 118-->$isSocketConnection");
           if (!isSocketConnection) SocketConnect();
           print("3--> ${chatUser!.value.toJson()}");
           canCreateChat = false;
@@ -127,6 +128,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                   chatUser!.value.chatId != null) &&
               chatUser!.value.state != "3") {
             print("5--> ");
+            print("HomePage 131-->$isSocketConnection");
             if (!isSocketConnection) SocketConnect();
             canCreateChat = false;
             return chatUser;
@@ -539,6 +541,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         break;
       case AppLifecycleState.resumed:
         print("App has been resumed");
+        print("HomePage 544-->$isSocketConnection");
         if (!isSocketConnection) SocketConnect();
 
         break;
