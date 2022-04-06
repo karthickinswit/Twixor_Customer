@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:twixor_customer/API/apidata-service.dart';
 import 'package:twixor_customer/models/Attachmentmodel.dart';
 import 'package:twixor_customer/models/SavedDataModel.dart';
@@ -26,6 +27,7 @@ StreamSubscription? subscription;
 StreamSubscription? mainSubscription;
 var aSubject = new BehaviorSubject();
 // StreamSubscription? streamSubscription;
+late SharedPreferences prefs;
 
 Future<bool> SocketConnect() async {
   Map<String, String> mainheader = {
