@@ -157,7 +157,7 @@ checkChatID() async {
   var storedchatId = prefs.getString('chatId') ?? "";
 
   print("storedChatID-->$storedchatId");
-  if (await storedchatId != "") {
+  if (storedchatId != "") {
     sleep(const Duration(seconds: 1));
     print("1-->${storedchatId.runtimeType}");
     if (await getChatUserInfo(storedchatId)) {

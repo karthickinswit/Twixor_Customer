@@ -36,7 +36,7 @@ Future<bool> SocketConnect() async {
   };
 
   try {
-    // getCloseSocket();
+    getCloseSocket();
     channel = IOWebSocketChannel.connect(
         APP_URL.replaceAll("http", "ws") + "/actions",
         headers: mainheader);
