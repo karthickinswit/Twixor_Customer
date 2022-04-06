@@ -521,8 +521,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     // mainSubscription!.pause();
     // chatListSubscription!.cancel();
     // print("chatListSubscription dispose ${chatListSubscription.hashCode}");
-
+    getCloseSocket();
+    isSocketConnection = false;
     print("MainSocketisClosed");
+
     super.dispose();
     // mainSocket!.sink.close();
   }
