@@ -44,16 +44,17 @@ Future<bool> SocketConnect() async {
         //strmControl.add(event);
 
         var message1 = json.decode(data);
-        print("Socket Msg ${data.toString()}");
-        // if (message1["action"] == "onOpen") {
-        //   print("Connection establised.");
-        //   isSocketConnection = true;
-        //   //return true;
-        // }
-        // print("Main PageMessage ${data.toString()}");
+        //print("Socket ErrMsg ${event.toString()}");
+        if (message1["action"] == "onOpen") {
+          print("Connection establised.");
+          isSocketConnection = true;
+          //return true;
+        }
+        print("Main PageMessage ${data.toString()}");
         message1 = json.decode(data);
         if (message1["action"] == "onOpen") {
           print("Connection establised.");
+          isSocketConnection = true;
         } else if (message1["action"] == "agentReplyChat") {
           var json = SocketResponse.fromJson(message1);
           var chatId = json.content![0].response!.chat!.chatId;
@@ -133,7 +134,7 @@ Future<bool> SocketConnect() async {
           //  if (index1 != null) chatUsers1.removeAt(index1);
 
         } else if (message1["action"] == "customerStartChat") {
-          // print("Customer Start Chat");
+          print("Customer Start Chat");
           var json = SocketResponse.fromJson(message1);
           List<ChatMessage> k = json.content![0].response!.chat!.messages!;
           var chatId = json.content![0].response!.chat!.chatId;
@@ -239,8 +240,7 @@ getSubscribe() {
 }
 
 getCloseSocket() async {
-  // print(channel);
-  print("CloseSocket-->${channel.hashCode}");
+  print(channel);
   channel!.sink.close();
   print("Socket closed");
   isSocketConnection = false;
@@ -281,15 +281,13 @@ Future<void> sendmessage(SendMessage sendMessage) async {
   data["service"] = "";
 
   print(json.encode(data).toString());
-  // print("Send ${channel.hashCode}");
   channel!.sink.add(json.encode(data)); //send message to reciever channel
 }
 
 Future<void> updateMessageStatus(SendMessage sendMessage) async {
-  // if (isSocketConnection == false) {
-  //   print("webSocket Page 289-->$isSocketConnection");
-  //   SocketConnect();
-  // }
+  if (isSocketConnection == false) {
+    SocketConnect();
+  }
   var data = {};
   data["action"] = sendMessage.action; //"chatMessageStatus";
   data["actionIds"] = sendMessage.actiondIds;
@@ -298,7 +296,6 @@ Future<void> updateMessageStatus(SendMessage sendMessage) async {
   data["state"] = 2;
 
   print(json.encode(data));
-  // print("Update ${channel.hashCode}");
   channel!.sink.add(json.encode(data));
 }
 
