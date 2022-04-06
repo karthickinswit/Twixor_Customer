@@ -104,49 +104,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     print("Resume Socket Main Page");
   }
 
-  checkChatID() async {
-    prefs = await SharedPreferences.getInstance();
-    var storedchatId = prefs.getString('chatId') ?? "";
-
-    print("storedChatID-->$storedchatId");
-    if (storedchatId != "") {
-      // sleep(const Duration(seconds: 2));
-      print("1-->${storedchatId.runtimeType}");
-      if (getChatUserInfo(storedchatId)) {
-        print("2-->");
-        if (chatUser!.value.state == "2") {
-          print("CheckState--> ${chatUser!.value.toJson()}");
-          isAlreadyPicked = true;
-          if (!isSocketConnection) SocketConnect();
-          print("3--> ${chatUser!.value.toJson()}");
-          canCreateChat = false;
-          return await chatUser;
-        } else {
-          isAlreadyPicked = false;
-          canCreateChat = true;
-          print("4--> ");
-          if ((chatUser!.value.chatId != "" ||
-                  chatUser!.value.chatId != null) &&
-              chatUser!.value.state != "3" &&
-              chatUser!.value.state != "4") {
-            print("5--> ");
-            if (!isSocketConnection) SocketConnect();
-            canCreateChat = false;
-            return await chatUser;
-          } else {
-            print("6--> ");
-            isAlreadyPicked = false;
-            canCreateChat = true;
-            return await null;
-          }
-        }
-      }
-    } else {
-      canCreateChat = true;
-      return null;
-    }
-  }
-
   checkClick() {
     //canCreateChat = true;
     print("Cancreate when CLick ${canCreateChat} ");

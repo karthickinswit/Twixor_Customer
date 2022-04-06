@@ -1,4 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:twixor_customer/API/apidata-service.dart';
+import 'package:twixor_customer/helper_files/Websocket.dart';
 import 'package:twixor_customer/models/chatMessageModel.dart';
 import 'package:twixor_customer/models/chatUsersModel.dart';
 
@@ -17,6 +22,7 @@ ValueNotifier<ChatUsers>? chatUser = ValueNotifier(ChatUsers(
     newMessageCount: ""));
 
 List<ChatAgent> chatAgents = [];
+late SharedPreferences prefs;
 
 ValueNotifier<List<ChatMessage>>? messages = ValueNotifier([]);
 
@@ -144,4 +150,46 @@ swapMsg(List<ChatMessage> msgs) {
 
   tempMessages.addAll(msgs);
   return tempMessages;
+}
+
+checkChatID() async {
+  prefs = await SharedPreferences.getInstance();
+  var storedchatId = prefs.getString('chatId') ?? "";
+
+  print("storedChatID-->$storedchatId");
+  if (await storedchatId != "") {
+    sleep(const Duration(seconds: 1));
+    print("1-->${storedchatId.runtimeType}");
+    if (await getChatUserInfo(storedchatId)) {
+      print("2-->");
+      if (chatUser!.value.state == "2") {
+        print("CheckState--> ${chatUser!.value.toJson()}");
+        isAlreadyPicked = true;
+        if (!isSocketConnection) SocketConnect();
+        print("3--> ${chatUser!.value.toJson()}");
+        canCreateChat = false;
+        return await chatUser;
+      } else {
+        isAlreadyPicked = false;
+        canCreateChat = true;
+        print("4--> ");
+        if ((chatUser!.value.chatId != "" || chatUser!.value.chatId != null) &&
+            chatUser!.value.state != "3" &&
+            chatUser!.value.state != "4") {
+          print("5--> ");
+          if (!isSocketConnection) SocketConnect();
+          canCreateChat = false;
+          return await chatUser;
+        } else {
+          print("6--> ");
+          isAlreadyPicked = false;
+          canCreateChat = true;
+          return await null;
+        }
+      }
+    }
+  } else {
+    canCreateChat = true;
+    return null;
+  }
 }
