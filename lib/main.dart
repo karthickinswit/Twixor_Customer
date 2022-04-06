@@ -154,6 +154,7 @@ class CustomerApp extends StatelessWidget {
 
   Future<bool> _checkPrefs() async {
     var tempCustId, tempEid;
+    print("SocketinMain$isSocketConnection");
 
     // if (!isSocketConnection)
     // isSocketConnection = false;
