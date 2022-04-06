@@ -17,7 +17,7 @@ import 'package:rxdart/rxdart.dart';
 
 Map<String, String> mainheader = {
   "Content-type": "application/json",
-  "authentication-token": getTokenApi()!
+  "authentication-token": authToken!
 };
 final IOWebSocketChannel channel = IOWebSocketChannel.connect(
     APP_URL.replaceAll("http", "ws") + "/actions",
