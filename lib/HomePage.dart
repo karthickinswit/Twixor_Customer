@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -109,6 +110,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
     print("storedChatID-->$storedchatId");
     if (storedchatId != "") {
+      sleep(const Duration(seconds: 2));
       print("1-->${storedchatId.runtimeType}");
       if (await getChatUserInfo(storedchatId)) {
         print("2-->");
