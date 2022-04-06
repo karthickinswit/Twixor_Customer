@@ -112,7 +112,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     if (storedchatId != "") {
       // sleep(const Duration(seconds: 2));
       print("1-->${storedchatId.runtimeType}");
-      if (await getChatUserInfo(storedchatId)) {
+      if (getChatUserInfo(storedchatId)) {
         print("2-->");
         if (chatUser!.value.state == "2") {
           print("CheckState--> ${chatUser!.value.toJson()}");
@@ -120,7 +120,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           if (!isSocketConnection) SocketConnect();
           print("3--> ${chatUser!.value.toJson()}");
           canCreateChat = false;
-          return chatUser;
+          return await chatUser;
         } else {
           isAlreadyPicked = false;
           canCreateChat = true;
@@ -131,11 +131,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
             print("5--> ");
             if (!isSocketConnection) SocketConnect();
             canCreateChat = false;
-            return chatUser;
-          } else {
-            print("6--> ");
-            canCreateChat = true;
-            return null;
+            return await chatUser;
           }
         }
       }
