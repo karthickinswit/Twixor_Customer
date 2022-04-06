@@ -187,7 +187,9 @@ Future<bool> SocketConnect() async {
       onDone: () async {
         debugPrint('ws error onDone ${channel!.closeCode} ');
         isSocketConnection = false;
-        if (channel!.closeCode != 4001 && channel!.closeCode != 1005) {
+        if (channel!.closeCode != 4001 &&
+            channel!.closeCode != 1005 &&
+            channel!.closeCode != 1000) {
           clearToken();
           SocketConnect();
         }
