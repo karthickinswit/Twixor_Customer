@@ -206,18 +206,18 @@ class CustomerApp extends StatelessWidget {
 
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
-    switch (state) {
-      case AppLifecycleState.inactive:
-      case AppLifecycleState.paused:
-      case AppLifecycleState.detached:
-        // await detachedCallBack();
-        print("App has Idle State");
-        getCloseSocket();
-        break;
-      case AppLifecycleState.resumed:
-        print("App has been resumed");
-        //if (!isSocketConnection) SocketConnect();
-        break;
-    }
+    // switch (state) {
+    //   case AppLifecycleState.inactive:
+    //   case AppLifecycleState.paused:
+    //   case AppLifecycleState.detached:
+    //     // await detachedCallBack();
+    //     print("App has Idle State");
+    //     getCloseSocket();
+    //     break;
+    //   case AppLifecycleState.resumed:
+    //     print("App has been resumed");
+    //     //if (!isSocketConnection) SocketConnect();
+    //     break;
+    // }
   }
 }
