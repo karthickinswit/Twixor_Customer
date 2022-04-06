@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -83,6 +84,7 @@ getChatUserInfo(String ChatId) async {
       headers: {"authentication-token": await getTokenApi()});
 
   print(response.headers.toString());
+  sleep(const Duration(seconds: 2));
   if (response.statusCode == 200) {
     var obj = checkApiResponse(response.body.replaceAll("\$", ""));
     try {
