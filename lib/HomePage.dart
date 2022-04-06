@@ -131,7 +131,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
             print("5--> ");
             if (!isSocketConnection) SocketConnect();
             canCreateChat = false;
-            return await chatUser;
+            return chatUser;
+          } else {
+            print("6--> ");
+            canCreateChat = true;
+            return null;
           }
         }
       }
