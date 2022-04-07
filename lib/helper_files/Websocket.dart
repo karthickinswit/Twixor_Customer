@@ -196,7 +196,8 @@ Future<bool> SocketConnect() async {
         isSocketConnection = false;
         if (channel!.closeCode != 4001 &&
             channel!.closeCode != 1005 &&
-            channel!.closeCode != 1000) {
+            channel!.closeCode != 1000 &&
+            channel!.closeCode != null) {
           if (channel!.closeCode == 1002) {
             ErrorAlert(alertContext, "Network is Unreachable");
           }
