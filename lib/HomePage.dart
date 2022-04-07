@@ -127,7 +127,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                     //         fontFamily: 'MaterialIcons'),
                     //     color: Colors.red),
                     SizedBox(
-                      width: 30,
+                      width: 10,
                     ),
                     Text(
                       "Cannot create new chat now!",
