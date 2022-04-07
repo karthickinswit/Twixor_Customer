@@ -36,11 +36,14 @@ Future<bool> SocketConnect() async {
   };
 
   try {
-    getCloseSocket();
+    channel != null ? channel!.innerWebSocket!.close() : getCloseSocket();
     channel = IOWebSocketChannel.connect(
         APP_URL.replaceAll("http", "ws") + "/actions",
         headers: mainheader);
+
     //print("Channel sink ${await channel!.sink.done}");
+    print("WebSocket-->${channel!.hashCode}");
+    print("InnerWebSocket-->${channel!.innerWebSocket.hashCode}");
 
     channel!.stream.listen(
       (data) {
