@@ -71,6 +71,9 @@ class CustomerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // print("ManPageTitile ${ThemeClass().MainPageTitile}");
+    if (isSocketConnection == false || isSocketConnection == true) {
+      getCloseSocket();
+    }
     print("SocketinMain74$isSocketConnection");
     customTheme = theme;
     userCustomerId = customerId;
@@ -152,7 +155,7 @@ class CustomerApp extends StatelessWidget {
         chatAgents: chatAgents,
         state: "",
         newMessageCount: "");
-    if (isSocketConnection == false) {
+    if (isSocketConnection == false || isSocketConnection == true) {
       getCloseSocket();
     }
   }
@@ -160,7 +163,7 @@ class CustomerApp extends StatelessWidget {
   Future<bool> _checkPrefs() async {
     var tempCustId, tempEid;
     print("SocketinMain$isSocketConnection");
-    if (isSocketConnection == false) {
+    if (isSocketConnection == false || isSocketConnection == true) {
       getCloseSocket();
     }
     // if (!isSocketConnection)
