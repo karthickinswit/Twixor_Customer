@@ -117,8 +117,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           builder: (BuildContext context) {
             return Dialog(
               child: Container(
-                height: 50,
-                width: 120,
+                height: 60,
+                width: 140,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: const [
