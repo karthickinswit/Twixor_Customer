@@ -23,6 +23,7 @@ ValueNotifier<ChatUsers>? chatUser = ValueNotifier(ChatUsers(
 
 List<ChatAgent> chatAgents = [];
 late SharedPreferences prefs;
+late BuildContext alertContext;
 
 ValueNotifier<List<ChatMessage>>? messages = ValueNotifier([]);
 

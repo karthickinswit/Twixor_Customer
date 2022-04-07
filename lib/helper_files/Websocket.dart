@@ -3,9 +3,11 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:twixor_customer/API/apidata-service.dart';
+import 'package:twixor_customer/helper_files/utilities_files.dart';
 import 'package:twixor_customer/models/Attachmentmodel.dart';
 import 'package:twixor_customer/models/SavedDataModel.dart';
 import 'package:twixor_customer/models/SendMessageModel.dart';
@@ -194,6 +196,9 @@ Future<bool> SocketConnect() async {
         if (channel!.closeCode != 4001 &&
             channel!.closeCode != 1005 &&
             channel!.closeCode != 1000) {
+          if (channel!.closeCode == 1002) {
+            ErrorAlert(alertContext, "Network is Unreachable");
+          }
           clearToken();
           SocketConnect();
         }
@@ -251,12 +256,12 @@ getCloseSocket() {
   }
 }
 
-SocketObservable() {
-  channel!.stream.listen((event) {
-    //strmControl.add(event);
-    {}
-  });
-}
+// SocketObservable() {
+//   channel!.stream.listen((event) {
+//     //strmControl.add(event);
+//     {}
+//   });
+// }
 
 // bSubject.sink.add(channel!.stream.asBroadcastStream());
 

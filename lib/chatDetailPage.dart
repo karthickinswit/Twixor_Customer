@@ -225,6 +225,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 
   @override
   Widget build(BuildContext context) {
+    alertContext = context;
     dialogContext = context;
     print("Chatuserstemp ${messages!.value.length}");
     // print("rcvd fdata ${rcvdData['name']}");

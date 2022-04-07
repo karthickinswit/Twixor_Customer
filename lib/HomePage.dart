@@ -163,7 +163,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     if (ChatId != null) {
       ChatId != null
           ? userChatId = ChatId!
-          : ErrorAlert(context, "Chat Id is not present here");
+          : ErrorAlert(alertContext, "Chat Id is not present here");
 
       isLoading = false;
       // mainSubscription!.pause();
@@ -213,6 +213,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    alertContext = context;
     // final wsProvider = context.watch<WebsocketsProvider>();
     // print("WsProVider");
 
