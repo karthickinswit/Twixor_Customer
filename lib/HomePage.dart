@@ -117,8 +117,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           builder: (BuildContext context) {
             return Dialog(
               child: Container(
-                height: 60,
-                width: 140,
+                height: 50,
+                width: 120,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: const [
@@ -127,7 +127,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                     //         fontFamily: 'MaterialIcons'),
                     //     color: Colors.red),
                     SizedBox(
-                      width: 10,
+                      width: 40,
                     ),
                     Text(
                       "Cannot create new chat now!",
@@ -169,7 +169,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                   //         fontFamily: 'MaterialIcons'),
                   //     color: Colors.red),
                   SizedBox(
-                    width: 40,
+                    width: 10,
                   ),
                   CircularProgressIndicator(),
                   Text(
