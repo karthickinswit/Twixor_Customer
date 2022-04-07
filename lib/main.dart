@@ -150,12 +150,17 @@ class CustomerApp extends StatelessWidget {
         chatAgents: chatAgents,
         state: "",
         newMessageCount: "");
+    if (isSocketConnection == false) {
+      getCloseSocket();
+    }
   }
 
   Future<bool> _checkPrefs() async {
     var tempCustId, tempEid;
     print("SocketinMain$isSocketConnection");
-
+    if (isSocketConnection == false) {
+      getCloseSocket();
+    }
     // if (!isSocketConnection)
     // isSocketConnection = false;
     prefs = await SharedPreferences.getInstance();
