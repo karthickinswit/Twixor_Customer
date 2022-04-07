@@ -36,7 +36,6 @@ Future<bool> SocketConnect() async {
   };
 
   try {
-    channel != null ? channel!.innerWebSocket!.close() : getCloseSocket();
     channel = IOWebSocketChannel.connect(
         APP_URL.replaceAll("http", "ws") + "/actions",
         headers: mainheader);
@@ -243,11 +242,13 @@ getSubscribe() {
   return mainSubscription;
 }
 
-getCloseSocket() async {
-  print(channel);
-  channel!.sink.close();
-  print("Socket closed");
-  isSocketConnection = false;
+getCloseSocket() {
+  if (channel != null) {
+    print(channel);
+    channel!.sink.close();
+    print("Socket closed");
+    isSocketConnection = false;
+  }
 }
 
 SocketObservable() {
