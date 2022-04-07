@@ -151,6 +151,36 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
     // if (isSocketConnection) {
     // SharedPreferences prefs = await SharedPreferences.getInstance();
+    BuildContext loadingContext;
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          loadingContext = context;
+          return Dialog(
+            child: Container(
+              height: 50,
+              width: 120,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  // Icon(
+                  //     IconData(0xe8ac,
+                  //         fontFamily: 'MaterialIcons'),
+                  //     color: Colors.red),
+                  SizedBox(
+                    width: 40,
+                  ),
+                  CircularProgressIndicator(),
+                  Text(
+                    "Please wait for creating new Chat!",
+                    textScaleFactor: 1.0,
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
     var chatId = await newChatCreate();
     canCreateChat = false;
 
@@ -183,9 +213,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         messages!.value = [];
         prefs.setString('chatId', chatUser!.value.chatId!);
 
-        print(chatUser!.value.toJson());
+        // print(chatUser!.value.toJson());
         // await SocketConnect();
-
+        Navigator.of(context, rootNavigator: true).pop();
         Navigator.push(
             context,
             MaterialPageRoute(
