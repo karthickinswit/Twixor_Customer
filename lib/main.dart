@@ -204,9 +204,11 @@ class CustomerApp extends StatelessWidget {
       //authToken = await getTokenApi() ?? "";
       //prefs.setString('authToken', authToken!);
       return true;
-    } else {
-      return _checkPrefs();
-    }
+    } else
+      return false;
+    //  else {
+    //   return _checkPrefs();
+    // }
   }
 
   @override
