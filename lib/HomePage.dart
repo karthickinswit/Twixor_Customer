@@ -101,12 +101,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     //print("chatListSubscription prefs ${chatListSubscription.hashCode}");
     //getSubscribe();
     //socketMsgReceiveMain();
-    print("Resume Socket Main Page");
+    // print("Resume Socket Main Page");
   }
 
   checkClick() {
     //canCreateChat = true;
-    print("Cancreate when CLick ${canCreateChat} ");
+    // print("Cancreate when CLick ${canCreateChat} ");
     if (canCreateChat) {
       canCreateChat = false;
       initiateChat();
@@ -188,7 +188,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     // prefs.setStringList('chatIds', chatIds!);
     // print(prefs?.getStringList("chatIds"));
     ChatId = chatId;
-    print("new Chat Id $ChatId");
+    // print("new Chat Id $ChatId");
 
     if (ChatId != null) {
       ChatId != null
@@ -311,14 +311,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                 FutureBuilder(
                     future: checkChatID(),
                     builder: (context, snapshot) {
-                      print("snapChat data -> ${snapshot.data.toString()}");
+                      // print("snapChat data -> ${snapshot.data.toString()}");
                       if (snapshot.connectionState == ConnectionState.done) {
-                        print(chatUser!.value.toJson());
+                        // print(chatUser!.value.toJson());
                         return ValueListenableBuilder(
                             valueListenable: chatUser!,
                             builder:
                                 (BuildContext context, ChatUsers value, child) {
-                              print("chatuser-->Notifier");
+                              // print("chatuser-->Notifier");
                               chatUser!.value = value;
                               return snapshot.data == null ||
                                       chatUser!.value.chatId == ""
@@ -359,7 +359,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                         messages!.value =
                                             chatUser!.value.messages!;
                                         // prefs.setString('chatId', chatUser!.value.chatId!);
-                                        print(chatUser!.value.toJson());
+                                        // print(chatUser!.value.toJson());
 
                                         Navigator.push(
                                             context,
@@ -508,16 +508,17 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    print("isSocketConnection $isSocketConnection");
+    // print("isSocketConnection $isSocketConnection");
     //_notifyControllers
     // mainSubscription!.pause();
     // chatListSubscription!.cancel();
     // print("chatListSubscription dispose ${chatListSubscription.hashCode}");
+    print("homePageDispose");
     getCloseSocket();
     isSocketConnection = false;
     isAlreadyPicked = false;
-    print("HomePageConnection$isSocketConnection");
-    print("MainSocketisClosed");
+    // print("HomePageConnection$isSocketConnection");
+    // print("MainSocketisClosed");
 
     super.dispose();
     // mainSocket!.sink.close();

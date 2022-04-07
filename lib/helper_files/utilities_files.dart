@@ -121,14 +121,14 @@ StoredtoFile(String url, String filename) async {
     //print(file);
     //await file.writeAsBytes(bytes);
     if ((await path.exists())) {
-      print("exist");
+      // print("exist");
       //print(file.toString());
       await file.writeAsBytes(bytes);
       return file.uri.path;
     } else {
-      print("not exist");
+      // print("not exist");
       path.create();
-      print("created");
+      // print("created");
       // print(file.toString());
       await file.writeAsBytes(bytes);
       return file.uri.path.toString();
@@ -138,7 +138,7 @@ StoredtoFile(String url, String filename) async {
     Map<Permission, PermissionStatus> statuses = await [
       Permission.storage,
     ].request();
-    print(statuses[Permission.location]);
+    // print(statuses[Permission.location]);
   }
 }
 

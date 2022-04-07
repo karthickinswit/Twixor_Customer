@@ -26,7 +26,7 @@ class _MyAppState extends State<FileApp> {
       // User canceled the picker
     }
     final _result = await OpenFile.open(filePath);
-    print(_result.message);
+    // print(_result.message);
 
     setState(() {
       _openResult = "type=${_result.type}  message=${_result.message}";

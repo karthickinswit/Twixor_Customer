@@ -83,7 +83,7 @@ getChatUserInfo(String ChatId) async {
   var response = await http.get(Uri.parse(url + userEid + '/chat/' + ChatId),
       headers: {"authentication-token": await getTokenApi()});
 
-  print(response.headers.toString());
+  // print(response.headers.toString());
   // sleep(const Duration(seconds: 2));
   if (response.statusCode == 200) {
     var obj = checkApiResponse(response.body.replaceAll("\$", ""));
@@ -93,16 +93,16 @@ getChatUserInfo(String ChatId) async {
       tempUser["chatuserDetails"] = chatuserDetails;
       chatuserDetails.forEach((element) {
         print("Agnets");
-        print(element.toString());
+        // print(element.toString());
         chatAgents.add(ChatAgent.fromJson(element));
       });
       //chatAgents = ChatAgent.fromJson(chatuserDetails) as List<ChatAgent>;
       var oh = obj["response"];
-      print(obj["response"]["chat"].runtimeType);
+      // print(obj["response"]["chat"].runtimeType);
 
       chatUser!.value = ChatUsers.fromJson(tempUser);
       // messages!.value = chatUser!.value.messages!;
-      print(chatUser!.value.toJson());
+      // print(chatUser!.value.toJson());
       return true;
 
       ;
@@ -135,7 +135,7 @@ newChatCreate() async {
     try {
       var obj = checkApiResponse(response.body.replaceAll("\$", ""));
       var chatId = obj["response"]["chatId"];
-      print("Chat Id generated");
+      // print("Chat Id generated");
       chatUser!.value.chatId = chatId;
       //websocket resume
       if (isSocketConnection == false) await SocketConnect();

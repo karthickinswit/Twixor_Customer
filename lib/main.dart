@@ -71,6 +71,7 @@ class CustomerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // print("ManPageTitile ${ThemeClass().MainPageTitile}");
+    print("SocketinMain74$isSocketConnection");
     customTheme = theme;
     userCustomerId = customerId;
     userEid = eId;
@@ -89,7 +90,7 @@ class CustomerApp extends StatelessWidget {
       child: FutureBuilder<bool>(
           future: _checkPrefs(),
           builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-            print(const AsyncSnapshot.nothing().toString());
+            // print(const AsyncSnapshot.nothing().toString());
             // if (snapshot.connectionState == ConnectionState.none) {
 
             // }
@@ -121,6 +122,7 @@ class CustomerApp extends StatelessWidget {
   }
 
   getPref() async {
+    print("SocketinMain125$isSocketConnection");
     // getApiPref();
     //await clearToken();
 

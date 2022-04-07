@@ -38,6 +38,7 @@ Future<bool> SocketConnect() async {
   };
 
   try {
+    getCloseSocket();
     channel = IOWebSocketChannel.connect(
         APP_URL.replaceAll("http", "ws") + "/actions",
         headers: mainheader);
@@ -53,7 +54,7 @@ Future<bool> SocketConnect() async {
         var message1 = json.decode(data);
         //print("Socket ErrMsg ${event.toString()}");
 
-        print("Main PageMessage ${data.toString()}");
+        // print("Main PageMessage ${data.toString()}");
         message1 = json.decode(data);
         if (message1["action"] == "onOpen") {
           print("Connection establised.");
@@ -305,7 +306,7 @@ Future<void> updateMessageStatus(SendMessage sendMessage) async {
   data["from"] = 2;
   data["state"] = 2;
 
-  print(json.encode(data));
+  // print(json.encode(data));
   channel!.sink.add(json.encode(data));
 }
 
@@ -326,7 +327,7 @@ class WebsocketsProvider extends ChangeNotifier {
       if (tempResponse['action'] == 'onOpen') {}
       //ws connected and right data received
       print('triggered');
-      print(payload.toString());
+      // print(payload.toString());
 
       getMessage(SocketResponse.fromJson(tempResponse));
     });

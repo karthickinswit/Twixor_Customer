@@ -107,9 +107,9 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   _onUrlChanged(String updatedUrl) {}
 
   _scrollToEnd() async {
-    print(_controller.hasClients);
+    // print(_controller.hasClients);
     if (_controller.hasClients) {
-      print(_controller.position.haveDimensions);
+      // print(_controller.position.haveDimensions);
       if (_controller.position.haveDimensions) {
         // print(_controller.position.maxScrollExtent ?? _controller.position);
 
@@ -125,14 +125,13 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   _ChatDetailPageState(this.userChatId, this.attachmentData);
 
   getMsg(String userChatId) async {
-    print("ChatID2--> $userChatId");
+    // print("ChatID2--> $userChatId");
     // return jsonData = json.encode(await getChatUserInfo(userChatId));
   }
 
   @override
   initState() {
     super.initState();
-    prefs();
 
     // getMsg(userChatId).then((result) {
     //   print(result);
@@ -191,28 +190,28 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     // }
   }
 
-  prefs() async {
-    // if (mainSocket.hasListener) {
-    chatDetailSubscription = getSubscribe();
-    print("chatDetailSubscription prefs ${chatDetailSubscription.hashCode}");
-    //socketMsgReceive();
-    print("Resume Socket Main Page");
+  // prefs() async {
+  //   // if (mainSocket.hasListener) {
+  //   chatDetailSubscription = getSubscribe();
+  //   print("chatDetailSubscription prefs ${chatDetailSubscription.hashCode}");
+  //   //socketMsgReceive();
+  //   print("Resume Socket Main Page");
 
-    // } else {
-    //   await SocketConnect();
-    // }
-  }
+  //   // } else {
+  //   //   await SocketConnect();
+  //   // }
+  // }
 
   @override
   void dispose() {
-    print("Chat Socket Closed");
+    // print("Chat Socket Closed");
 
     WidgetsBinding.instance?.removeObserver(this);
 
     // mainSocket!.close();
 
-    chatDetailSubscription!.cancel();
-    print("chatDetailSubscription dispose ${chatDetailSubscription.hashCode}");
+    print("Chatdetailspage..dispose");
+    // print("chatDetailSubscription dispose ${chatDetailSubscription.hashCode}");
 
     super.dispose();
   }
@@ -227,7 +226,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   Widget build(BuildContext context) {
     alertContext = context;
     dialogContext = context;
-    print("Chatuserstemp ${messages!.value.length}");
+    // print("Chatuserstemp ${messages!.value.length}");
     // print("rcvd fdata ${rcvdData['name']}");
 
     /////////////////////////////////////////////////
@@ -309,7 +308,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                   valueListenable: messages!,
                   builder:
                       (BuildContext context, List<ChatMessage> value, child) {
-                    print("notifyValue--> ${value}");
+                    // print("notifyValue--> ${value}");
                     _scrollToEnd();
 
                     return ListView.builder(
@@ -428,7 +427,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                             if (!currentFocus.hasPrimaryFocus) {
                               currentFocus.unfocus();
                             }
-                            print("keyboard send");
+                            // print("keyboard send");
                             if (value.isNotEmpty) {
                               sendmessage(SendMessage(
                                   action: messages!.value.length > 0
@@ -491,8 +490,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                             //     actedOn: DateTime.now().toUtc().toString());
                             // messages!.value.add(temp);
                             // print(actionBy);
-                            print("app send");
-                            print(chatUser!.value.toJson());
+                            // print("app send");
+                            // print(chatUser!.value.toJson());
                             sendmessage(SendMessage(
                                 action: messages!.value.length > 0
                                     ? "customerReplyChat"
@@ -594,7 +593,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         if (chatAgents.length > 1) {
           utilMsg = chatAgents
               .where((element) {
-                print("Agent name $element");
+                // print("Agent name $element");
                 return element.type == "MOC_ENTERPRISE";
               })
               .first
@@ -761,7 +760,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       String type, int mediaType) {
     return InkWell(
       onTap: () async {
-        print("icon creaation");
+        // print("icon creaation");
         if (type == "gallery") {
           //await _getFromGallery();
           //await imageFile;
@@ -800,9 +799,9 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         } else if (type == "document") {
           Navigator.pop(context1);
           //objFile = await chooseFileUsingFilePicker();
-          print("Upload");
+          // print("Upload");
           //if (sendFileType == "jpg") {
-          print(objFile.toString());
+          // print(objFile.toString());
           //objFile?.path == ""
           // ? const CircularProgressIndicator()
           var localFileData = await chooseFileUsingFilePicker();
@@ -867,10 +866,10 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         ],
       );
     } on PlatformException catch (e) {
-      print("Unsupported operation" + e.toString());
+      // print("Unsupported operation" + e.toString());
     }
     if (result != null) {
-      print("ObjFile ${result.files.single.runtimeType}");
+      // print("ObjFile ${result.files.single.runtimeType}");
       if (result.files.single.extension == "webp") {
         showDialog(
             context: context,
@@ -897,10 +896,10 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         return;
       }
       objFile = File((result.files.single.path) ?? "");
-      print("objfile type --> ${objFile.runtimeType}");
-      print("ObjFile ${result.files.single.runtimeType}");
+      // print("objfile type --> ${objFile.runtimeType}");
+      // print("ObjFile ${result.files.single.runtimeType}");
       //sendFileType = result.files.single.extension;
-      print("SendFileType ${sendFileType}");
+      // print("SendFileType ${sendFileType}");
       fileTemp['contentType'] = ContentReturnType(
           lookupMimeType(result.files.single.path ?? "") ?? "");
       fileTemp['url'] = result.files.single.path;
@@ -922,14 +921,14 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       source: ImageSource.gallery,
     );
     if (pickedFile != null) {
-      print("pickedFile-->${pickedFile.path}");
+      // print("pickedFile-->${pickedFile.path}");
 
       fileTemp['contentType'] =
           ContentReturnType(pickedFile.mimeType ?? "image/jpeg") ?? "";
       fileTemp['url'] = pickedFile.path;
       fileTemp['type'] = pickedFile.mimeType;
       fileTemp['name'] = pickedFile.path.split('/').last;
-      print("Gallery Mime type ${pickedFile.path.split('.').last}");
+      // print("Gallery Mime type ${pickedFile.path.split('.').last}");
       if (pickedFile.path.split('.').last == "webp") {
         showDialog(
             context: context,
@@ -973,7 +972,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     ));
     var imageFile;
     if (pickedFile != null) {
-      print(" pickedFile type--> ${pickedFile.runtimeType}");
+      // print(" pickedFile type--> ${pickedFile.runtimeType}");
       pickedFile.path;
       fileTemp['contentType'] =
           ContentReturnType(pickedFile.mimeType ?? "image/jpeg") ?? "";
@@ -1016,7 +1015,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                         return const Center(child: CircularProgressIndicator());
                       }
                       if (snapshot.connectionState != ConnectionState.waiting) {
-                        print(snapshot.data.toString());
+                        // print(snapshot.data.toString());
                         if (snapshot.hasData) {
                           return Container(
                             padding: const EdgeInsets.all(1.0),
@@ -1130,7 +1129,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                   onPressed: () {},
                   child: MaterialButton(
                     onPressed: () async {
-                      print("Attachemnt first Clisk");
+                      // print("Attachemnt first Clisk");
                       BuildContext? dialogContext1;
 
                       showDialog(
@@ -1167,7 +1166,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                       Attachment attachment =
                           await uploadSelectedFile(localFileData) ??
                               new Attachment();
-                      print("attachment");
+                      // print("attachment");
                       if (attachment.url != null) {
                         sendmessage(SendMessage(
                           action: messages!.value.length > 0
@@ -1231,7 +1230,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                           FiledALert();
                         });
 
-                        print("Failed upload");
+                        // print("Failed upload");
                         //Navigator.pop(context1);
                         // Navigator.pop(context);
                       }
@@ -1317,7 +1316,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
           String path = tempPath.toString();
 
           Uri path1 = Uri.parse(path);
-          print("path--> $path path2--> $path1");
+          // print("path--> $path path2--> $path1");
 
           OpenFile.open(path1.path);
           Navigator.pop(dialogContex1!);
@@ -1327,7 +1326,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   }
 
   Widget textPreview(index) {
-    print("Message Status${messages!.value[index].status}");
+    // print("Message Status${messages!.value[index].status}");
     String? temp = messages!.value[index].messageContent;
     return Column(
         crossAxisAlignment: messages!.value[index].actionType == "3"
@@ -1684,7 +1683,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     //---Create http package multipart request object
     Attachment tempAttachment = new Attachment();
 
-    print("IsLoading start");
+    // print("IsLoading start");
     // setState(() {
     //   isLoading = true;
     //   attachmentProgress = false;
@@ -1714,20 +1713,20 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       request.files.add(http.MultipartFile.fromBytes(
           'file', await File.fromUri(Uri.parse(objFile['url'])).readAsBytes(),
           filename: objFile['name'], contentType: new MediaType(t1[0], t1[1])));
-      print("Reqeust before sent");
-      print("${request.url} --> ${request.fields.values} --> ${request.files}");
+      // print("Reqeust before sent");
+      // print("${request.url} --> ${request.fields.values} --> ${request.files}");
       final response = await request.send();
       final respStr = await response.stream.bytesToString();
-      print(respStr.toString());
+      // print(respStr.toString());
 
-      print("Reqeust afetr sent");
-      print("${request.url} --> ${request.fields.values} --> ${request.files}");
+      // print("Reqeust afetr sent");
+      // print("${request.url} --> ${request.fields.values} --> ${request.files}");
 
       if (response.statusCode == 200) {
-        print("Uploaded! ");
+        // print("Uploaded! ");
         //print('response.body ' + response.body);
         var temp = json.decode(respStr);
-        print(temp["secureUrl"]);
+        // print(temp["secureUrl"]);
         tempAttachment.url = temp["secureUrl"];
         tempAttachment.name = temp["name"];
         tempAttachment.type = ContentReturnType(temp["contentType"]).toString();
@@ -1741,7 +1740,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
           //attachmentProgress = true;
         });
 
-        print("IsLoading stop");
+        // print("IsLoading stop");
 
         return tempAttachment;
       } else {
@@ -1767,7 +1766,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       'multipart': mimeType.toString(),
       //'file':objFile
     };
-    print(formData.toString());
+    // print(formData.toString());
 
     final request = http.MultipartRequest(
       "POST",
@@ -1784,7 +1783,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     request.files.add(http.MultipartFile.fromBytes(
         'file', await File.fromUri(Uri.parse(objFile.path)).readAsBytes(),
         filename: objFile.name, contentType: new MediaType(t1[0], t1[1])));
-    print("${request.files.first.toString()}");
+    // print("${request.files.first.toString()}");
 
     //-------Send request
     // print(request.headers.toString());
@@ -1794,10 +1793,10 @@ class _ChatDetailPageState extends State<ChatDetailPage>
         .then((result) async {
           http.Response.fromStream(result).then((response) {
             if (response.statusCode == 200) {
-              print("Uploaded! ");
-              print('response.body ' + response.body);
+              // print("Uploaded! ");
+              // print('response.body ' + response.body);
               var temp = json.decode(response.body);
-              print(temp["secureUrl"]);
+              // print(temp["secureUrl"]);
               attachment?.url = temp["secureUrl"];
               attachment?.name = temp["name"];
               attachment?.type =
