@@ -11,18 +11,17 @@ import 'package:http_parser/http_parser.dart';
 
 import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
-import 'package:rxdart/subjects.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:twixor_customer/API/apidata-service.dart';
-import 'package:twixor_customer/HomePage.dart';
-import 'package:twixor_customer/main.dart';
+
 import 'package:twixor_customer/models/SavedDataModel.dart';
 
 import 'package:twixor_customer/models/SendMessageModel.dart';
-import 'package:twixor_customer/models/SocketResponseModel.dart';
+
 import 'package:twixor_customer/models/chatMessageModel.dart';
 import 'package:twixor_customer/models/chatUsersModel.dart';
-import 'package:twixor_customer/previewPage.dart';
+
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 
@@ -31,7 +30,6 @@ import 'package:flutter/material.dart';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 import 'helper_files/Websocket.dart';
 import 'helper_files/utilities_files.dart';
 import 'helper_files/webView.dart';
@@ -39,7 +37,6 @@ import 'API/apidata-service.dart';
 import 'dart:ui';
 import 'package:mime/mime.dart' show lookupMimeType;
 import 'models/Attachmentmodel.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:rating_dialog/rating_dialog.dart';
 

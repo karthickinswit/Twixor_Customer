@@ -19,6 +19,7 @@ String url = APP_URL + '/c/enterprises/';
 late String userEid;
 late String userCustomerId;
 late String userChatId;
+late String cCode;
 DateTime? chatCreationTime;
 
 bool isValidToken = false;
@@ -41,42 +42,42 @@ getTokenApi() async {
 }
 
 ////////////////////////////////////////////////////////
-Future<bool> _checkPrefs() async {
-  var tempCustId, tempEid;
+// Future<bool> _checkPrefs() async {
+//   var tempCustId, tempEid;
 
-  prefs = await SharedPreferences.getInstance();
-  tempCustId = prefs.getString('customerId') ?? "";
-  tempEid = prefs.getString('eId') ?? "";
-  authToken = prefs.getString('authToken') ?? "";
-  //prefs.setString('title', MainPageTitle);
-  if (tempCustId == "" && tempEid == "") {
-    await clearToken();
-    prefs.setString('customerId', userCustomerId);
-    prefs.setString('eId', userEid);
-    prefs.setString('title', MainPageTitle);
-    authToken = await getTokenApi() ?? "";
-    prefs.setString('authToken', authToken!);
+//   prefs = await SharedPreferences.getInstance();
+//   tempCustId = prefs.getString('customerId') ?? "";
+//   tempEid = prefs.getString('eId') ?? "";
+//   authToken = prefs.getString('authToken') ?? "";
+//   //prefs.setString('title', MainPageTitle);
+//   if (tempCustId == "" && tempEid == "") {
+//     await clearToken();
+//     prefs.setString('customerId', userCustomerId);
+//     prefs.setString('eId', userEid);
+//     prefs.setString('title', MainPageTitle);
+//     authToken = await getTokenApi() ?? "";
+//     prefs.setString('authToken', authToken!);
 
-    return await checktoken() ? true : await _checkPrefs();
-  } else if (tempCustId == userCustomerId && tempEid == userEid) {
-    if (authToken == "") {
-      authToken = await getTokenApi() ?? "";
-      prefs.setString('authToken', authToken!);
-      return await checktoken() ? true : await _checkPrefs();
-    } else {
-      return await checktoken() ? true : await _checkPrefs();
-    }
-  } else if (tempCustId != userCustomerId || tempEid != userEid) {
-    await clearToken();
-    prefs.setString('customerId', userCustomerId);
-    prefs.setString('eId', userEid);
-    authToken = await getTokenApi() ?? "";
-    prefs.setString('authToken', authToken!);
-    return await checktoken() ? true : await _checkPrefs();
-  } else {
-    return await checktoken() ? true : await _checkPrefs();
-  }
-}
+//     return await checktoken() ? true : await _checkPrefs();
+//   } else if (tempCustId == userCustomerId && tempEid == userEid) {
+//     if (authToken == "") {
+//       authToken = await getTokenApi() ?? "";
+//       prefs.setString('authToken', authToken!);
+//       return await checktoken() ? true : await _checkPrefs();
+//     } else {
+//       return await checktoken() ? true : await _checkPrefs();
+//     }
+//   } else if (tempCustId != userCustomerId || tempEid != userEid) {
+//     await clearToken();
+//     prefs.setString('customerId', userCustomerId);
+//     prefs.setString('eId', userEid);
+//     authToken = await getTokenApi() ?? "";
+//     prefs.setString('authToken', authToken!);
+//     return await checktoken() ? true : await _checkPrefs();
+//   } else {
+//     return await checktoken() ? true : await _checkPrefs();
+//   }
+// }
 ///////////////////////////////////////////////////////
 
 getChatUserInfo(String ChatId) async {
@@ -164,7 +165,7 @@ customerRegisterInfo() async {
 
   map['name'] = userCustomerId;
   map['phoneNumber'] = userCustomerId;
-  map['countryCode'] = '+91';
+  map['countryCode'] = cCode;
   map['countryAlpha2Code'] = 'IN';
   map['needVerification'] = 'false';
 

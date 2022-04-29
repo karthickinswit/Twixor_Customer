@@ -49,6 +49,7 @@ void main() {
     eId: '374',
     mainPageTitle: "Twixor CustomerChat",
     theme: MyTheme,
+    countryCode: "+91",
   ));
 }
 
@@ -57,10 +58,12 @@ class CustomerApp extends StatelessWidget {
   String eId;
   String mainPageTitle;
   ThemeData theme;
+  String countryCode;
   //CustomerApp(this.eId, this.customerId);
   CustomerApp(
       {Key? key,
       required this.customerId,
+      required this.countryCode,
       required this.eId,
       required this.mainPageTitle,
       required this.theme})
@@ -81,6 +84,7 @@ class CustomerApp extends StatelessWidget {
     userCustomerId = customerId;
     userEid = eId;
     MainPageTitle = mainPageTitle;
+    cCode = countryCode;
     // getSubscribe();
     getPref();
     //SocketConnect();
@@ -163,7 +167,7 @@ class CustomerApp extends StatelessWidget {
   }
 
   Future<bool> _checkPrefs() async {
-    var tempCustId, tempEid;
+    var tempCustId, tempEid, tempCountryCode;
     print("SocketinMain$isSocketConnection");
     if (isSocketConnection == false || isSocketConnection == true) {
       getCloseSocket();
@@ -172,6 +176,7 @@ class CustomerApp extends StatelessWidget {
     // isSocketConnection = false;
     prefs = await SharedPreferences.getInstance();
     tempCustId = prefs.getString('customerId') ?? "";
+    tempCountryCode = prefs.getString('countryCode') ?? "";
     tempEid = prefs.getString('eId') ?? "";
     authToken = prefs.getString('authToken') ?? "";
 
@@ -187,6 +192,7 @@ class CustomerApp extends StatelessWidget {
       prefs.setString('customerId', userCustomerId);
       prefs.setString('eId', userEid);
       prefs.setString('title', MainPageTitle);
+      prefs.setString('countryCode', countryCode);
       canCreateChat = true;
       //authToken = await getTokenApi() ?? "";
       //prefs.setString('authToken', authToken!);
@@ -205,6 +211,7 @@ class CustomerApp extends StatelessWidget {
       clearToken();
       canCreateChat = false;
       prefs.setString('customerId', userCustomerId);
+      prefs.setString('countryCode', countryCode);
       prefs.setString('eId', userEid);
       prefs.setString('chatId', '');
       canCreateChat = true;
