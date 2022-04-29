@@ -11,7 +11,6 @@ import 'package:http_parser/http_parser.dart';
 
 import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
-import 'package:rating_dialog/rating_dialog.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:twixor_customer/API/apidata-service.dart';
@@ -41,26 +40,29 @@ import 'dart:ui';
 import 'package:mime/mime.dart' show lookupMimeType;
 import 'models/Attachmentmodel.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:rating_dialog/rating_dialog.dart';
 
 enum ImageSourceType { gallery, camera }
 
 // ignore: must_be_immutable
-class ChatDetailPage extends StatefulWidget {
+class MissedChatDetailPage extends StatefulWidget {
   String? jsonData = "";
   String attachmentData = "";
   String userChatId = "";
   //List<ChatMessage> messages = [];
 
-  ChatDetailPage(this.userChatId, this.attachmentData);
+  MissedChatDetailPage(this.userChatId, this.attachmentData, {Key? key})
+      : super(key: key);
 
   @override
-  _ChatDetailPageState createState() =>
+  _MissedChatDetailPageState createState() =>
       // ignore: no_logic_in_create_state
 
-      _ChatDetailPageState(userChatId, attachmentData);
+      _MissedChatDetailPageState(userChatId, attachmentData);
 }
 
-class _ChatDetailPageState extends State<ChatDetailPage>
+class _MissedChatDetailPageState extends State<MissedChatDetailPage>
     with WidgetsBindingObserver {
   String? imageUrl;
   String? name;
@@ -123,7 +125,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 
   // ScrollController _controller = ScrollController();
 
-  _ChatDetailPageState(this.userChatId, this.attachmentData);
+  _MissedChatDetailPageState(this.userChatId, this.attachmentData);
 
   getMsg(String userChatId) async {
     // print("ChatID2--> $userChatId");
@@ -246,15 +248,15 @@ class _ChatDetailPageState extends State<ChatDetailPage>
               foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
               leading: IconButton(
                 onPressed: () {
-                  // Navigator.of(context).pop(true);
+                  Navigator.of(context).pop(true);
                   // mainSubscription!.pause();
                   // Navigator.of(context).pop(true);
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute<dynamic>(
-                      builder: (BuildContext context) => const MyHomePage(),
-                    ),
-                  );
+                  // Navigator.pushReplacement(
+                  //   context,
+                  //   MaterialPageRoute<dynamic>(
+                  //     builder: (BuildContext context) => const MyHomePage(),
+                  //   ),
+                  // );
                   // Navigator.pushAndRemoveUntil<dynamic>(
                   //   context,
                   //   MaterialPageRoute<dynamic>(
@@ -305,402 +307,386 @@ class _ChatDetailPageState extends State<ChatDetailPage>
 
               //listView,
 
-              ValueListenableBuilder(
-                  valueListenable: messages!,
-                  builder:
-                      (BuildContext context, List<ChatMessage> value, child) {
-                    // print("notifyValue--> ${value}");
-                    _scrollToEnd();
+              ListView.builder(
+                controller: _controller,
+                itemCount: messages!.value.length,
+                physics: AlwaysScrollableScrollPhysics(),
+                //addSemanticIndexes: true,
+                padding: const EdgeInsets.only(bottom: 60),
+                shrinkWrap: true,
+                itemBuilder: (context, index) {
+                  // _scrollToEnd();
 
-                    return ListView.builder(
-                      controller: _controller,
-                      itemCount: messages!.value.length,
-                      physics: AlwaysScrollableScrollPhysics(),
-                      //addSemanticIndexes: true,
-                      padding: const EdgeInsets.only(bottom: 60),
-                      shrinkWrap: true,
-                      itemBuilder: (context, index) {
-                        // _scrollToEnd();
+                  List<String> messageIds = [];
+                  messageIds.add(messages!.value[index].actionId.toString());
+                  // print("messageIds ${messageIds.runtimeType}");
+                  if (messages!.value[index].status != "2" &&
+                          messages!.value[index].actionType == "1" ||
+                      messages!.value[index].actionType == "0") {
+                    // print("messageIds1");
+                    SendMessage temp = SendMessage();
 
-                        List<String> messageIds = [];
-                        messageIds
-                            .add(messages!.value[index].actionId.toString());
-                        // print("messageIds ${messageIds.runtimeType}");
-                        if (messages!.value[index].status != "2" &&
-                                messages!.value[index].actionType == "1" ||
-                            messages!.value[index].actionType == "0") {
-                          // print("messageIds1");
-                          SendMessage temp = SendMessage();
+                    temp.action = "chatMessageStatus";
 
-                          temp.action = "chatMessageStatus";
+                    temp.chatId = chatUser!.value.chatId;
 
-                          temp.chatId = chatUser!.value.chatId;
+                    List<String> m = [];
+                    m.add(messages!.value[index].actionId!);
+                    temp.actiondIds = m;
 
-                          List<String> m = [];
-                          m.add(messages!.value[index].actionId!);
-                          temp.actiondIds = m;
+                    // updateMessageStatus(temp);
+                    messages!.value[index].status = "2";
+                    // setState(() {});
+                  }
 
-                          updateMessageStatus(temp);
-                          messages!.value[index].status = "2";
-                          // setState(() {});
-                        }
+                  /// _scrollToEnd();
 
-                        /// _scrollToEnd();
-
-                        return Column(
-                          children: <Widget>[
-                            const SizedBox(
-                              height: 10,
+                  return Column(children: <Widget>[
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    (messages!.value[index].actionType != "1" ||
+                            messages!.value[index].actionType != "3")
+                        ? ChatUtilMessage(messages!.value[index])
+                        : Container(),
+                    (messages!.value[index].actionType == "1" ||
+                            messages!.value[index].actionType == "0" ||
+                            messages!.value[index].actionType == "3")
+                        ? Container(
+                            padding: const EdgeInsets.only(
+                                left: 16, right: 16, top: 5, bottom: 5),
+                            child: Align(
+                              alignment:
+                                  (messages!.value[index].actionType == "3"
+                                      ? Alignment.topLeft
+                                      : Alignment.topRight),
+                              child: Container(
+                                //width: MediaQuery.of(context).size.width,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: (messages!.value[index].actionType ==
+                                              "1" ||
+                                          messages!.value[index].actionType ==
+                                              "0"
+                                      ? Colors.grey.shade200
+                                      : Colors.blue[50]),
+                                ),
+                                padding: const EdgeInsets.all(14),
+                                child: CheckType(
+                                    index, messages!.value[index].url),
+                              ),
                             ),
-                            (messages!.value[index].actionType != "1" ||
-                                    messages!.value[index].actionType != "3")
-                                ? ChatUtilMessage(messages!.value[index])
-                                : Container(),
-                            (messages!.value[index].actionType == "1" ||
-                                    messages!.value[index].actionType == "0" ||
-                                    messages!.value[index].actionType == "3")
-                                ? Container(
-                                    padding: const EdgeInsets.only(
-                                        left: 16, right: 16, top: 5, bottom: 5),
-                                    child: Align(
-                                      alignment:
-                                          (messages!.value[index].actionType ==
-                                                  "3"
-                                              ? Alignment.topLeft
-                                              : Alignment.topRight),
-                                      child: Container(
-                                        //width: MediaQuery.of(context).size.width,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          color: (messages!.value[index]
-                                                          .actionType ==
-                                                      "1" ||
-                                                  messages!.value[index]
-                                                          .actionType ==
-                                                      "0"
-                                              ? Colors.grey.shade200
-                                              : Colors.blue[50]),
-                                        ),
-                                        padding: const EdgeInsets.all(14),
-                                        child: CheckType(
-                                            index, messages!.value[index].url),
-                                      ),
-                                    ),
-                                  )
-                                : Container(),
-                            (messages!.value[index].actionType == "8") &&
-                                    (chatUser!.value.isRated != true)
-                                ? Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                        const SizedBox(
-                                          height: 10,
-                                        ),
-                                        Container(
-                                          padding: const EdgeInsets.only(
-                                              left: 16,
-                                              right: 16,
-                                              top: 5,
-                                              bottom: 5),
-                                          child: Align(
-                                            alignment:
-                                                // (messages!.value[index].actionType == "3"
-                                                //     ?
-                                                Alignment.topLeft,
-                                            // : Alignment.topRight),
-                                            child: Container(
-                                              //width: MediaQuery.of(context).size.width,
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                // color: (messages!.value[index].actionType ==
-                                                //             "1" ||
-                                                //         messages!.value[index].actionType ==
-                                                //             "0"
-                                                // ?
-                                                color: Colors.grey.shade200,
-                                                // : Colors.blue[50]),
-                                              ),
-                                              padding: const EdgeInsets.all(14),
-                                              child: Column(
-                                                children: [
-                                                  Container(
-                                                    height: 50.0,
-                                                    margin: EdgeInsets.all(10),
-                                                    child: RaisedButton(
-                                                      onPressed: () {
-                                                        final _dialog =
-                                                            RatingDialog(
-                                                          initialRating: 1.0,
-                                                          // your app's name?
-                                                          title: const Text(
-                                                            'Rate this Chat',
-                                                            textAlign: TextAlign
-                                                                .center,
-                                                            style: TextStyle(
-                                                              fontSize: 25,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                            ),
-                                                          ),
-                                                          // encourage your user to leave a high rating?
-                                                          message: const Text(
-                                                            'Rate your experience with this conversation',
-                                                            textAlign: TextAlign
-                                                                .center,
-                                                            style: TextStyle(
-                                                                fontSize: 15),
-                                                          ),
-                                                          // your app's logo?
+                          )
+                        : Container(),
+                    //////////////////////////////////////Action Type == 8 ///////////////////////////////////////
+                    // (messages!.value[index].actionType == "8") &&
+                    //         (chatUser!.value.isRated != true)
+                    //     ? Column(
+                    //         mainAxisAlignment: MainAxisAlignment.center,
+                    //         children: [
+                    //             const SizedBox(
+                    //               height: 10,
+                    //             ),
+                    //             Container(
+                    //               padding: const EdgeInsets.only(
+                    //                   left: 16, right: 16, top: 5, bottom: 5),
+                    //               child: Align(
+                    //                 alignment:
+                    //                     // (messages!.value[index].actionType == "3"
+                    //                     //     ?
+                    //                     Alignment.topLeft,
+                    //                 // : Alignment.topRight),
+                    //                 child: Container(
+                    //                   //width: MediaQuery.of(context).size.width,
+                    //                   decoration: BoxDecoration(
+                    //                     borderRadius: BorderRadius.circular(10),
+                    //                     // color: (messages!.value[index].actionType ==
+                    //                     //             "1" ||
+                    //                     //         messages!.value[index].actionType ==
+                    //                     //             "0"
+                    //                     // ?
+                    //                     color: Colors.grey.shade200,
+                    //                     // : Colors.blue[50]),
+                    //                   ),
+                    //                   padding: const EdgeInsets.all(14),
+                    //                   child: Column(
+                    //                     children: [
+                    //                       Container(
+                    //                         child: const Text(
+                    //                           "Please Give the Rating",
+                    //                         ),
+                    //                       ),
+                    //                       Container(
+                    //                         height: 50.0,
+                    //                         margin: EdgeInsets.all(10),
+                    //                         child: RaisedButton(
+                    //                           onPressed: () {
+                    //                             final _dialog = RatingDialog(
+                    //                               initialRating: 1.0,
+                    //                               // your app's name?
+                    //                               title: const Text(
+                    //                                 'Rate this Chat',
+                    //                                 textAlign: TextAlign.center,
+                    //                                 style: TextStyle(
+                    //                                   fontSize: 25,
+                    //                                   fontWeight:
+                    //                                       FontWeight.bold,
+                    //                                 ),
+                    //                               ),
+                    //                               // encourage your user to leave a high rating?
+                    //                               message: const Text(
+                    //                                 'Rate your experience with this conversation',
+                    //                                 textAlign: TextAlign.center,
+                    //                                 style:
+                    //                                     TextStyle(fontSize: 15),
+                    //                               ),
+                    //                               // your app's logo?
 
-                                                          submitButtonText:
-                                                              'Submit',
-                                                          commentHint:
-                                                              'Please Enter your Feedback',
-                                                          onCancelled: () =>
-                                                              print(
-                                                                  'cancelled'),
-                                                          onSubmitted:
-                                                              (response) {
-                                                            print(
-                                                                'rating: ${response.rating}, comment: ${response.comment}');
-                                                            SendMessage
-                                                                sendRating =
-                                                                new SendMessage();
-                                                            sendRating.chatId =
-                                                                userChatId;
-                                                            sendRating.eId =
-                                                                int.parse(
-                                                                    userEid);
-                                                            sendRating.message =
-                                                                response
-                                                                    .comment;
-                                                            sendRatingMsg(
-                                                                sendRating,
-                                                                response.rating
-                                                                    .round());
+                    //                               submitButtonText: 'Submit',
+                    //                               commentHint:
+                    //                                   'Please Enter your Feedback',
+                    //                               onCancelled: () =>
+                    //                                   print('cancelled'),
+                    //                               onSubmitted: (response) {
+                    //                                 print(
+                    //                                     'rating: ${response.rating}, comment: ${response.comment}');
+                    //                                 SendMessage sendRating =
+                    //                                     new SendMessage();
+                    //                                 sendRating.chatId =
+                    //                                     userChatId;
+                    //                                 sendRating.eId =
+                    //                                     int.parse(userEid);
+                    //                                 sendRating.message =
+                    //                                     response.comment;
+                    //                                 sendRatingMsg(
+                    //                                     sendRating,
+                    //                                     response.rating
+                    //                                         .round());
 
-                                                            // TODO: add your own logic
-                                                            if (response
-                                                                    .rating <
-                                                                3.0) {
-                                                              // send their comments to your email or anywhere you wish
-                                                              // ask the user to contact you instead of leaving a bad review
-                                                            } else {
-                                                              // _rateAndReviewApp();
-                                                            }
-                                                          },
-                                                        );
+                    //                                 // TODO: add your own logic
+                    //                                 if (response.rating < 3.0) {
+                    //                                   // send their comments to your email or anywhere you wish
+                    //                                   // ask the user to contact you instead of leaving a bad review
+                    //                                 } else {
+                    //                                   // _rateAndReviewApp();
+                    //                                 }
+                    //                               },
+                    //                             );
 
-                                                        // show the dialog
-                                                        showDialog(
-                                                          context: context,
-                                                          barrierDismissible:
-                                                              true, // set to false if you want to force a rating
-                                                          builder: (context) =>
-                                                              _dialog,
-                                                        );
-                                                      },
-                                                      shape:
-                                                          RoundedRectangleBorder(
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          80.0)),
-                                                      padding:
-                                                          EdgeInsets.all(0.0),
-                                                      child: Ink(
-                                                        decoration:
-                                                            BoxDecoration(
-                                                                gradient:
-                                                                    LinearGradient(
-                                                                  colors: [
-                                                                    Color(
-                                                                        0xff374ABE),
-                                                                    Color(
-                                                                        0xff64B6FF)
-                                                                  ],
-                                                                  begin: Alignment
-                                                                      .centerLeft,
-                                                                  end: Alignment
-                                                                      .centerRight,
-                                                                ),
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            30.0)),
-                                                        child: Container(
-                                                          constraints:
-                                                              BoxConstraints(
-                                                                  maxWidth:
-                                                                      250.0,
-                                                                  minHeight:
-                                                                      50.0),
-                                                          alignment:
-                                                              Alignment.center,
-                                                          child: Text(
-                                                            "Give Feedback",
-                                                            textAlign: TextAlign
-                                                                .center,
-                                                            style: TextStyle(
-                                                                color: Colors
-                                                                    .white,
-                                                                fontSize: 15),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        )
-                                      ])
-                                : Container()
-                          ],
-                        );
-                      },
-                    );
-                  }),
+                    //                             // show the dialog
+                    //                             showDialog(
+                    //                               context: context,
+                    //                               barrierDismissible:
+                    //                                   true, // set to false if you want to force a rating
+                    //                               builder: (context) => _dialog,
+                    //                             );
+                    //                           },
+                    //                           shape: RoundedRectangleBorder(
+                    //                               borderRadius:
+                    //                                   BorderRadius.circular(
+                    //                                       80.0)),
+                    //                           padding: EdgeInsets.all(0.0),
+                    //                           child: Ink(
+                    //                             decoration: BoxDecoration(
+                    //                                 gradient: LinearGradient(
+                    //                                   colors: [
+                    //                                     Color(0xff374ABE),
+                    //                                     Color(0xff64B6FF)
+                    //                                   ],
+                    //                                   begin:
+                    //                                       Alignment.centerLeft,
+                    //                                   end:
+                    //                                       Alignment.centerRight,
+                    //                                 ),
+                    //                                 borderRadius:
+                    //                                     BorderRadius.circular(
+                    //                                         30.0)),
+                    //                             child: Container(
+                    //                               constraints: BoxConstraints(
+                    //                                   maxWidth: 250.0,
+                    //                                   minHeight: 50.0),
+                    //                               alignment: Alignment.center,
+                    //                               child: Text(
+                    //                                 "Give Feedback",
+                    //                                 textAlign: TextAlign.center,
+                    //                                 style: TextStyle(
+                    //                                     color: Colors.white,
+                    //                                     fontSize: 15),
+                    //                               ),
+                    //                             ),
+                    //                           ),
+                    //                         ),
+                    //                       ),
+                    //                     ],
+                    //                   ),
+                    //                 ),
+                    //               ),
+                    //             )
+                    //           ])
+                    //     : Container()
+                  ]);
+                },
+              ),
+
               //  alignList("text", false, "")
               // (attachment!.url != null && attachment!.url != "")
               //? alignList(attachment!)
               // alignList(Attachment(type: "MSG")),
-              Align(
-                alignment: Alignment.bottomLeft,
-                child: Container(
-                  padding: const EdgeInsets.only(left: 10, bottom: 10, top: 10),
-                  height: 60,
-                  width: double.infinity,
-                  color: Colors.white,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      modelSheet(context),
-                      const SizedBox(
-                        width: 15,
-                      ),
-                      Expanded(
-                        child: TextField(
-                          textInputAction: TextInputAction.go,
-                          onSubmitted: (value) {
-                            FocusScopeNode currentFocus =
-                                FocusScope.of(context);
+              // Align(
+              //   alignment: Alignment.bottomLeft,
+              //   child: Container(
+              //     padding: const EdgeInsets.only(left: 10, bottom: 10, top: 10),
+              //     height: 60,
+              //     width: double.infinity,
+              //     color: Colors.white,
+              //     child: Row(
+              //       crossAxisAlignment: CrossAxisAlignment.center,
+              //       mainAxisAlignment: MainAxisAlignment.center,
+              //       children: <Widget>[
+              //         modelSheet(context),
+              //         const SizedBox(
+              //           width: 15,
+              //         ),
+              //         Expanded(
+              //           child: TextField(
+              //             textInputAction: TextInputAction.go,
+              //             onSubmitted: (value) {
+              //               FocusScopeNode currentFocus =
+              //                   FocusScope.of(context);
 
-                            if (!currentFocus.hasPrimaryFocus) {
-                              currentFocus.unfocus();
-                            }
-                            // print("keyboard send");
-                            if (value.isNotEmpty) {
-                              sendmessage(SendMessage(
-                                  action: messages!.value.length > 0
-                                      ? "customerReplyChat"
-                                      : "customerStartChat",
-                                  actionBy: isAlreadyPicked != ""
-                                      ? int.parse(actionBy!)
-                                      : 0,
-                                  actionType: 1,
-                                  attachment: Attachment(),
-                                  chatId: chatId!,
-                                  contentType: "TEXT",
-                                  eId: int.parse(eId!),
-                                  message: value));
+              //               if (!currentFocus.hasPrimaryFocus) {
+              //                 currentFocus.unfocus();
+              //               }
+              //               // print("keyboard send");
+              //               if (value.isNotEmpty) {
+              //                 sendmessage(SendMessage(
+              //                     action: messages!.value.length > 0
+              //                         ? "customerReplyChat"
+              //                         : "customerStartChat",
+              //                     actionBy: isAlreadyPicked != ""
+              //                         ? int.parse(actionBy!)
+              //                         : 0,
+              //                     actionType: 1,
+              //                     attachment: Attachment(),
+              //                     chatId: chatId!,
+              //                     contentType: "TEXT",
+              //                     eId: int.parse(eId!),
+              //                     message: value));
 
-                              setState(() {
-                                attachment = Attachment();
-                                attachmentData = "";
-                                // WidgetsBinding.instance?.removeObserver(this);
+              //                 setState(() {
+              //                   attachment = Attachment();
+              //                   attachmentData = "";
+              //                   // WidgetsBinding.instance?.removeObserver(this);
 
-                                _scrollToEnd();
-                                setState(() {});
-                              });
-                            }
-                            msgController.clear();
-                          },
-                          //onChanged: (newValue) => _onUrlChanged(newValue),
-                          controller: msgController,
-                          decoration: const InputDecoration(
-                            hintText: "Write message...",
-                            hintStyle: TextStyle(color: Colors.black54),
-                            border: InputBorder.none,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 15,
-                      ),
-                      FloatingActionButton(
-                        onPressed: () {
-                          FocusScopeNode currentFocus = FocusScope.of(context);
+              //                   _scrollToEnd();
+              //                   setState(() {});
+              //                 });
+              //               }
+              //               msgController.clear();
+              //             },
+              //             //onChanged: (newValue) => _onUrlChanged(newValue),
+              //             controller: msgController,
+              //             decoration: const InputDecoration(
+              //               hintText: "Write message...",
+              //               hintStyle: TextStyle(color: Colors.black54),
+              //               border: InputBorder.none,
+              //             ),
+              //           ),
+              //         ),
+              //         const SizedBox(
+              //           width: 15,
+              //         ),
+              //         FloatingActionButton(
+              //           onPressed: () {
+              //             FocusScopeNode currentFocus = FocusScope.of(context);
 
-                          if (!currentFocus.hasPrimaryFocus) {
-                            currentFocus.unfocus();
-                          }
-                          // print(msgController.text);
-                          //Attachment attachment;
+              //             if (!currentFocus.hasPrimaryFocus) {
+              //               currentFocus.unfocus();
+              //             }
+              //             // print(msgController.text);
+              //             //Attachment attachment;
 
-                          if (msgController.text.isNotEmpty) {
-                            // var temp = ChatMessage(
-                            //     messageContent: msgController.text,
-                            //     messageType: "sender",
-                            //     isUrl: Uri.parse(msgController.text).isAbsolute,
-                            //     contentType: "TEXT",
-                            //     url: '',
-                            //     attachment: Attachment(),
-                            //     eId: eId,
-                            //     actionType: "1",
-                            //     actionBy: actionBy!,
-                            //     actedOn: DateTime.now().toUtc().toString());
-                            // messages!.value.add(temp);
-                            // print(actionBy);
-                            // print("app send");
-                            // print(chatUser!.value.toJson());
-                            sendmessage(SendMessage(
-                                action: messages!.value.length > 0
-                                    ? "customerReplyChat"
-                                    : "customerStartChat",
-                                actionBy: isAlreadyPicked
-                                    ? int.parse(chatUser!.value.actionBy!)
-                                    : 0,
-                                actionType: 1,
-                                attachment: Attachment(),
-                                chatId: chatUser!.value.chatId,
-                                contentType: "TEXT",
-                                eId: int.parse(chatUser!.value.eId!),
-                                message: msgController.text));
+              //             if (msgController.text.isNotEmpty) {
+              //               // var temp = ChatMessage(
+              //               //     messageContent: msgController.text,
+              //               //     messageType: "sender",
+              //               //     isUrl: Uri.parse(msgController.text).isAbsolute,
+              //               //     contentType: "TEXT",
+              //               //     url: '',
+              //               //     attachment: Attachment(),
+              //               //     eId: eId,
+              //               //     actionType: "1",
+              //               //     actionBy: actionBy!,
+              //               //     actedOn: DateTime.now().toUtc().toString());
+              //               // messages!.value.add(temp);
+              //               // print(actionBy);
+              //               // print("app send");
+              //               // print(chatUser!.value.toJson());
+              //               sendmessage(SendMessage(
+              //                   action: messages!.value.length > 0
+              //                       ? "customerReplyChat"
+              //                       : "customerStartChat",
+              //                   actionBy: isAlreadyPicked
+              //                       ? int.parse(chatUser!.value.actionBy!)
+              //                       : 0,
+              //                   actionType: 1,
+              //                   attachment: Attachment(),
+              //                   chatId: chatUser!.value.chatId,
+              //                   contentType: "TEXT",
+              //                   eId: int.parse(chatUser!.value.eId!),
+              //                   message: msgController.text));
 
-                            setState(() {
-                              attachment = Attachment();
-                              attachmentData = "";
-                              //WidgetsBinding.instance?.removeObserver(this);
-                              _scrollToEnd();
-                            });
-                          }
-                          msgController.clear();
-                        },
-                        child: IconTheme(
-                          data: Theme.of(context).copyWith().iconTheme,
-                          child: const Icon(
-                            Icons.send,
-                            color: Colors.white,
-                            size: 18,
-                          ),
-                        ),
-                        backgroundColor: Colors.blue,
-                        elevation: 0,
-                      ),
-                    ],
-                  ),
-                ),
-              )
+              //               setState(() {
+              //                 attachment = Attachment();
+              //                 attachmentData = "";
+              //                 //WidgetsBinding.instance?.removeObserver(this);
+              //                 _scrollToEnd();
+              //               });
+              //             }
+              //             msgController.clear();
+              //           },
+              //           child: IconTheme(
+              //             data: Theme.of(context).copyWith().iconTheme,
+              //             child: const Icon(
+              //               Icons.send,
+              //               color: Colors.white,
+              //               size: 18,
+              //             ),
+              //           ),
+              //           backgroundColor: Colors.blue,
+              //           elevation: 0,
+              //         ),
+              //       ],
+              //     ),
+              //   ),
+              // )
             ],
           ),
           resizeToAvoidBottomInset: true,
         ));
+  }
+
+  ratingWidget() {
+    RatingBar.builder(
+      initialRating: 0,
+      minRating: 1,
+      direction: Axis.horizontal,
+      allowHalfRating: false,
+      unratedColor: Colors.amber.withAlpha(50),
+      itemCount: 5,
+      itemSize: 25.0,
+      itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
+      itemBuilder: (context, _) => Icon(
+        Icons.star,
+        color: Colors.amber,
+      ),
+      onRatingUpdate: (rating) {
+        setState(() {
+          print("Customer Rating $rating");
+        });
+      },
+      updateOnDrag: true,
+    );
   }
 
   FiledALert() {
@@ -783,6 +769,9 @@ class _ChatDetailPageState extends State<ChatDetailPage>
       }
       if (message.actionType == "11") {
         utilMsg = message.messageContent!;
+      }
+      if (message.actionType == "7") {
+        utilMsg = "";
       }
     }
     return utilMsg != ""

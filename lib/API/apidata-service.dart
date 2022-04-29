@@ -151,7 +151,7 @@ newChatCreate() async {
     isValidToken = false;
     //websocket pause
     //loader
-    var token = customerRegisterInfo();
+    var token = await customerRegisterInfo();
     if (token) {
       newChatCreate();
     }
@@ -243,6 +243,66 @@ customerRegisterInfo() async {
 //chatCreated : false --> clicked chat creation --> --> chatId --> chatCreatd : true --> chat(localStorage chatId == agentEndChat ChatId) close (inactive/agent close) --> chatCreated : false
 
 //sendMessage common , navigator common
+
+Future<List<ChatUsers>> getMissedChatList() async {
+  List<ChatUsers> missedUsers = [];
+  // https://aim.twixor.com/c/enterprises/103/chats
+  List<ChatUsers> chatUsers = [];
+  var tempUrl = APP_URL +
+      'c/enterprises/chat/history?fromDate=2019-02-16T06:34:16.859Z'; //url + userEid + '/chats
+  final response = await http
+      .get(Uri.parse(url + userEid + '/chat/history?from=0&state=3'), headers: {
+    'authentication-token': await getTokenApi(),
+    'Content-Type': 'application/x-www-form-urlencoded'
+  });
+
+  print(response.headers.toString());
+  if (response.statusCode == 200) {
+    isValidToken = true;
+    print(response.body.toString());
+    var obj = checkApiResponse(response.body.replaceAll("\$", ""));
+    //json.decode(response.body.replaceAll("\$", ""));
+    try {
+      var chats = obj["response"]["chats"];
+      if (chats.length > 0) {
+        chats.forEach((v) {
+          missedUsers.add(ChatUsers.fromJson(v));
+
+          //print(v);
+        });
+        List chatuserDetails = obj["response"]["users"];
+        //  chatuserDetails;
+        chatuserDetails.forEach((element) {
+          print("Agnets");
+          // print(element.toString());
+          chatAgents.add(ChatAgent.fromJson(element));
+        });
+      }
+
+      //throw ("getting Chat List Failed");
+
+      return missedUsers;
+    } catch (Exp) {
+      // ErrorAlert(context, "getting Chat List Failed");
+      isValidToken = false;
+
+      // throw ("getting Chat List Failed");
+      return missedUsers;
+      //getChatList();
+    }
+  } else {
+    // isValidToken = false;
+    // clearToken();
+    // await getTokenApi();
+    // print("Token Expiry {}")
+    print(response.statusCode.toString());
+    clearToken();
+
+    // throw ("getting Chat List Failed");
+
+    return getMissedChatList();
+  }
+}
 
 checktoken() async {
 //url + user + '/chats

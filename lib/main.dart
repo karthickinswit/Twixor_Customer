@@ -6,7 +6,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:permission_handler/permission_handler.dart';
+
 import 'package:rxdart/subjects.dart';
 import 'package:twixor_customer/HomePage.dart';
 import 'package:twixor_customer/chatDetailPage.dart';
@@ -31,9 +31,11 @@ ThemeData MyTheme = ThemeData(
   ).copyWith(
     secondary: Colors.green,
   ),
-  backgroundColor: Colors.amber[50],
+  backgroundColor: Color.fromARGB(255, 250, 249, 246),
   appBarTheme: const AppBarTheme(
-      color: Colors.blue, elevation: 0, foregroundColor: Colors.amber),
+      color: Colors.blue,
+      elevation: 0,
+      foregroundColor: Color.fromARGB(255, 250, 249, 246)),
   textTheme: const TextTheme(bodyText2: TextStyle(color: Colors.black87)),
   buttonTheme: const ButtonThemeData(
     textTheme: ButtonTextTheme.normal,

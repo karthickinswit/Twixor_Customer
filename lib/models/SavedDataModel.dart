@@ -7,6 +7,8 @@ import 'package:twixor_customer/helper_files/Websocket.dart';
 import 'package:twixor_customer/models/chatMessageModel.dart';
 import 'package:twixor_customer/models/chatUsersModel.dart';
 
+List<ChatUsers> missedChatUsers=[];
+
 ValueNotifier<ChatUsers>? chatUser = ValueNotifier(ChatUsers(
     name: "",
     messageText: "",

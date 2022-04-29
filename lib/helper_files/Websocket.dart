@@ -46,6 +46,7 @@ Future<bool> SocketConnect() async {
     //print("Channel sink ${await channel!.sink.done}");
     print("WebSocket-->${channel!.hashCode}");
     print("InnerWebSocket-->${channel!.innerWebSocket.hashCode}");
+    prefs = await SharedPreferences.getInstance();
 
     channel!.stream.listen(
       (data) {
@@ -111,19 +112,19 @@ Future<bool> SocketConnect() async {
             messages!.value = swapMsg(k);
             messages!.notifyListeners();
             var temp;
-            chatUser!.value = ChatUsers(
-                name: "",
-                messageText: "",
-                imageURL: "",
-                time: "",
-                msgindex: 0,
-                messages: [],
-                actionBy: "",
-                chatId: "",
-                eId: "",
-                chatAgents: chatAgents,
-                state: "",
-                newMessageCount: "");
+            // chatUser!.value = ChatUsers(
+            //     name: "",
+            //     messageText: "",
+            //     imageURL: "",
+            //     time: "",
+            //     msgindex: 0,
+            //     messages: [],
+            //     actionBy: "",
+            //     chatId: "",
+            //     eId: "",
+            //     chatAgents: chatAgents,
+            //     state: "",
+            //     newMessageCount: "");
             // messages!.value = [];
             chatUser!.notifyListeners();
             // setState(() {});
@@ -165,6 +166,36 @@ Future<bool> SocketConnect() async {
             messages!.notifyListeners();
             chatUser!.value.messageText =
                 json.content![0].response!.chat!.messages!.last.messageContent;
+            chatUser!.notifyListeners();
+          }
+        } else if (message1["action"] == "agentThankyou") {
+          print("Message received Socket");
+          print("agentThankyou $message1");
+          var json = SocketResponse.fromJson(message1);
+          List<ChatMessage> k = json.content![0].response!.chat!.messages!;
+          var chatId = json.content![0].response!.chat!.chatId;
+
+          if (chatId == chatUser!.value.chatId) {
+            messages!.value = swapMsg(k);
+            messages!.notifyListeners();
+            chatUser!.value.messageText =
+                json.content![0].response!.chat!.messages!.last.messageContent;
+            chatUser!.value.isRated = true;
+
+            // chatUser!.value = ChatUsers(
+            //     name: "",
+            //     messageText: "",
+            //     imageURL: "",
+            //     time: "",
+            //     msgindex: 0,
+            //     messages: [],
+            //     actionBy: "",
+            //     chatId: "",
+            //     eId: "",
+            //     chatAgents: chatAgents,
+            //     state: "",
+            //     newMessageCount: "");
+            // messages!.value = [];
             chatUser!.notifyListeners();
           }
         } else if (message1["action"] == "chatError") {
@@ -309,6 +340,25 @@ Future<void> updateMessageStatus(SendMessage sendMessage) async {
 
   // print(json.encode(data));
   channel!.sink.add(json.encode(data));
+}
+
+Future<void> sendRatingMsg(SendMessage sendMessage, int rating) async {
+  // IOWebSocketChannel? channel;
+  //channel IP : Port\\"ws://192.168.0.109:6060/$myid"
+
+  // if (isSocketConnection == false) {
+  //   SocketConnect();
+  // }
+  var data = {};
+  data["action"] = "customerRateChat";
+  data["chatId"] = sendMessage.chatId;
+  // data["contentType"] = sendMessage.contentType;
+  data["eId"] = sendMessage.eId;
+  data["comment"] = sendMessage.message;
+  data["rating"] = rating;
+
+  print(json.encode(data).toString());
+  channel!.sink.add(json.encode(data)); //send message to reciever channel
 }
 
 class WebsocketsProvider extends ChangeNotifier {

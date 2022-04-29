@@ -16,6 +16,7 @@ class ChatUsers {
   List? chatAgents;
   String? state;
   String? newMessageCount;
+  bool isRated = false;
   ChatUsers(
       {required this.name,
       required this.messageText,
@@ -49,6 +50,7 @@ class ChatUsers {
         json["handlingAgent"] != null ? json["handlingAgent"].toString() : "";
     chatId = json["chatId"] != null ? json["chatId"].toString() : "";
     eId = json["eId"] != null ? json["eId"].toString() : "";
+    isRated = json["isRated"] ?? false;
     messages = <ChatMessage>[];
     if (json.containsKey('messages')) {
       json['messages'].forEach((v) {
@@ -85,6 +87,7 @@ class ChatUsers {
     actionBy = data["actionBy"];
     state = data["state"] as String;
     newMessageCount = "0";
+    isRated = data["isRated"] ?? false;
     messages = <ChatMessage>[];
     chatAgents = <ChatAgent>[];
     var temp = data["messages"];
@@ -116,6 +119,7 @@ class ChatUsers {
     data['state'] = this.state as String;
     data['chatuserDetails'] = this.chatAgents;
     data['newMessageCount'] = "0";
+    data['isRated'] = this.isRated;
     return data;
   }
 }
