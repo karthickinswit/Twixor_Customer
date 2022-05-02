@@ -45,7 +45,7 @@ ThemeData MyTheme = ThemeData(
 );
 void main() {
   runApp(CustomerApp(
-    customerId: '8190083902',
+    customerId: '8190083903',
     eId: '374',
     mainPageTitle: "Twixor CustomerChat",
     theme: MyTheme,
@@ -114,7 +114,7 @@ class CustomerApp extends StatelessWidget {
                 return MaterialApp(
                     theme: customTheme,
                     title: "Twixor",
-                    home: Center(
+                    home: const Center(
                       child: CircularProgressIndicator(),
                     ));
               }
@@ -122,7 +122,7 @@ class CustomerApp extends StatelessWidget {
               return MaterialApp(
                   theme: customTheme,
                   title: "Twixor",
-                  home: Center(
+                  home: const Center(
                     child: CircularProgressIndicator(),
                   ));
             }

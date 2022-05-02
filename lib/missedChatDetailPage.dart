@@ -107,11 +107,12 @@ class _MissedChatDetailPageState extends State<MissedChatDetailPage>
   _onUrlChanged(String updatedUrl) {}
 
   _scrollToEnd() async {
-    // print(_controller.hasClients);
+    print(_controller.hasClients);
     if (_controller.hasClients) {
       // print(_controller.position.haveDimensions);
       if (_controller.position.haveDimensions) {
         // print(_controller.position.maxScrollExtent ?? _controller.position);
+        print("MaxScrollExtend ${_controller.position.maxScrollExtent}");
 
         _controller.animateTo(_controller.position.maxScrollExtent + 1000,
             duration: const Duration(microseconds: 60),
@@ -128,9 +129,24 @@ class _MissedChatDetailPageState extends State<MissedChatDetailPage>
     // print("ChatID2--> $userChatId");
     // return jsonData = json.encode(await getChatUserInfo(userChatId));
   }
+  _scrollListener() {
+    if (_controller.offset >= _controller.position.maxScrollExtent &&
+        !_controller.position.outOfRange) {
+      setState(() {
+        print("reach the bottom");
+      });
+    }
+    if (_controller.offset <= _controller.position.minScrollExtent &&
+        !_controller.position.outOfRange) {
+      setState(() {
+        print("reach the top");
+      });
+    }
+  }
 
   @override
   initState() {
+    _controller.addListener(_scrollListener);
     super.initState();
 
     // getMsg(userChatId).then((result) {
@@ -306,8 +322,9 @@ class _MissedChatDetailPageState extends State<MissedChatDetailPage>
 
               ListView.builder(
                 controller: _controller,
-                itemCount: messages!.value.length,
-                physics: AlwaysScrollableScrollPhysics(),
+                itemCount: ((messages!.value.length) / 2).round(),
+                // physics: AlwaysScrollableScrollPhysics(),
+                physics: const AlwaysScrollableScrollPhysics(),
                 //addSemanticIndexes: true,
                 padding: const EdgeInsets.only(bottom: 60),
                 shrinkWrap: true,

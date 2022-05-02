@@ -69,6 +69,9 @@ class _MyHomePageState extends State<MyHomePage>
 
   late String userDetails;
 
+  int currentPage = 0;
+  int perPage = 10;
+
   String? ChatId;
   late SharedPreferences prefs;
   bool allowStorage = false;
@@ -78,12 +81,15 @@ class _MyHomePageState extends State<MyHomePage>
 
   final List<TextEditingController> _notifyControllers = [];
   late TabController _tabController;
+  final ScrollController _controller =
+      ScrollController(initialScrollOffset: 10);
 
   _MyHomePageState();
 
   @override
   initState() {
     pref();
+    _controller.addListener(_scrollListener);
     super.initState();
     configLoading();
     _tabController = TabController(vsync: this, length: 2, initialIndex: 0);
@@ -103,6 +109,42 @@ class _MyHomePageState extends State<MyHomePage>
     // }
 
     //
+  }
+
+  _scrollToEnd() async {
+    print(_controller.hasClients);
+    if (_controller.hasClients) {
+      // print(_controller.position.haveDimensions);
+      if (_controller.position.haveDimensions) {
+        // print(_controller.position.maxScrollExtent ?? _controller.position);
+        print("MaxScrollExtend ${_controller.position.maxScrollExtent}");
+
+        _controller.animateTo(_controller.position.maxScrollExtent + 1000,
+            duration: const Duration(microseconds: 60),
+            curve: Curves.fastOutSlowIn);
+      }
+    }
+  }
+
+  _scrollListener() {
+    print(
+        "Offset ${_controller.offset} -- MaxscrollExtend ${_controller.position.maxScrollExtent}");
+    if (_controller.offset >= _controller.position.maxScrollExtent &&
+        !_controller.position.outOfRange) {
+      var tempCurrentPage = currentPage;
+      tempCurrentPage = tempCurrentPage + 1;
+      print(tempCurrentPage);
+      currentPage = tempCurrentPage;
+      // setState(() {
+      //   print("reach the bottom");
+      // });
+    }
+    if (_controller.offset <= _controller.position.minScrollExtent &&
+        !_controller.position.outOfRange) {
+      // setState(() {
+      //   print("reach the top");
+      // });
+    }
   }
 
   pref() async {
@@ -552,13 +594,14 @@ class _MyHomePageState extends State<MyHomePage>
                   ]));
             } else {
               return ListView.builder(
-                  // controller: _controller,
-                  itemCount: missedChatUsers.length,
-                  physics: AlwaysScrollableScrollPhysics(),
+                  controller: _controller,
+                  itemCount: 10,
+                  // physics: AlwaysScrollableScrollPhysics(),
                   //addSemanticIndexes: true,
                   padding: const EdgeInsets.only(bottom: 60),
                   shrinkWrap: true,
                   itemBuilder: (context, index) {
+                    print(missedChatUsers[index].name);
                     return GestureDetector(
                         onTap: () {
                           messages!.value = missedChatUsers[index].messages!;
@@ -609,30 +652,30 @@ class _MyHomePageState extends State<MyHomePage>
                                                   const SizedBox(
                                                     width: 80,
                                                   ),
-                                                  chatCreationTime != null
-                                                      ? Text(
-                                                          DateFormat(
-                                                                  'yyyy-MM-dd  kk:mm')
-                                                              .format(
-                                                                  chatCreationTime!)
-                                                              .toString(),
-                                                          style: const TextStyle(
-                                                              color: Color
-                                                                  .fromARGB(
-                                                                      255,
-                                                                      32,
-                                                                      39,
-                                                                      43),
-                                                              fontSize: 14,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w400),
-                                                        )
-                                                      : Text(DateFormat(
-                                                              'yyyy-MM-dd  kk:mm')
-                                                          .format(
-                                                              DateTime.now())
-                                                          .toString()),
+                                                  // chatCreationTime != null
+                                                  //     ? Text(
+                                                  //         DateFormat(
+                                                  //                 'yyyy-MM-dd  kk:mm')
+                                                  //             .format(
+                                                  //                 chatCreationTime!)
+                                                  //             .toString(),
+                                                  //         style: const TextStyle(
+                                                  //             color: Color
+                                                  //                 .fromARGB(
+                                                  //                     255,
+                                                  //                     32,
+                                                  //                     39,
+                                                  //                     43),
+                                                  //             fontSize: 14,
+                                                  //             fontWeight:
+                                                  //                 FontWeight
+                                                  //                     .w400),
+                                                  //       )
+                                                  //     : Text(DateFormat(
+                                                  //             'yyyy-MM-dd  kk:mm')
+                                                  //         .format(
+                                                  //             DateTime.now())
+                                                  //         .toString()),
                                                   const SizedBox(
                                                     height: 20,
                                                   ),

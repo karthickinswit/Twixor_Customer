@@ -251,23 +251,26 @@ Future<List<ChatUsers>> getMissedChatList() async {
   List<ChatUsers> chatUsers = [];
   var tempUrl = APP_URL +
       'c/enterprises/chat/history?fromDate=2019-02-16T06:34:16.859Z'; //url + userEid + '/chats
-  final response = await http
-      .get(Uri.parse(url + userEid + '/chat/history?from=0&state=3'), headers: {
-    'authentication-token': await getTokenApi(),
-    'Content-Type': 'application/x-www-form-urlencoded'
-  });
+  final response = await http.get(
+      Uri.parse(url + userEid + '/chat/history?from=0&perPage=10&state=3'),
+      headers: {
+        'authentication-token': await getTokenApi(),
+        'Content-Type': 'application/x-www-form-urlencoded'
+      });
 
   print(response.headers.toString());
   if (response.statusCode == 200) {
     isValidToken = true;
     print(response.body.toString());
     var obj = checkApiResponse(response.body.replaceAll("\$", ""));
+    print(response.body);
     //json.decode(response.body.replaceAll("\$", ""));
     try {
       var chats = obj["response"]["chats"];
       if (chats.length > 0) {
         chats.forEach((v) {
           missedUsers.add(ChatUsers.fromJson(v));
+          print(v.toString());
 
           //print(v);
         });
