@@ -322,7 +322,7 @@ class _MissedChatDetailPageState extends State<MissedChatDetailPage>
 
               ListView.builder(
                 controller: _controller,
-                itemCount: ((messages!.value.length) / 2).round(),
+                itemCount: messages!.value.length,
                 // physics: AlwaysScrollableScrollPhysics(),
                 physics: const AlwaysScrollableScrollPhysics(),
                 //addSemanticIndexes: true,
