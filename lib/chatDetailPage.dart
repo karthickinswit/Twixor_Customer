@@ -1598,7 +1598,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     switch (state) {
       case AppLifecycleState.resumed:
         print("App has ChatDetails been resumed");
-        if (!isSocketConnection) SocketConnect();
+        // if (!isSocketConnection) SocketConnect();
         print(userChatId);
         setState(() {
           // getChatUserInfoMessages(userChatId).then((data) {

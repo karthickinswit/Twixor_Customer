@@ -88,30 +88,30 @@ getChatUserInfo(String ChatId) async {
   // sleep(const Duration(seconds: 2));
   if (response.statusCode == 200) {
     var obj = checkApiResponse(response.body.replaceAll("\$", ""));
-    try {
-      var tempUser = obj["response"]["chat"];
-      List chatuserDetails = obj["response"]["users"];
-      tempUser["chatuserDetails"] = chatuserDetails;
-      chatuserDetails.forEach((element) {
-        print("Agnets");
-        // print(element.toString());
-        chatAgents.add(ChatAgent.fromJson(element));
-      });
-      //chatAgents = ChatAgent.fromJson(chatuserDetails) as List<ChatAgent>;
-      var oh = obj["response"];
-      // print(obj["response"]["chat"].runtimeType);
+    // try {
+    var tempUser = obj["response"]["chat"];
+    List chatuserDetails = obj["response"]["users"];
+    tempUser["chatuserDetails"] = chatuserDetails;
+    chatuserDetails.forEach((element) {
+      print("Agnets");
+      // print(element.toString());
+      chatAgents.add(ChatAgent.fromJson(element));
+    });
+    //chatAgents = ChatAgent.fromJson(chatuserDetails) as List<ChatAgent>;
+    var oh = obj["response"];
+    // print(obj["response"]["chat"].runtimeType);
 
-      chatUser!.value = ChatUsers.fromJson(tempUser);
-      // messages!.value = chatUser!.value.messages!;
-      // print(chatUser!.value.toJson());
-      return true;
+    chatUser!.value = ChatUsers.fromJson(tempUser);
+    // messages!.value = chatUser!.value.messages!;
+    // print(chatUser!.value.toJson());
+    return true;
 
-      ;
-    } catch (Exp) {
-      clearToken();
-      // ErrorAlert(context, "Session TimeOut");
-      await customerRegisterInfo();
-    }
+    ;
+    // } catch (Exp) {
+    //   clearToken();
+    //   // ErrorAlert(context, "Session TimeOut");
+    //   await customerRegisterInfo();
+    // }
   } else {
     clearToken();
     throw ("SessionTimeOut");
@@ -152,10 +152,12 @@ newChatCreate() async {
     isValidToken = false;
     //websocket pause
     //loader
-    var token = await customerRegisterInfo();
-    if (token) {
-      newChatCreate();
-    }
+    var token = false;
+    //await customerRegisterInfo();
+    // if (token) {
+    //   newChatCreate();
+    // }
+    return "false";
     throw ("New Chat Creation Failed");
   }
 }

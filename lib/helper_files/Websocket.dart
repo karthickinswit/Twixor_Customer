@@ -46,6 +46,7 @@ Future<bool> SocketConnect() async {
 
   try {
     getCloseSocket();
+
     channel = IOWebSocketChannel.connect(
         APP_URL.replaceAll("http", "ws") + "/actions",
         headers: mainheader);
@@ -65,6 +66,10 @@ Future<bool> SocketConnect() async {
 
         // print("Main PageMessage ${data.toString()}");
         message1 = json.decode(data);
+        if (message1["action"] == "pong") {
+          MISSED_HEARTBEATS = 0;
+          print(message1.toString());
+        }
         if (message1["action"] == "onOpen") {
           print("Connection establised.");
           isSocketConnection = true;
@@ -270,8 +275,31 @@ Future<bool> SocketConnect() async {
 }
 
 void setupPingPong() {
+  if (_timer != null) {
+    _timer!.cancel();
+  }
+  MISSED_HEARTBEATS = 0;
   _timer = Timer.periodic(const Duration(seconds: 30), (_) {
-    // print("Ping Pinned after 30s");
+    print("Ping Pinned after 30s");
+
+    if (MISSED_HEARTBEATS >= MAX_MISSED_HEARTBEATS) {
+      _timer!.cancel();
+      SocketConnect();
+      return;
+    }
+
+    SendMessage sMessage = new SendMessage();
+    sMessage.action = "ping";
+    sMessage.actionBy = 0;
+    sMessage.actionType = 0;
+    sMessage.chatId = '';
+    sMessage.eId = 0;
+    sMessage.message = "";
+    sMessage.contentType = "";
+    sMessage.attachment = new Attachment();
+
+    sendmessage(sMessage);
+    MISSED_HEARTBEATS += 1;
   });
   // window.setInterval(doStuffCallback, 1000)
 }

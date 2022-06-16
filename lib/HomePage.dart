@@ -221,32 +221,37 @@ class _MyHomePageState extends State<MyHomePage>
           );
         });
     var chatId = await newChatCreate();
-    canCreateChat = false;
-
-    ChatId = chatId;
-
-    if (ChatId != null) {
-      ChatId != null
-          ? userChatId = ChatId!
-          : ErrorAlert(alertContext, "Chat Id is not present here");
-
-      isLoading = false;
-
-      if (await getChatUserInfo(ChatId!)) {
-        messages!.value = [];
-        prefs.setString('chatId', chatUser!.value.chatId!);
-
-        Navigator.of(context, rootNavigator: true).pop();
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => ChatDetailPage(userChatId, "")));
-      }
+    if (chatId == "false") {
+      canCreateChat = true;
+      ErrorAlert(context, "Please Retry to create new Chat");
     } else {
-      ErrorAlert(context, "UserDetails Not Present");
-      ChatId = await newChatCreate();
-      prefs.setString('chatId', ChatId!);
-      // initiateChat();
+      canCreateChat = false;
+
+      ChatId = chatId;
+
+      if (ChatId != null) {
+        ChatId != null
+            ? userChatId = ChatId!
+            : ErrorAlert(alertContext, "Chat Id is not present here");
+
+        isLoading = false;
+
+        if (await getChatUserInfo(ChatId!)) {
+          messages!.value = [];
+          prefs.setString('chatId', chatUser!.value.chatId!);
+
+          Navigator.of(context, rootNavigator: true).pop();
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => ChatDetailPage(userChatId, "")));
+        }
+      } else {
+        ErrorAlert(context, "UserDetails Not Present");
+        ChatId = await newChatCreate();
+        prefs.setString('chatId', ChatId!);
+        // initiateChat();
+      }
     }
   }
 
