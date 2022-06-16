@@ -81,7 +81,7 @@ class _MissedChatDetailPageState extends State<MissedChatDetailPage>
   var isKeyboardOpen = false;
   StreamSubscription? chatDetailSubscription;
   static const APP_URL = String.fromEnvironment('APP_URL',
-      defaultValue: 'https://qa.twixor.digital/moc');
+      defaultValue: 'https://engagedev.knostos.com/twixor');
 
   // Attachment? attachments;
 
@@ -146,7 +146,7 @@ class _MissedChatDetailPageState extends State<MissedChatDetailPage>
 
   @override
   initState() {
-    _controller.addListener(_scrollListener);
+    // _controller.addListener(_scrollListener);
     super.initState();
 
     // getMsg(userChatId).then((result) {
@@ -226,7 +226,7 @@ class _MissedChatDetailPageState extends State<MissedChatDetailPage>
 
     // mainSocket!.close();
 
-    print("Chatdetailspage..dispose");
+    print("MissedChatdetailspage..dispose");
     // print("chatDetailSubscription dispose ${chatDetailSubscription.hashCode}");
 
     super.dispose();
@@ -246,6 +246,7 @@ class _MissedChatDetailPageState extends State<MissedChatDetailPage>
     // print("rcvd fdata ${rcvdData['name']}");
 
     /////////////////////////////////////////////////
+    messages!.value = List.from(messages!.value.reversed);
     return WillPopScope(
         //////////////////////////////////////////////
         onWillPop: () async {
@@ -301,7 +302,7 @@ class _MissedChatDetailPageState extends State<MissedChatDetailPage>
                 ),
               ),
               title: Row(children: <Widget>[
-                SizedBox(width: 60),
+                const SizedBox(width: 60),
                 Container(
                   padding: EdgeInsets.only(right: 90),
                   child: const Text(
@@ -324,7 +325,8 @@ class _MissedChatDetailPageState extends State<MissedChatDetailPage>
                 controller: _controller,
                 itemCount: messages!.value.length,
                 // physics: AlwaysScrollableScrollPhysics(),
-                physics: const AlwaysScrollableScrollPhysics(),
+                // physics: const AlwaysScrollableScrollPhysics(),
+                reverse: true,
                 //addSemanticIndexes: true,
                 padding: const EdgeInsets.only(bottom: 60),
                 shrinkWrap: true,

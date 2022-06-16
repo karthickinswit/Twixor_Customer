@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:twixor_customer/HomePage.dart';
 import 'package:twixor_customer/chatDetailPage.dart';
+import 'package:twixor_customer/helper_files/errorWidget.dart';
 import 'package:twixor_customer/models/SavedDataModel.dart';
 
 import 'package:twixor_customer/models/chatUsersModel.dart';
@@ -45,12 +46,11 @@ ThemeData MyTheme = ThemeData(
 );
 void main() {
   runApp(CustomerApp(
-    customerId: '8190083903',
-    eId: '374',
-    mainPageTitle: "Twixor CustomerChat",
-    theme: MyTheme,
-    countryCode: "+91",
-  ));
+      customerId: '8190083903',
+      eId: '103',
+      mainPageTitle: "Twixor CustomerChat",
+      theme: MyTheme,
+      countryCode: "+91"));
 }
 
 class CustomerApp extends StatelessWidget {
@@ -77,6 +77,8 @@ class CustomerApp extends StatelessWidget {
   Widget build(BuildContext context) {
     // print("ManPageTitile ${ThemeClass().MainPageTitile}");
     if (isSocketConnection == false || isSocketConnection == true) {
+      print(
+          "App Url --> $APP_URL CustomerId--> $customerId Eid--> $eId CountryCode -->$countryCode ");
       getCloseSocket();
     }
     print("SocketinMain74$isSocketConnection");
@@ -108,6 +110,13 @@ class CustomerApp extends StatelessWidget {
               if (snapshot.data == true) {
                 return MaterialApp(
                     theme: customTheme,
+                    // ignore: avoid_types_as_parameter_names
+                    builder: (BuildContext context, Widget? widget) {
+                      ErrorWidget.builder = (FlutterErrorDetails errorDetails) {
+                        return CustomError(errorDetails: errorDetails);
+                      };
+                      return widget!;
+                    },
                     title: "Twixor",
                     home: const MyHomePage());
               } else {
@@ -179,14 +188,6 @@ class CustomerApp extends StatelessWidget {
     tempCountryCode = prefs.getString('countryCode') ?? "";
     tempEid = prefs.getString('eId') ?? "";
     authToken = prefs.getString('authToken') ?? "";
-
-    // if (channel != null) {
-    //   channel!.innerWebSocket!.done;
-    // } else {
-    //   print("ChannelisNotCLose");
-    //   print(channel.toString());
-    // }
-    //prefs.setString('title', MainPageTitle);
     if (tempCustId == "" && tempEid == "") {
       clearToken();
       prefs.setString('customerId', userCustomerId);
@@ -194,14 +195,10 @@ class CustomerApp extends StatelessWidget {
       prefs.setString('title', MainPageTitle);
       prefs.setString('countryCode', countryCode);
       canCreateChat = true;
-      //authToken = await getTokenApi() ?? "";
-      //prefs.setString('authToken', authToken!);
       return true;
     } else if (tempCustId == userCustomerId && tempEid == userEid) {
       if (authToken == "") {
         canCreateChat = false;
-        //authToken = await getTokenApi() ?? "";
-        //prefs.setString('authToken', authToken!);
         return true;
       } else {
         clearToken();
@@ -215,14 +212,9 @@ class CustomerApp extends StatelessWidget {
       prefs.setString('eId', userEid);
       prefs.setString('chatId', '');
       canCreateChat = true;
-      //authToken = await getTokenApi() ?? "";
-      //prefs.setString('authToken', authToken!);
       return true;
     } else
       return false;
-    //  else {
-    //   return _checkPrefs();
-    // }
   }
 
   @override

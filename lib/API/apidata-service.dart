@@ -13,7 +13,7 @@ import 'package:twixor_customer/models/chatUsersModel.dart';
 import 'package:twixor_customer/main.dart';
 
 const APP_URL = String.fromEnvironment('APP_URL',
-    defaultValue: 'https://qa.twixor.digital/moc');
+    defaultValue: 'https://engagedev.knostos.com/twixor');
 String url = APP_URL + '/c/enterprises/';
 //const userEid = String.fromEnvironment('userEid', defaultValue: '374');
 late String userEid;
@@ -270,7 +270,7 @@ Future<List<ChatUsers>> getMissedChatList() async {
       if (chats.length > 0) {
         chats.forEach((v) {
           missedUsers.add(ChatUsers.fromJson(v));
-          print(v.toString());
+          // print(v.toString());
 
           //print(v);
         });
@@ -375,3 +375,43 @@ clearToken() async {
 //     throw ("Update Chat List Failed");
 //   }
 // }
+Future<List<ChatMessage>?> getChatUserInfoMessages(String ChatId) async {
+  var response = await http.get(Uri.parse(url + userEid + '/chat/' + ChatId),
+      headers: {"authentication-token": await getTokenApi()});
+
+  // print(response.headers.toString());
+  // sleep(const Duration(seconds: 2));
+  if (response.statusCode == 200) {
+    var obj = checkApiResponse(response.body.replaceAll("\$", ""));
+    try {
+      var tempUser = obj["response"]["chat"];
+      List chatuserDetails = obj["response"]["users"];
+      tempUser["chatuserDetails"] = chatuserDetails;
+      chatuserDetails.forEach((element) {
+        print("Agnets");
+        // print(element.toString());
+        chatAgents.add(ChatAgent.fromJson(element));
+      });
+      //chatAgents = ChatAgent.fromJson(chatuserDetails) as List<ChatAgent>;
+      var oh = obj["response"];
+      // print(obj["response"]["chat"].runtimeType);
+
+      chatUser!.value = ChatUsers.fromJson(tempUser);
+      // messages!.value = chatUser!.value.messages!;
+      // print(chatUser!.value.toJson());
+      return chatUser!.value.messages;
+
+      ;
+    } catch (Exp) {
+      clearToken();
+      // ErrorAlert(context, "Session TimeOut");
+      await customerRegisterInfo();
+      return chatUser!.value.messages;
+      ;
+    }
+  } else {
+    clearToken();
+    // throw ("SessionTimeOut");
+    return chatUser!.value.messages;
+  }
+}

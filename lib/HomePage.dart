@@ -94,21 +94,6 @@ class _MyHomePageState extends State<MyHomePage>
     configLoading();
     _tabController = TabController(vsync: this, length: 2, initialIndex: 0);
     super.setState(() {});
-    // _tabController.addListener(() {
-    //   if (_tabController.index == 1) {
-    //     print('nope!');
-    //     setState(() {
-    //       if (!isSocketConnection) _tabController.index = 0;
-    //     });
-    //   }
-    // });
-
-    //getSubscribe();
-    // if (wsProvider.srMessage != null) {
-    //   print(wsProvider.srMessage!.toJson().toString());
-    // }
-
-    //
   }
 
   _scrollToEnd() async {
@@ -127,8 +112,8 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   _scrollListener() {
-    print(
-        "Offset ${_controller.offset} -- MaxscrollExtend ${_controller.position.maxScrollExtent}");
+    // print(
+    //     "Offset ${_controller.offset} -- MaxscrollExtend ${_controller.position.maxScrollExtent}");
     if (_controller.offset >= _controller.position.maxScrollExtent &&
         !_controller.position.outOfRange) {
       var tempCurrentPage = currentPage;
@@ -195,19 +180,16 @@ class _MyHomePageState extends State<MyHomePage>
               ),
             );
           });
+      setState(() {});
       return;
     }
   }
 
   void initiateChat() async {
-    //getChatUserInfo();
-
     if (!allowStorage) {
       requestWritePermission();
     }
 
-    // if (isSocketConnection) {
-    // SharedPreferences prefs = await SharedPreferences.getInstance();
     BuildContext loadingContext;
     showDialog(
         context: context,
@@ -241,11 +223,7 @@ class _MyHomePageState extends State<MyHomePage>
     var chatId = await newChatCreate();
     canCreateChat = false;
 
-    // chatIds!.add(chatId);
-    // prefs.setStringList('chatIds', chatIds!);
-    // print(prefs?.getStringList("chatIds"));
     ChatId = chatId;
-    // print("new Chat Id $ChatId");
 
     if (ChatId != null) {
       ChatId != null
@@ -253,25 +231,11 @@ class _MyHomePageState extends State<MyHomePage>
           : ErrorAlert(alertContext, "Chat Id is not present here");
 
       isLoading = false;
-      // mainSubscription!.pause();
 
-      // Navigator.pushAndRemoveUntil<dynamic>(
-      //   context,
-      //   MaterialPageRoute<dynamic>(
-      //     builder: (BuildContext context) => ChatDetailPage(userDetails, ""),
-      //   ),
-      //   (route) => false, //if you want to disable back feature set to false
-      // );
-      //  if (strmControl.hasListener) {}
-      // chatListSubscription!.cancel();
-      // messages!.value = [];
       if (await getChatUserInfo(ChatId!)) {
-        // messages!.value = chatUser!.value.messages!;
         messages!.value = [];
         prefs.setString('chatId', chatUser!.value.chatId!);
 
-        // print(chatUser!.value.toJson());
-        // await SocketConnect();
         Navigator.of(context, rootNavigator: true).pop();
         Navigator.push(
             context,
@@ -284,12 +248,6 @@ class _MyHomePageState extends State<MyHomePage>
       prefs.setString('chatId', ChatId!);
       // initiateChat();
     }
-    // } else {
-    //   //clearToken();
-    //   await SocketConnect();
-    //   initiateChat();
-    //   // customerRegisterInfo();
-    // }
   }
 
   void refresh(dynamic childValue) {
@@ -301,12 +259,7 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   Widget build(BuildContext context) {
     alertContext = context;
-    // final wsProvider = context.watch<WebsocketsProvider>();
-    // print("WsProVider");
 
-    // if (wsProvider.srMessage != null) {
-    //   print(wsProvider.srMessage!.toJson().toString());
-    // }
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
@@ -595,13 +548,13 @@ class _MyHomePageState extends State<MyHomePage>
             } else {
               return ListView.builder(
                   controller: _controller,
-                  itemCount: 10,
+                  itemCount: missedChatUsers.length,
                   // physics: AlwaysScrollableScrollPhysics(),
                   //addSemanticIndexes: true,
                   padding: const EdgeInsets.only(bottom: 60),
                   shrinkWrap: true,
                   itemBuilder: (context, index) {
-                    print(missedChatUsers[index].name);
+                    // print(missedChatUsers[index].name);
                     return GestureDetector(
                         onTap: () {
                           messages!.value = missedChatUsers[index].messages!;
@@ -735,36 +688,28 @@ class _MyHomePageState extends State<MyHomePage>
 
   @override
   void dispose() {
-    // print("isSocketConnection $isSocketConnection");
-    //_notifyControllers
-    // mainSubscription!.pause();
-    // chatListSubscription!.cancel();
-    // print("chatListSubscription dispose ${chatListSubscription.hashCode}");
     print("homePageDispose");
     getCloseSocket();
     isSocketConnection = false;
     isAlreadyPicked = false;
-    // print("HomePageConnection$isSocketConnection");
-    // print("MainSocketisClosed");
-
     super.dispose();
-    // mainSocket!.sink.close();
   }
 
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     // switch (state) {
-    //   case AppLifecycleState.inactive:
-    //   case AppLifecycleState.paused:
-    //   case AppLifecycleState.detached:
-    //     // await detachedCallBack();
-    //     print("App has Idle State");
-    //     getCloseSocket();
-    //     break;
     //   case AppLifecycleState.resumed:
     //     print("App has been resumed");
-    //     if (!isSocketConnection) SocketConnect();
-
+    //     //if (!isSocketConnection) SocketConnect();
+    //     break;
+    //   case AppLifecycleState.inactive:
+    //     // TODO: Handle this case.
+    //     break;
+    //   case AppLifecycleState.paused:
+    //     // TODO: Handle this case.
+    //     break;
+    //   case AppLifecycleState.detached:
+    //     // TODO: Handle this case.
     //     break;
     // }
   }

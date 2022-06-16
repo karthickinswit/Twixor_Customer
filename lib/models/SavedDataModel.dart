@@ -7,7 +7,7 @@ import 'package:twixor_customer/helper_files/Websocket.dart';
 import 'package:twixor_customer/models/chatMessageModel.dart';
 import 'package:twixor_customer/models/chatUsersModel.dart';
 
-List<ChatUsers> missedChatUsers=[];
+List<ChatUsers> missedChatUsers = [];
 
 ValueNotifier<ChatUsers>? chatUser = ValueNotifier(ChatUsers(
     name: "",
@@ -121,7 +121,7 @@ _scrollToEnd(int o) async {
 //       "isImage": true,
 //       "name": "reload-1.1s-200px_623eeadd40ada25a642574e8.png",
 //       "type": "IMAGE",
-//       "url": "https://qa.twixor.digital/moc/drive/docs/623eeadd40ada25a642574e9"
+//       "url": "https://engagedev.knostos.com/twixor/drive/docs/623eeadd40ada25a642574e9"
 //     },
 //     "actionId": "57040f768c454a43bb73734ea9771a97",
 //     "actedOn": "2022-03-26T10:28:45Z",
@@ -164,27 +164,27 @@ checkChatID() async {
     sleep(const Duration(seconds: 1));
     print("1-->${storedchatId.runtimeType}");
     if (await getChatUserInfo(storedchatId)) {
-      print("2-->");
+      // print("2-->");
       if (chatUser!.value.state == "2") {
-        print("CheckState--> ${chatUser!.value.toJson()}");
+        // print("CheckState--> ${chatUser!.value.toJson()}");
         isAlreadyPicked = true;
         if (!isSocketConnection) SocketConnect();
-        print("3--> ${chatUser!.value.toJson()}");
+        // print("3--> ${chatUser!.value.toJson()}");
         canCreateChat = false;
         return await chatUser;
       } else {
         isAlreadyPicked = false;
         canCreateChat = true;
-        print("4--> ");
+        // print("4--> ");
         if ((chatUser!.value.chatId != "" || chatUser!.value.chatId != null) &&
             chatUser!.value.state != "3" &&
             chatUser!.value.state != "4") {
-          print("5--> ");
+          // print("5--> ");
           if (!isSocketConnection) SocketConnect();
           canCreateChat = false;
           return await chatUser;
         } else {
-          print("6--> ");
+          // print("6--> ");
           isAlreadyPicked = false;
           canCreateChat = true;
           return await null;

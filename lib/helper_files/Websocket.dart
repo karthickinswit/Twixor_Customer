@@ -17,6 +17,7 @@ import 'package:twixor_customer/models/chatUsersModel.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/status.dart' as status;
 import 'package:rxdart/rxdart.dart';
+import 'package:flutter/material.dart';
 
 IOWebSocketChannel? channel;
 bool isSocketConnection = false;
@@ -30,6 +31,12 @@ StreamSubscription? mainSubscription;
 var aSubject = new BehaviorSubject();
 // StreamSubscription? streamSubscription;
 late SharedPreferences prefs;
+Timer? _timer;
+int HEARTBEAT_INTERVAL_TIME = 30000;
+int MISSED_HEARTBEATS = 0;
+int MAX_MISSED_HEARTBEATS = 2;
+// heartbeatIntervalTimer = null;
+Map<String, String> heartbeat_msg = {"action": "ping"};
 
 Future<bool> SocketConnect() async {
   Map<String, String> mainheader = {
@@ -51,6 +58,7 @@ Future<bool> SocketConnect() async {
     channel!.stream.listen(
       (data) {
         //strmControl.add(event);
+        setupPingPong();
 
         var message1 = json.decode(data);
         //print("Socket ErrMsg ${event.toString()}");
@@ -224,6 +232,7 @@ Future<bool> SocketConnect() async {
       },
       onDone: () async {
         debugPrint('ws error onDone ${channel!.closeCode} ');
+        debugPrint('ws error onDone ${channel!.closeReason} ');
         isSocketConnection = false;
         if (channel!.closeCode != 4001 &&
             channel!.closeCode != 1005 &&
@@ -242,9 +251,10 @@ Future<bool> SocketConnect() async {
       onError: (error) {
         isSocketConnection = false;
         print("websocket onError: ${channel!.closeCode}");
-        clearToken();
-        debugPrint('ws error $error');
-        SocketConnect();
+        throw ('socket Connection Failed');
+        // clearToken();
+        // debugPrint('ws error $error');
+        // SocketConnect();
       },
     );
 
@@ -257,6 +267,13 @@ Future<bool> SocketConnect() async {
     //return false;
   }
   return isSocketConnection;
+}
+
+void setupPingPong() {
+  _timer = Timer.periodic(const Duration(seconds: 30), (_) {
+    // print("Ping Pinned after 30s");
+  });
+  // window.setInterval(doStuffCallback, 1000)
 }
 
 SocketReConnect() async {
