@@ -123,6 +123,10 @@ class _ChatDetailPageState extends State<ChatDetailPage>
     }
   }
 
+  getMessages() async {
+    await getChatUserInfo(userChatId);
+  }
+
   _ChatDetailPageState(this.userChatId, this.attachmentData);
 
   getMsg(String userChatId) async {}
@@ -130,6 +134,8 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   @override
   initState() {
     super.initState();
+    messages!.value = chatUser!.value.messages!;
+    getMessages();
 
     WidgetsBinding.instance?.addObserver(this);
   }
@@ -235,7 +241,6 @@ class _ChatDetailPageState extends State<ChatDetailPage>
               // inspect(messages)
 
               //listView,
-
               ValueListenableBuilder(
                   valueListenable: messages!,
                   builder:
@@ -422,6 +427,15 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                                                             } else {
                                                               // _rateAndReviewApp();
                                                             }
+                                                            Navigator
+                                                                .pushReplacement(
+                                                                    context,
+                                                                    MaterialPageRoute<
+                                                                        dynamic>(
+                                                                      builder: (BuildContext
+                                                                              context) =>
+                                                                          const MyHomePage(),
+                                                                    ));
                                                           },
                                                         );
 
@@ -471,7 +485,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                                                                       50.0),
                                                           alignment:
                                                               Alignment.center,
-                                                          child: Text(
+                                                          child: const Text(
                                                             "Give Feedback",
                                                             textAlign: TextAlign
                                                                 .center,
@@ -496,6 +510,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
                       },
                     );
                   }),
+
               //  alignList("text", false, "")
               // (attachment!.url != null && attachment!.url != "")
               //? alignList(attachment!)

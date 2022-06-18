@@ -21,7 +21,8 @@ ValueNotifier<ChatUsers>? chatUser = ValueNotifier(ChatUsers(
     eId: "",
     chatAgents: chatAgents,
     state: "",
-    newMessageCount: ""));
+    newMessageCount: "",
+    isRated: false));
 
 List<ChatAgent> chatAgents = [];
 late SharedPreferences prefs;

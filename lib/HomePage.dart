@@ -75,6 +75,7 @@ class _MyHomePageState extends State<MyHomePage>
   String? ChatId;
   late SharedPreferences prefs;
   bool allowStorage = false;
+  bool allowClick = true;
   List<String>? chatIds = [];
 
   // WebsocketsProvider wsProvider = new WebsocketsProvider();
@@ -149,6 +150,7 @@ class _MyHomePageState extends State<MyHomePage>
   checkClick() {
     //canCreateChat = true;
     // print("Cancreate when CLick ${canCreateChat} ");
+    print("CanCreateChat--> $canCreateChat");
     if (canCreateChat) {
       canCreateChat = false;
       initiateChat();
@@ -227,18 +229,18 @@ class _MyHomePageState extends State<MyHomePage>
     } else {
       canCreateChat = false;
 
-      ChatId = chatId;
+      // ChatId = chatId;
 
-      if (ChatId != null) {
-        ChatId != null
-            ? userChatId = ChatId!
+      if (chatId != null) {
+        chatId != null
+            ? userChatId = chatId!
             : ErrorAlert(alertContext, "Chat Id is not present here");
 
         isLoading = false;
 
-        if (await getChatUserInfo(ChatId!)) {
+        if (await getChatUserInfo(chatId!)) {
           messages!.value = [];
-          prefs.setString('chatId', chatUser!.value.chatId!);
+          // prefs.setString('chatId', chatUser!.value.chatId!);
 
           Navigator.of(context, rootNavigator: true).pop();
           Navigator.push(
@@ -248,8 +250,8 @@ class _MyHomePageState extends State<MyHomePage>
         }
       } else {
         ErrorAlert(context, "UserDetails Not Present");
-        ChatId = await newChatCreate();
-        prefs.setString('chatId', ChatId!);
+        // /ChatId = await newChatCreate();
+        // prefs.setString('chatId', ChatId!);
         // initiateChat();
       }
     }
@@ -381,11 +383,17 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   Widget activeChatWidget() {
-    return FutureBuilder(
-        future: checkChatID(),
+    return FutureBuilder<dynamic>(
+        future: getChatList('2'),
         builder: (context, snapshot) {
           // print("snapChat data -> ${snapshot.data.toString()}");
-          if (snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.connectionState == ConnectionState.done &&
+              snapshot.data != null) {
+            if (chatUser!.value.chatId == "toeknFailed") {
+              return const Center(
+                  child: Icon(IconData(0xe514, fontFamily: 'MaterialIcons')));
+            }
+            chatUser = snapshot.data;
             // print(chatUser!.value.toJson());
             return ValueListenableBuilder(
                 valueListenable: chatUser!,
@@ -424,16 +432,24 @@ class _MyHomePageState extends State<MyHomePage>
                                   ])
                             ]))
                       : GestureDetector(
-                          onTap: () {
-                            messages!.value = chatUser!.value.messages!;
+                          onTap: () async {
+                            // messages!.value = chatUser!.value.messages!;
                             // prefs.setString('chatId', chatUser!.value.chatId!);
                             // print(chatUser!.value.toJson());
-
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => ChatDetailPage(
-                                        chatUser!.value.chatId!, "")));
+                            print("Chat ID -->${chatUser!.value.chatId}");
+                            if (allowClick == true) {
+                              print("AllowClick-->${allowClick}");
+                              allowClick = false;
+                              if (await getChatUserInfo(
+                                  chatUser!.value.chatId!)) {
+                                messages!.value = chatUser!.value.messages!;
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => ChatDetailPage(
+                                            chatUser!.value.chatId!, "")));
+                              }
+                            }
                           },
                           child: Column(children: <Widget>[
                             Container(
@@ -462,6 +478,8 @@ class _MyHomePageState extends State<MyHomePage>
                                                 Row(
                                                   children: <Widget>[
                                                     Text(
+                                                      // chatUser!.value.chatId
+                                                      //     .toString(),
                                                       userCustomerId.toString(),
                                                       style: const TextStyle(
                                                           fontSize: 16,

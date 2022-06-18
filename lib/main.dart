@@ -89,6 +89,7 @@ class CustomerApp extends StatelessWidget {
     cCode = countryCode;
     // getSubscribe();
     getPref();
+
     //SocketConnect();
 
     return WillPopScope(
@@ -108,6 +109,7 @@ class CustomerApp extends StatelessWidget {
 
             if (snapshot.connectionState == ConnectionState.done) {
               if (snapshot.data == true) {
+                // getTokenApi();
                 return MaterialApp(
                     theme: customTheme,
                     // ignore: avoid_types_as_parameter_names
@@ -118,7 +120,24 @@ class CustomerApp extends StatelessWidget {
                       return widget!;
                     },
                     title: "Twixor",
-                    home: const MyHomePage());
+                    home: FutureBuilder<dynamic>(
+                        future: getTokenApi(), // async work
+                        builder: (BuildContext context,
+                            AsyncSnapshot<dynamic> snapshot) {
+                          if (snapshot.connectionState ==
+                                  ConnectionState.done &&
+                              snapshot.data != "") {
+                            SocketConnect();
+                            return MyHomePage();
+                          } else if (snapshot.connectionState ==
+                              ConnectionState.waiting)
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          else
+                            return const Center(
+                                child: Icon(IconData(0xe514,
+                                    fontFamily: 'MaterialIcons')));
+                        }));
               } else {
                 return MaterialApp(
                     theme: customTheme,
@@ -169,7 +188,8 @@ class CustomerApp extends StatelessWidget {
         eId: "",
         chatAgents: chatAgents,
         state: "",
-        newMessageCount: "");
+        newMessageCount: "",
+        isRated: false);
     if (isSocketConnection == false || isSocketConnection == true) {
       getCloseSocket();
     }
@@ -210,7 +230,7 @@ class CustomerApp extends StatelessWidget {
       prefs.setString('customerId', userCustomerId);
       prefs.setString('countryCode', countryCode);
       prefs.setString('eId', userEid);
-      prefs.setString('chatId', '');
+      // prefs.setString('chatId', '');
       canCreateChat = true;
       return true;
     } else

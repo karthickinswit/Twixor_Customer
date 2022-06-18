@@ -11,6 +11,7 @@ import 'package:twixor_customer/models/SavedDataModel.dart';
 import 'package:twixor_customer/models/chatMessageModel.dart';
 import 'package:twixor_customer/models/chatUsersModel.dart';
 import 'package:twixor_customer/main.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 const APP_URL = String.fromEnvironment('APP_URL',
     defaultValue: 'https://engagedev.knostos.com/twixor');
@@ -80,9 +81,9 @@ getTokenApi() async {
 // }
 ///////////////////////////////////////////////////////
 
-getChatUserInfo(String ChatId) async {
+Future<bool> getChatUserInfo(String ChatId) async {
   var response = await http.get(Uri.parse(url + userEid + '/chat/' + ChatId),
-      headers: {"authentication-token": await getTokenApi()});
+      headers: {"authentication-token": authToken!});
 
   // print(response.headers.toString());
   // sleep(const Duration(seconds: 2));
@@ -102,11 +103,12 @@ getChatUserInfo(String ChatId) async {
     // print(obj["response"]["chat"].runtimeType);
 
     chatUser!.value = ChatUsers.fromJson(tempUser);
+    // messages!.value
+    print("messages  length --> ${chatUser!.value.messages!.length}");
     // messages!.value = chatUser!.value.messages!;
     // print(chatUser!.value.toJson());
     return true;
 
-    ;
     // } catch (Exp) {
     //   clearToken();
     //   // ErrorAlert(context, "Session TimeOut");
@@ -114,6 +116,7 @@ getChatUserInfo(String ChatId) async {
     // }
   } else {
     clearToken();
+    errorToast("SessionTimeOutn");
     throw ("SessionTimeOut");
   }
 }
@@ -124,7 +127,7 @@ newChatCreate() async {
 
   var response = await http.post(Uri.parse(url + userEid + '/chat/create'),
       headers: {
-        'authentication-token': await getTokenApi(),
+        'authentication-token': authToken!,
         'Content-Type': 'application/x-www-form-urlencoded'
       },
       body: map);
@@ -136,7 +139,7 @@ newChatCreate() async {
     try {
       var obj = checkApiResponse(response.body.replaceAll("\$", ""));
       var chatId = obj["response"]["chatId"];
-      // print("Chat Id generated");
+      print("Chat Id generated");
       chatUser!.value.chatId = chatId;
       //websocket resume
       if (isSocketConnection == false) await SocketConnect();
@@ -157,8 +160,8 @@ newChatCreate() async {
     // if (token) {
     //   newChatCreate();
     // }
-    return "false";
-    throw ("New Chat Creation Failed");
+    errorToast("New Chat Creation Failed,Pls try again");
+    throw ("New Chat Creation Failed,Pls try again ");
   }
 }
 
@@ -188,57 +191,91 @@ customerRegisterInfo() async {
     //await SocketConnect();
     return token;
   } else {
+    errorToast("Registration Failed");
     throw ("Registration Failed");
   }
 }
 //4001
-// getChatList() async {
-//   // https://aim.twixor.com/c/enterprises/103/chats
-//   List<ChatUsers> chatUsers = [];
-//   var tempUrl = APP_URL +
-//       'c/enterprises/chat/summary?fromDate=2019-02-16T06:34:16.859Z'; //url + userEid + '/chats
-//   final response =
-//       await http.get(Uri.parse(url + userEid + '/chats'), headers: {
-//     'authentication-token': await getTokenApi(),
-//     'Content-Type': 'application/x-www-form-urlencoded'
-//   });
 
-//   print(response.headers.toString());
-//   if (response.statusCode == 200) {
-//     isValidToken = true;
-//     print(response.body.toString());
-//     var obj = checkApiResponse(response.body.replaceAll("\$", ""));
-//     //json.decode(response.body.replaceAll("\$", ""));
-//     try {
-//       var chats = obj["response"]["chats"];
-//       if (chats.length > 0) {
-//         chats.forEach((v) {
-//           chatUsers.add(ChatUsers.fromJson(v));
+getChatList(String state) async {
+  // https://aim.twixor.com/c/enterprises/103/chats
+  // prefs = await SharedPreferences.getInstance();
+  // authToken = (prefs.getString('authToken'));
+  List<ChatUsers> chatUsers = [];
+  var tempUrl = APP_URL +
+      'c/enterprises/chat/summary?fromDate=2019-02-16T06:34:16.859Z'; //url + userEid + '/chats
+  final response = await http.get(
+      Uri.parse(
+          url + userEid + '/chat/history?from=0&perPage=10&state=' + state),
+      headers: {
+        'authentication-token': authToken!,
+        'Content-Type': 'application/x-www-form-urlencoded'
+      });
 
-//           //print(v);
-//         });
-//       }
+  print(response.statusCode);
+  print("State ${state}");
 
-//       //throw ("getting Chat List Failed");
-//       chatUsers.add(ChatUsers.fromJson(tempChatUser));
-//       return chatUsers;
-//     } catch (Exp) {
-//       // ErrorAlert(context, "getting Chat List Failed");
-//       isValidToken = false;
+  if (response != null) {
+    if (response.statusCode == 200) {
+      isValidToken = true;
+      print(response.body.toString());
+      var obj = checkApiResponse(response.body.replaceAll("\$", ""));
+      //json.decode(response.body.replaceAll("\$", ""));
+      print("State ${state}");
 
-//       //throw ("getting Chat List Failed");
-//       return chatUsers;
-//       //getChatList();
-//     }
-//   } else {
-//     isValidToken = false;
-//     clearToken();
-//     await getTokenApi();
+      var chats = obj["response"]["chats"];
+      if (chats.length > 0) {
+        chatUser!.value = ChatUsers.fromJson(chats[0]);
+        canCreateChat = false;
 
-//     return chatUsers;
-//     getChatList();
-//   }
-// }
+        print("${chatUser!.value.chatId}");
+        chatUser!.notifyListeners();
+        // Do something
+
+        return chatUser;
+        // chats.forEach((v) {
+        //   chatUsers.add(ChatUsers.fromJson(v));
+
+        //   //print(v);
+        // });
+      } else if (chats.length == 0 && state == '2') {
+        return await getChatList('1');
+      } else {
+        if (chats.length == 0 && state == "1") {
+          canCreateChat = true;
+          chatUser!.value = ChatUsers(
+              name: "",
+              messageText: "",
+              imageURL: "",
+              time: "",
+              msgindex: 0,
+              messages: [],
+              actionBy: "",
+              chatId: "",
+              eId: "",
+              chatAgents: chatAgents,
+              state: "",
+              newMessageCount: "",
+              isRated: false);
+
+          return chatUser;
+        } else {
+          return null;
+        }
+      }
+
+      //throw ("getting Chat List Failed");
+      // chatUsers.add(ChatUsers.fromJson(tempChatUser));
+
+    } else if (response.statusCode != 200) {
+      errorToast("Token Failed");
+      chatUser!.value.chatId = "tokenFailed";
+      return chatUser;
+    }
+  } else {
+    return getChatList(state);
+  }
+}
 // session start --> user register --> token --> chat --> chat close --> session active --> new chat --> check token from localstorage --> customerStartChat --> success --> live chat --> failure --> loader --> re-register --> get token
 
 //-->customerStartChat --> attachment
@@ -333,6 +370,7 @@ checkApiResponse(response) {
   if (temp["status"] == true) {
     return temp;
   } else {
+    errorToast("Token Error");
     throw ("tokenError");
   }
 }
@@ -416,4 +454,15 @@ Future<List<ChatMessage>?> getChatUserInfoMessages(String ChatId) async {
     // throw ("SessionTimeOut");
     return chatUser!.value.messages;
   }
+}
+
+errorToast(String errortext) {
+  Fluttertoast.showToast(
+      msg: errortext,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.CENTER,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.red,
+      textColor: Colors.white,
+      fontSize: 16.0);
 }

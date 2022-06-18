@@ -5,6 +5,7 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:twixor_customer/API/apidata-service.dart';
 import 'package:twixor_customer/helper_files/utilities_files.dart';
@@ -120,28 +121,31 @@ Future<bool> SocketConnect() async {
           var chatId = json.content![0].response!.chat!.chatId;
           List<ChatMessage> k = json.content![0].response!.chat!.messages!;
 
-          // print("ChatId $temp");
+          print("ChatId $chatId-->${chatUser!.value.chatId}");
+          print(json.content![0].response!.chat!.messages.toString());
           if (chatId == chatUser!.value.chatId) {
             messages!.value = swapMsg(k);
             messages!.notifyListeners();
             var temp;
-            // chatUser!.value = ChatUsers(
-            //     name: "",
-            //     messageText: "",
-            //     imageURL: "",
-            //     time: "",
-            //     msgindex: 0,
-            //     messages: [],
-            //     actionBy: "",
-            //     chatId: "",
-            //     eId: "",
-            //     chatAgents: chatAgents,
-            //     state: "",
-            //     newMessageCount: "");
+            chatUser!.value = ChatUsers(
+                name: "",
+                messageText: "",
+                imageURL: "",
+                time: "",
+                msgindex: 0,
+                messages: chatUser!.value.messages,
+                actionBy: "",
+                chatId: "",
+                eId: "",
+                chatAgents: chatAgents,
+                state: "",
+                newMessageCount: "",
+                isRated: false);
             // messages!.value = [];
             chatUser!.notifyListeners();
+            print(json.content![0].response!.chat!.messages.toString());
             // setState(() {});
-            prefs.setString('chatId', "");
+            // prefs.setString('chatId', "");
             isAlreadyPicked = false;
             canCreateChat = true;
             //getCloseSocket();
@@ -195,19 +199,20 @@ Future<bool> SocketConnect() async {
                 json.content![0].response!.chat!.messages!.last.messageContent;
             chatUser!.value.isRated = true;
 
-            // chatUser!.value = ChatUsers(
-            //     name: "",
-            //     messageText: "",
-            //     imageURL: "",
-            //     time: "",
-            //     msgindex: 0,
-            //     messages: [],
-            //     actionBy: "",
-            //     chatId: "",
-            //     eId: "",
-            //     chatAgents: chatAgents,
-            //     state: "",
-            //     newMessageCount: "");
+            chatUser!.value = ChatUsers(
+                name: "",
+                messageText: "",
+                imageURL: "",
+                time: "",
+                msgindex: 0,
+                messages: chatUser!.value.messages,
+                actionBy: "",
+                chatId: "",
+                eId: "",
+                chatAgents: chatAgents,
+                state: "",
+                newMessageCount: "",
+                isRated: true);
             // messages!.value = [];
             chatUser!.notifyListeners();
           }
@@ -245,7 +250,25 @@ Future<bool> SocketConnect() async {
             channel!.closeCode != null) {
           if (channel!.closeCode == 1002) {
             ErrorAlert(alertContext, "Network is Unreachable");
+            errorToast("Network is Unreachable");
           }
+          chatUser!.value = ChatUsers(
+              name: "",
+              messageText: "",
+              imageURL: "",
+              time: "",
+              msgindex: 0,
+              messages: [],
+              actionBy: "",
+              chatId: "",
+              eId: "",
+              chatAgents: chatAgents,
+              state: "",
+              newMessageCount: "",
+              isRated: false);
+          // messages!.value = [];
+          chatUser!.notifyListeners();
+          errorToast("Socket Failed Try to Reconnect");
           clearToken();
           SocketConnect();
         }
@@ -256,7 +279,25 @@ Future<bool> SocketConnect() async {
       onError: (error) {
         isSocketConnection = false;
         print("websocket onError: ${channel!.closeCode}");
+        chatUser!.value = ChatUsers(
+            name: "",
+            messageText: "",
+            imageURL: "",
+            time: "",
+            msgindex: 0,
+            messages: [],
+            actionBy: "",
+            chatId: "",
+            eId: "",
+            chatAgents: chatAgents,
+            state: "",
+            newMessageCount: "",
+            isRated: false);
+        // messages!.value = [];
+        chatUser!.notifyListeners();
+        errorToast("socket Connection Failed");
         throw ('socket Connection Failed');
+
         // clearToken();
         // debugPrint('ws error $error');
         // SocketConnect();
@@ -428,4 +469,15 @@ class WebsocketsProvider extends ChangeNotifier {
       getMessage(SocketResponse.fromJson(tempResponse));
     });
   }
+}
+
+errorToast(String errortext) {
+  Fluttertoast.showToast(
+      msg: errortext,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.CENTER,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.red,
+      textColor: Colors.white,
+      fontSize: 16.0);
 }

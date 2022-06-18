@@ -29,7 +29,8 @@ class ChatUsers {
       required this.eId,
       required this.chatAgents,
       required this.state,
-      required this.newMessageCount});
+      required this.newMessageCount,
+      required this.isRated});
 
   ChatUsers.fromJson(Map<String, dynamic> json) {
     name = json["customerName"] != null ? json["customerName"].toString() : "";
