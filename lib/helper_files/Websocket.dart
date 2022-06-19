@@ -19,6 +19,8 @@ import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/status.dart' as status;
 import 'package:rxdart/rxdart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_restart/flutter_restart.dart';
+import 'package:restart_app/restart_app.dart';
 
 IOWebSocketChannel? channel;
 bool isSocketConnection = false;
@@ -269,6 +271,9 @@ Future<bool> SocketConnect() async {
           // messages!.value = [];
           chatUser!.notifyListeners();
           errorToast("Socket Failed Try to Reconnect");
+          if (channel!.closeCode == 4001) {
+            FlutterRestart.restartApp();
+          }
           clearToken();
           SocketConnect();
         }
@@ -295,6 +300,7 @@ Future<bool> SocketConnect() async {
             isRated: false);
         // messages!.value = [];
         chatUser!.notifyListeners();
+
         errorToast("socket Connection Failed");
         throw ('socket Connection Failed');
 

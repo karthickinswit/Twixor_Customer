@@ -370,6 +370,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.0.0"
+  flutter_restart:
+    dependency: "direct main"
+    description:
+      name: flutter_restart
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.3"
   flutter_spinkit:
     dependency: transitive
     description:
@@ -779,6 +786,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.3"
+  restart_app:
+    dependency: "direct main"
+    description:
+      name: restart_app
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.1.0"
   rxdart:
     dependency: "direct main"
     description:

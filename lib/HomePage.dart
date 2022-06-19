@@ -443,11 +443,16 @@ class _MyHomePageState extends State<MyHomePage>
                               if (await getChatUserInfo(
                                   chatUser!.value.chatId!)) {
                                 messages!.value = chatUser!.value.messages!;
+                                allowClick = true;
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => ChatDetailPage(
                                             chatUser!.value.chatId!, "")));
+                              } else {
+                                setState(() async {
+                                  await getTokenApi();
+                                });
                               }
                             }
                           },

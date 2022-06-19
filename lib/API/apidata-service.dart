@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_restart/flutter_restart.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:twixor_customer/helper_files/Websocket.dart';
@@ -117,7 +118,8 @@ Future<bool> getChatUserInfo(String ChatId) async {
   } else {
     clearToken();
     errorToast("SessionTimeOutn");
-    throw ("SessionTimeOut");
+    FlutterRestart.restartApp();
+    return false;
   }
 }
 
@@ -208,7 +210,7 @@ getChatList(String state) async {
       Uri.parse(
           url + userEid + '/chat/history?from=0&perPage=10&state=' + state),
       headers: {
-        'authentication-token': authToken!,
+        'authentication-token': await getTokenApi()!,
         'Content-Type': 'application/x-www-form-urlencoded'
       });
 
@@ -269,7 +271,10 @@ getChatList(String state) async {
 
     } else if (response.statusCode != 200) {
       errorToast("Token Failed");
-      chatUser!.value.chatId = "tokenFailed";
+      FlutterRestart.restartApp();
+      // chatUser!.value.chatId = "tokenFailed";
+      clearToken();
+
       return chatUser;
     }
   } else {
