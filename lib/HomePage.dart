@@ -450,6 +450,7 @@ class _MyHomePageState extends State<MyHomePage>
                                         builder: (context) => ChatDetailPage(
                                             chatUser!.value.chatId!, "")));
                               } else {
+                                allowClick = true;
                                 setState(() async {
                                   await getTokenApi();
                                 });

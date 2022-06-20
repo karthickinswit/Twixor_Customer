@@ -117,9 +117,9 @@ Future<bool> getChatUserInfo(String ChatId) async {
     //   // ErrorAlert(context, "Session TimeOut");
     //   await customerRegisterInfo();
     // }
-  } else {
+  } else if (response.statusCode != 200) {
     clearToken();
-    errorToast("SessionTimeOutn");
+    errorToast("Session TimeOut");
     // FlutterRestart.restartApp();
     final FlutterNavigator _flutterNavigator = FlutterNavigator();
 
@@ -136,12 +136,47 @@ Future<bool> getChatUserInfo(String ChatId) async {
     //         theme: customTheme),
     //   ),
     // );
-    CustomerApp(
-        customerId: userCustomerId,
-        countryCode: cCode,
-        eId: userEid,
-        mainPageTitle: MainPageTitle,
-        theme: customTheme);
+
+    // CustomerApp(
+    //     customerId: userCustomerId,
+    //     countryCode: cCode,
+    //     eId: userEid,
+    //     mainPageTitle: MainPageTitle,
+    //     theme: customTheme);
+    chatUser!.value = ChatUsers(
+        name: "",
+        messageText: "",
+        imageURL: "",
+        time: "",
+        msgindex: 0,
+        messages: [],
+        actionBy: "",
+        chatId: "",
+        eId: "",
+        chatAgents: chatAgents,
+        state: "",
+        newMessageCount: "",
+        isRated: false);
+
+    chatUser!.notifyListeners();
+    return false;
+  } else {
+    chatUser!.value = ChatUsers(
+        name: "",
+        messageText: "",
+        imageURL: "",
+        time: "",
+        msgindex: 0,
+        messages: [],
+        actionBy: "",
+        chatId: "",
+        eId: "",
+        chatAgents: chatAgents,
+        state: "",
+        newMessageCount: "",
+        isRated: false);
+    chatUser!.notifyListeners();
+
     return false;
   }
 }
@@ -282,6 +317,7 @@ getChatList(String state) async {
               state: "",
               newMessageCount: "",
               isRated: false);
+          chatUser!.notifyListeners();
 
           return chatUser;
         } else {
