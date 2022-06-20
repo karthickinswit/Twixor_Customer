@@ -9,6 +9,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:twixor_customer/API/apidata-service.dart';
 import 'package:twixor_customer/helper_files/utilities_files.dart';
+import 'package:twixor_customer/main.dart';
 import 'package:twixor_customer/models/Attachmentmodel.dart';
 import 'package:twixor_customer/models/SavedDataModel.dart';
 import 'package:twixor_customer/models/SendMessageModel.dart';
@@ -19,8 +20,6 @@ import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/status.dart' as status;
 import 'package:rxdart/rxdart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_restart/flutter_restart.dart';
-import 'package:restart_app/restart_app.dart';
 
 IOWebSocketChannel? channel;
 bool isSocketConnection = false;
@@ -272,7 +271,19 @@ Future<bool> SocketConnect() async {
           chatUser!.notifyListeners();
           errorToast("Socket Failed Try to Reconnect");
           if (channel!.closeCode == 4001) {
-            FlutterRestart.restartApp();
+            // FlutterRestart.restartApp();
+            clearToken();
+            // Navigator.pushReplacement(
+            //   currentContext,
+            //   MaterialPageRoute<dynamic>(
+            //     builder: (BuildContext context) => CustomerApp(
+            //         customerId: userCustomerId,
+            //         countryCode: cCode,
+            //         eId: userEid,
+            //         mainPageTitle: MainPageTitle,
+            //         theme: customTheme),
+            //   ),
+            // );
           }
           clearToken();
           SocketConnect();

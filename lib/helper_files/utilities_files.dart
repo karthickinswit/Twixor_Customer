@@ -12,6 +12,8 @@ var httpClient = HttpClient();
 String MainPageTitle = "";
 late ThemeData customTheme; //= ThemeData();
 
+late BuildContext currentContext;
+
 class ThemeClass {
   late String MainPageTitile;
   var customObject = {};

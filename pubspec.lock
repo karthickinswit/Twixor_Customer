@@ -349,6 +349,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.4"
+  flutter_navigator:
+    dependency: "direct main"
+    description:
+      name: flutter_navigator
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.4"
   flutter_offline:
     dependency: "direct main"
     description:
@@ -370,13 +377,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.0.0"
-  flutter_restart:
-    dependency: "direct main"
-    description:
-      name: flutter_restart
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.0.3"
   flutter_spinkit:
     dependency: transitive
     description:
@@ -408,6 +408,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.2"
+  get_it:
+    dependency: "direct main"
+    description:
+      name: get_it
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "7.2.0"
   glob:
     dependency: transitive
     description:
@@ -786,13 +793,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.3"
-  restart_app:
-    dependency: "direct main"
-    description:
-      name: restart_app
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.1.0"
   rxdart:
     dependency: "direct main"
     description:

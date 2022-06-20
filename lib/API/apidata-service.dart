@@ -3,7 +3,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_restart/flutter_restart.dart';
+import 'package:flutter_navigator/flutter_navigator.dart';
+
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:twixor_customer/helper_files/Websocket.dart';
@@ -31,6 +32,7 @@ ListView? listView;
 
 String? authToken;
 bool isVisible = true;
+final FlutterNavigator _flutterNavigator = FlutterNavigator();
 
 getTokenApi() async {
   prefs = await SharedPreferences.getInstance();
@@ -84,7 +86,7 @@ getTokenApi() async {
 
 Future<bool> getChatUserInfo(String ChatId) async {
   var response = await http.get(Uri.parse(url + userEid + '/chat/' + ChatId),
-      headers: {"authentication-token": authToken!});
+      headers: {"authentication-token": await getTokenApi()!});
 
   // print(response.headers.toString());
   // sleep(const Duration(seconds: 2));
@@ -118,7 +120,28 @@ Future<bool> getChatUserInfo(String ChatId) async {
   } else {
     clearToken();
     errorToast("SessionTimeOutn");
-    FlutterRestart.restartApp();
+    // FlutterRestart.restartApp();
+    final FlutterNavigator _flutterNavigator = FlutterNavigator();
+
+    // _flutterNavigator.push(..route());
+    // _flutterNavigator.pushAndRemoveUntil(newRoute, (route) => false);
+    // Navigator.pushReplacement(
+    //   currentContext,
+    //   MaterialPageRoute<dynamic>(
+    //     builder: (BuildContext context) => CustomerApp(
+    //         customerId: userCustomerId,
+    //         countryCode: cCode,
+    //         eId: userEid,
+    //         mainPageTitle: MainPageTitle,
+    //         theme: customTheme),
+    //   ),
+    // );
+    CustomerApp(
+        customerId: userCustomerId,
+        countryCode: cCode,
+        eId: userEid,
+        mainPageTitle: MainPageTitle,
+        theme: customTheme);
     return false;
   }
 }
@@ -271,11 +294,22 @@ getChatList(String state) async {
 
     } else if (response.statusCode != 200) {
       errorToast("Token Failed");
-      FlutterRestart.restartApp();
+      // FlutterRestart.restartApp();
       // chatUser!.value.chatId = "tokenFailed";
       clearToken();
+      // Navigator.pushReplacement(
+      //   currentContext,
+      //   MaterialPageRoute<dynamic>(
+      //     builder: (BuildContext context) => CustomerApp(
+      //         customerId: userCustomerId,
+      //         countryCode: cCode,
+      //         eId: userEid,
+      //         mainPageTitle: MainPageTitle,
+      //         theme: customTheme),
+      //   ),
+      // );
 
-      return chatUser;
+      return getChatList(state);
     }
   } else {
     return getChatList(state);
