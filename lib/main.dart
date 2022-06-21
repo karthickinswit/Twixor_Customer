@@ -5,7 +5,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_navigator/flutter_navigator.dart';
+
 import 'package:intl/intl.dart';
 
 import 'package:rxdart/subjects.dart';
@@ -114,7 +114,6 @@ class CustomerApp extends StatelessWidget {
                 // getTokenApi();
                 return MaterialApp(
                     theme: customTheme,
-                    navigatorKey: FlutterNavigator().navigatorKey,
                     // ignore: avoid_types_as_parameter_names
                     builder: (BuildContext context, Widget? widget) {
                       ErrorWidget.builder = (FlutterErrorDetails errorDetails) {

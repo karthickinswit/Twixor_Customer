@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_navigator/flutter_navigator.dart';
+
 
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,7 +32,7 @@ ListView? listView;
 
 String? authToken;
 bool isVisible = true;
-final FlutterNavigator _flutterNavigator = FlutterNavigator();
+
 
 getTokenApi() async {
   prefs = await SharedPreferences.getInstance();
@@ -121,7 +121,7 @@ Future<bool> getChatUserInfo(String ChatId) async {
     clearToken();
     errorToast("Session TimeOut");
     // FlutterRestart.restartApp();
-    final FlutterNavigator _flutterNavigator = FlutterNavigator();
+    
 
     // _flutterNavigator.push(..route());
     // _flutterNavigator.pushAndRemoveUntil(newRoute, (route) => false);
