@@ -116,7 +116,7 @@ class _ChatDetailPageState extends State<ChatDetailPage>
   _scrollToEnd() async {
     if (_controller.hasClients) {
       if (_controller.position.haveDimensions) {
-        _controller.animateTo(_controller.position.maxScrollExtent + 1000,
+        _controller.animateTo(_controller.position.maxScrollExtent + 100,
             duration: const Duration(microseconds: 60),
             curve: Curves.fastOutSlowIn);
       }
