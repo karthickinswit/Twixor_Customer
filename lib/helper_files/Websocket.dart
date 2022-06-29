@@ -253,6 +253,7 @@ Future<bool> SocketConnect() async {
             ErrorAlert(alertContext, "Network is Unreachable");
             errorToast("Network is Unreachable");
           }
+          
           // chatUser!.value = ChatUsers(
           //     name: "",
           //     messageText: "",
@@ -288,6 +289,27 @@ Future<bool> SocketConnect() async {
           clearToken();
           SocketConnect();
         }
+        if(channel!.closeCode == 4001)
+        {
+          chatUser!.value = ChatUsers(
+              name: "",
+              messageText: "",
+              imageURL: "",
+              time: "",
+              msgindex: 0,
+              messages: [],
+              actionBy: "",
+              chatId: "",
+              eId: "",
+              chatAgents: chatAgents,
+              state: "",
+              newMessageCount: "",
+              isRated: false);
+          // messages!.value = [];
+          chatUser!.notifyListeners();
+          clearToken();
+          SocketConnect();
+        };
 
         //clearToken();
         // SocketConnect();
