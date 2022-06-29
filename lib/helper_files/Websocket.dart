@@ -253,38 +253,38 @@ Future<bool> SocketConnect() async {
             ErrorAlert(alertContext, "Network is Unreachable");
             errorToast("Network is Unreachable");
           }
-          chatUser!.value = ChatUsers(
-              name: "",
-              messageText: "",
-              imageURL: "",
-              time: "",
-              msgindex: 0,
-              messages: [],
-              actionBy: "",
-              chatId: "",
-              eId: "",
-              chatAgents: chatAgents,
-              state: "",
-              newMessageCount: "",
-              isRated: false);
-          // messages!.value = [];
-          chatUser!.notifyListeners();
+          // chatUser!.value = ChatUsers(
+          //     name: "",
+          //     messageText: "",
+          //     imageURL: "",
+          //     time: "",
+          //     msgindex: 0,
+          //     messages: [],
+          //     actionBy: "",
+          //     chatId: "",
+          //     eId: "",
+          //     chatAgents: chatAgents,
+          //     state: "",
+          //     newMessageCount: "",
+          //     isRated: false);
+          // // messages!.value = [];
+          // chatUser!.notifyListeners();
           errorToast("Socket Failed Try to Reconnect");
-          if (channel!.closeCode == 4001) {
-            // FlutterRestart.restartApp();
-            clearToken();
-            // Navigator.pushReplacement(
-            //   currentContext,
-            //   MaterialPageRoute<dynamic>(
-            //     builder: (BuildContext context) => CustomerApp(
-            //         customerId: userCustomerId,
-            //         countryCode: cCode,
-            //         eId: userEid,
-            //         mainPageTitle: MainPageTitle,
-            //         theme: customTheme),
-            //   ),
-            // );
-          }
+          // if (channel!.closeCode == 4001) {
+          //   // FlutterRestart.restartApp();
+          //   clearToken();
+          //   // Navigator.pushReplacement(
+          //   //   currentContext,
+          //   //   MaterialPageRoute<dynamic>(
+          //   //     builder: (BuildContext context) => CustomerApp(
+          //   //         customerId: userCustomerId,
+          //   //         countryCode: cCode,
+          //   //         eId: userEid,
+          //   //         mainPageTitle: MainPageTitle,
+          //   //         theme: customTheme),
+          //   //   ),
+          //   // );
+          // }
           clearToken();
           SocketConnect();
         }
